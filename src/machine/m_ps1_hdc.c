@@ -23,7 +23,7 @@
  *		disk drives for this bus commonly have an 'A' suffix to
  *		identify them as 'ATBUS'.
  *
- *		In XTA-IDE, which is slightly older, the programming 
+ *		In XTA-IDE, which is slightly older, the programming
  *		interface of the IBM PC/XT (which used the MFM controller
  *		from Xebec) was kept, and, so, it uses an 8bit data path.
  *		Disk drives for this bus commonly have the 'X' suffix to
@@ -38,7 +38,7 @@
  *		data byte per transfer.  XTIDE uses regular IDE drives,
  *		and uses the regular ATA/IDE programming interface, just
  *		with the extra register.
- * 
+ *
  * NOTE:	We should probably find a nicer way to integrate our Disk
  *		Type table with the main code, so the user can only select
  *		items from that list...
@@ -542,7 +542,7 @@ set_intr(hdc_t *dev, int raise)
 
 /* Get the logical (block) address of a CHS triplet. */
 static int
-get_sector(hdc_t *dev, drive_t *drive, off64_t *addr)
+get_sector(hdc_t *dev, drive_t *drive, int64_t *addr)
 {
     if (drive->cur_cyl != dev->track) {
 	ps1_hdc_log("HDC: get_sector: wrong cylinder %d/%d\n",
@@ -564,7 +564,7 @@ get_sector(hdc_t *dev, drive_t *drive, off64_t *addr)
     }
 
     /* Calculate logical address (block number) of desired sector. */
-    *addr = ((((off64_t) dev->track*drive->hpc) + \
+    *addr = ((((int64_t) dev->track*drive->hpc) + \
 	      dev->head)*drive->spt) + dev->sector - 1;
 
     return(0);
@@ -624,7 +624,7 @@ do_format(hdc_t *dev, drive_t *drive, ccb_t *ccb)
 {
     int start_cyl, end_cyl;
     int intr = 0, val;
-    off64_t addr;
+    int64_t addr;
 #if 0
     fcb_t *fcb;
 #endif
@@ -751,7 +751,7 @@ hdc_callback(void *priv)
     hdc_t *dev = (hdc_t *)priv;
     ccb_t *ccb = &dev->ccb;
     drive_t *drive;
-    off64_t addr;
+    int64_t addr;
     int no_data = 0;
     int val;
 
@@ -847,7 +847,7 @@ do_send:
 					}
 				}
 				break;
-			
+
 			case STATE_SDATA:
 				if (! no_data) {
 					/* Perform DMA. */
@@ -1040,7 +1040,7 @@ do_recv:
 	case CMD_FORMAT_TRACK:
 		do_format(dev, drive, ccb);
 		break;
-		
+
 	case CMD_SEEK:
 		if (! drive->present) {
 			dev->ssb.not_ready = 1;
@@ -1150,7 +1150,7 @@ hdc_read(uint16_t port, void *priv)
 		break;
     }
 
-    return(ret);	
+    return(ret);
 }
 
 

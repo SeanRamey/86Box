@@ -335,7 +335,7 @@ st506_error(hdc_t *dev, uint8_t err)
 
 
 static int
-get_sector(hdc_t *dev, drive_t *drive, off64_t *addr)
+get_sector(hdc_t *dev, drive_t *drive, int64_t *addr)
 {
     if (! drive->present) {
 	/* No need to log this. */
@@ -368,8 +368,8 @@ get_sector(hdc_t *dev, drive_t *drive, off64_t *addr)
 	return(0);
     }
 
-    *addr = ((((off64_t)dev->cylinder * drive->cfg_hpc) + dev->head) * drive->cfg_spt) + dev->sector;
-	
+    *addr = ((((int64_t)dev->cylinder * drive->cfg_hpc) + dev->head) * drive->cfg_spt) + dev->sector;
+
     return(1);
 }
 
@@ -433,7 +433,7 @@ st506_callback(void *priv)
 {
     hdc_t *dev = (hdc_t *)priv;
     drive_t *drive;
-    off64_t addr;
+    int64_t addr;
     uint32_t capac;
     int val;
 
@@ -619,7 +619,7 @@ st506_callback(void *priv)
 				st506_complete(dev);
 				break;
 		}
-		break;			       
+		break;
 
 	case CMD_GET_GEOMETRY_ST11:	/* "Get geometry" is really "Read cylinder 0" */
 		if ((dev->type < 11) || (dev->type > 12)) {
@@ -1115,7 +1115,7 @@ st506_read(uint16_t port, void *priv)
 				dev->status = 0x00;
 				dev->state = STATE_IDLE;
 				break;
-			
+
 			case STATE_SEND_DATA:
 				ret = dev->buff[dev->buff_pos++];
 				if (dev->buff_pos == dev->buff_cnt) {
@@ -1357,7 +1357,7 @@ loadhd(hdc_t *dev, int c, int d, const wchar_t *fn)
 	drive->present = 0;
 	return;
     }
-	
+
     /* Make sure we can do this. */
     /* Allow 31 sectors per track on RLL controllers, for the
        ST225R, which is 667/2/31. */

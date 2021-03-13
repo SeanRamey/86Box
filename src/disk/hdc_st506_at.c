@@ -183,7 +183,7 @@ irq_update(mfm_t *mfm)
  * geometry information...
  */
 static int
-get_sector(mfm_t *mfm, off64_t *addr)
+get_sector(mfm_t *mfm, int64_t *addr)
 {
     drive_t *drive = &mfm->drives[mfm->drvsel];
 
@@ -217,7 +217,7 @@ get_sector(mfm_t *mfm, off64_t *addr)
 	return(1);
     }
 
-    *addr = ((((off64_t) mfm->cylinder * drive->cfg_hpc) + mfm->head) *
+    *addr = ((((int64_t) mfm->cylinder * drive->cfg_hpc) + mfm->head) *
 			 drive->cfg_spt) + (mfm->sector - 1);
 
     return(0);
@@ -562,7 +562,7 @@ do_callback(void *priv)
 {
     mfm_t *mfm = (mfm_t *)priv;
     drive_t *drive = &mfm->drives[mfm->drvsel];
-    off64_t addr;
+    int64_t addr;
 
     if (mfm->reset) {
 	st506_at_log("WD1003(%d) reset\n", mfm->drvsel);
@@ -742,7 +742,7 @@ mfm_init(const device_t *info)
     io_sethandler(0x03f6, 1,
 		  NULL,     NULL,      NULL, mfm_write, NULL,       NULL, mfm);
 
-    timer_add(&mfm->callback_timer, do_callback, mfm, 0);	
+    timer_add(&mfm->callback_timer, do_callback, mfm, 0);
 
     ui_sb_update_icon(SB_HDD|HDD_BUS_MFM, 0);
 
@@ -759,7 +759,7 @@ mfm_close(void *priv)
     for (d=0; d<2; d++) {
 	drive_t *drive = &mfm->drives[d];
 
-	hdd_image_close(drive->hdd_num);		
+	hdd_image_close(drive->hdd_num);
     }
 
     free(mfm);

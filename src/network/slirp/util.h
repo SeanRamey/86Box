@@ -24,7 +24,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include <tinyglib.h>
+#include <glib.h>
 
 #include <stdlib.h>
 #include <stdio.h>

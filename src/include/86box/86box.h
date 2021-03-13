@@ -16,8 +16,12 @@
  *		Copyright 2016-2020 Miran Grca.
  *		Copyright 2017-2020 Fred N. van Kempen.
  */
+#include <stdint.h>
+#include <stdio.h>
+#include <wchar.h>
+
 #ifndef EMU_86BOX_H
-# define EMU_86BOX_H
+#define EMU_86BOX_H
 
 
 /* Configuration values. */

@@ -72,7 +72,7 @@ typedef struct {
 
 typedef struct {
     FILE	*fdd_file;
-    off_t	fdd_file_offset;
+    int64_t	fdd_file_offset;
 
     tdlzhuf	tdctl;
     uint8_t	text_buf[N + F - 1];

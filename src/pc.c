@@ -85,7 +85,7 @@
    and declared here instead. */
 int		dopause,			/* system is paused */
 		doresize,			/* screen resize requested */
-		quited;				/* system exit requested */
+		is_quit;				/* system exit requested */
 uint64_t	timer_freq;
 char		emu_version[200];		/* version ID string */
 
@@ -474,7 +474,7 @@ usage:
      * a pathname, consider that to be part of the
      * actual working directory.
      *
-     * This can happen when people load a config 
+     * This can happen when people load a config
      * file using the UI, for example.
      */
     p = plat_get_filename(cfg);
@@ -757,13 +757,13 @@ pc_reset_hard_init(void)
     sound_card_reset();
 
     /* Reset any ISA memory cards. */
-    isamem_reset();	
-	
-    /* Reset any ISA RTC cards. */
-    isartc_reset();	
+    isamem_reset();
 
-    fdc_card_init();	
-	
+    /* Reset any ISA RTC cards. */
+    isartc_reset();
+
+    fdc_card_init();
+
     fdd_reset();
 
     /*
@@ -914,7 +914,7 @@ pc_close(thread_t *ptr)
  * The main thread runs the actual emulator code.
  *
  * We basically run until the upper layers terminate us, by
- * setting the variable 'quited' there to 1. We get a pointer
+ * setting the variable 'is_quit' there to 1. We get a pointer
  * to that variable as our function argument.
  */
 void

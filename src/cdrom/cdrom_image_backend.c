@@ -103,7 +103,7 @@ bin_read(void *p, uint8_t *buffer, uint64_t seek, size_t count)
 static uint64_t
 bin_get_length(void *p)
 {
-    off64_t len;
+    int64_t len;
     track_file_t *tf = (track_file_t *) p;
 
     cdrom_image_backend_log("CDROM: binary_length(%08lx)\n", bf->file);
@@ -428,7 +428,7 @@ cdi_read_sectors(cd_img_t *cdi, uint8_t *buffer, int raw, uint32_t sector, uint3
     uint8_t *buf;
     uint32_t buf_len, i;
 
-    /* TODO: This fails to account for Mode 2. Shouldn't we have a function 
+    /* TODO: This fails to account for Mode 2. Shouldn't we have a function
 	     to get sector size? */
     sector_size = raw ? RAW_SECTOR_SIZE : COOKED_SECTOR_SIZE;
     buf_len = num * sector_size;
