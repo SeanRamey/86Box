@@ -79,44 +79,47 @@ extern uint64_t	source_hwnd;
 extern wchar_t	log_path[1024];			/* (O) full path of logfile */
 
 
-extern int	window_w, window_h,		/* (C) window size and */
-		window_x, window_y,		/*     position info */
-		window_remember,
-		vid_resize,			/* (C) allow resizing */
-		invert_display,			/* (C) invert the display */
-		suppress_overscan;		/* (C) suppress overscans */
-extern int	scale;				/* (C) screen scale factor */
-extern int  dpi_scale;      /* (C) DPI scaling of the emulated screen */
-extern int	vid_api;			/* (C) video renderer */
-extern int	vid_cga_contrast,		/* (C) video */
-		video_fullscreen,		/* (C) video */
-		video_fullscreen_first,		/* (C) video */
-		video_fullscreen_scale,		/* (C) video */
-		enable_overscan,		/* (C) video */
-		force_43,			/* (C) video */
-		gfxcard;			/* (C) graphics/video card */
-extern int	serial_enabled[],		/* (C) enable serial ports */
-		bugger_enabled,			/* (C) enable ISAbugger */
-		postcard_enabled,		/* (C) enable POST card */
-		isamem_type[],			/* (C) enable ISA mem cards */
-		isartc_type;			/* (C) enable ISA RTC card */
-extern int	sound_is_float,			/* (C) sound uses FP values */
-		GAMEBLASTER,			/* (C) sound option */
-		GUS, GUSMAX,			/* (C) sound option */
-		SSI2001,			/* (C) sound option */
-		voodoo_enabled;			/* (C) video option */
+extern int window_w;	/* (C) window size and */
+extern int window_h;	/*     position info */
+extern int window_x;
+extern int window_y;
+extern int window_remember;
+extern int vid_resize;		/* (C) allow resizing */
+extern int invert_display;			/* (C) invert the display */
+extern int suppress_overscan;		/* (C) suppress overscans */
+extern int scale;				/* (C) screen scale factor */
+extern int dpi_scale;      /* (C) DPI scaling of the emulated screen */
+extern int vid_api;			/* (C) video renderer */
+extern int vid_cga_contrast;		/* (C) video */
+extern int video_fullscreen;		/* (C) video */
+extern int video_fullscreen_first;	/* (C) video */
+extern int video_fullscreen_scale;		/* (C) video */
+extern int enable_overscan;		/* (C) video */
+extern int force_43;			/* (C) video */
+extern int gfxcard;			/* (C) graphics/video card */
+extern int serial_enabled[];		/* (C) enable serial ports */
+extern int bugger_enabled;			/* (C) enable ISAbugger */
+extern int postcard_enabled;		/* (C) enable POST card */
+extern int isamem_type[];			/* (C) enable ISA mem cards */
+extern int isartc_type;			/* (C) enable ISA RTC card */
+extern int sound_is_float;			/* (C) sound uses FP values */
+extern int GAMEBLASTER;			/* (C) sound option */
+extern int GUS;
+extern int GUSMAX;			/* (C) sound option */
+extern int SSI2001;			/* (C) sound option */
+extern int voodoo_enabled;			/* (C) video option */
 extern uint32_t	mem_size;			/* (C) memory size */
-extern int	cpu,				/* (C) cpu type */
-		cpu_use_dynarec,		/* (C) cpu uses/needs Dyna */
-		fpu_type;			/* (C) fpu type */
-extern int	time_sync;			/* (C) enable time sync */
-extern int	network_type;			/* (C) net provider type */
-extern int	network_card;			/* (C) net interface num */
+extern int cpu;				/* (C) cpu type */
+extern int cpu_use_dynarec;		/* (C) cpu uses/needs Dyna */
+extern int fpu_type;			/* (C) fpu type */
+extern int time_sync;			/* (C) enable time sync */
+extern int network_type;			/* (C) net provider type */
+extern int network_card;			/* (C) net interface num */
 extern char	network_host[522];		/* (C) host network intf */
-extern int	hdd_format_type;		/* (C) hard disk file format */
-extern int	confirm_reset,			/* (C) enable reset confirmation */
-		confirm_exit,			/* (C) enable exit confirmation */
-		confirm_save;			/* (C) enable save confirmation */
+extern int hdd_format_type;		/* (C) hard disk file format */
+extern int confirm_reset;		/* (C) enable reset confirmation */
+extern int confirm_exit;		/* (C) enable exit confirmation */
+extern int confirm_save;			/* (C) enable save confirmation */
 #ifdef USE_DISCORD
 extern int	enable_discord;			/* (C) enable Discord integration */
 #endif
@@ -136,16 +139,16 @@ extern int	serial_do_log;
 extern int	nic_do_log;
 #endif
 
-extern wchar_t	exe_path[2048];			/* path (dir) of executable */
-extern wchar_t	usr_path[1024];			/* path (dir) of user data */
-extern wchar_t  cfg_path[1024];			/* full path of config file */
+extern wchar_t exe_path[2048];			/* path (dir) of executable */
+extern wchar_t usr_path[1024];			/* path (dir) of user data */
+extern wchar_t cfg_path[1024];			/* full path of config file */
 #ifndef USE_NEW_DYNAREC
 extern FILE	*stdlog;			/* file to log output to */
 #endif
-extern int	scrnsz_x,			/* current screen size, X */
-		scrnsz_y;			/* current screen size, Y */
-extern int	efscrnsz_y;
-extern int	config_changed;			/* config has changed */
+extern int scrnsz_x;		/* current screen size, X */
+extern int scrnsz_y;		/* current screen size, Y */
+extern int efscrnsz_y;
+extern int config_changed;			/* config has changed */
 
 
 /* Function prototypes. */
@@ -161,8 +164,8 @@ extern void	set_screen_size_natural(void);
 #if 0
 extern void	pc_reload(wchar_t *fn);
 #endif
-extern int	pc_init_modules(void);
-extern int	pc_init(int argc, wchar_t *argv[]);
+extern int pc_init_modules(void);
+extern int pc_init(int argc, wchar_t *argv[]);
 extern void	pc_close(void *threadid);
 extern void	pc_reset_hard_close(void);
 extern void	pc_reset_hard_init(void);
@@ -184,8 +187,8 @@ extern uint16_t	get_last_addr(void);
 extern void	sub_cycles(int c);
 extern void	resub_cycles(int old_cycles);
 
-extern double	isa_timing;
-extern int	io_delay;
+extern double isa_timing;
+extern int io_delay;
 
 #ifdef __cplusplus
 }

@@ -83,9 +83,9 @@
 
 /* Stuff that used to be globally declared in plat.h but is now extern there
    and declared here instead. */
-int		dopause,			/* system is paused */
-		doresize,			/* screen resize requested */
-		is_quit;				/* system exit requested */
+int		dopause;		/* system is paused */
+int		doresize;			/* screen resize requested */
+int		is_quit;				/* system exit requested */
 uint64_t	timer_freq;
 char		emu_version[200];		/* version ID string */
 
@@ -112,52 +112,55 @@ uint64_t	source_hwnd = 0;
 wchar_t log_path[1024] = { L'\0'};		/* (O) full path of logfile */
 
 /* Configuration values. */
-int	window_w, window_h,			/* (C) window size and */
-	window_x, window_y,			/*     position info */
-	window_remember,
-	vid_resize,				/* (C) allow resizing */
-	invert_display = 0,			/* (C) invert the display */
-	suppress_overscan = 0;			/* (C) suppress overscans */
+int	window_w;   /* (C) window size and */
+int window_h;   /*     position info */
+int	window_x;
+int window_y;
+int window_remember;
+int vid_resize;			/* (C) allow resizing */
+int invert_display = 0;		/* (C) invert the display */
+int suppress_overscan = 0;			/* (C) suppress overscans */
 int	scale = 0;				/* (C) screen scale factor */
 int dpi_scale = 0;             /* (C) DPI scaling of the emulated screen */
 int	vid_api = 0;				/* (C) video renderer */
-int	vid_cga_contrast = 0,			/* (C) video */
-	video_fullscreen = 0,			/* (C) video */
-	video_fullscreen_scale = 0,		/* (C) video */
-	video_fullscreen_first = 0,		/* (C) video */
-	enable_overscan = 0,			/* (C) video */
-	force_43 = 0;				/* (C) video */
-int	serial_enabled[SERIAL_MAX] = {0,0},	/* (C) enable serial ports */
-	bugger_enabled = 0,			/* (C) enable ISAbugger */
-	postcard_enabled = 0,			/* (C) enable POST card */
-	isamem_type[ISAMEM_MAX] = { 0,0,0,0 },	/* (C) enable ISA mem cards */
-	isartc_type = 0;			/* (C) enable ISA RTC card */
+int	vid_cga_contrast = 0;			/* (C) video */
+int video_fullscreen = 0;			/* (C) video */
+int video_fullscreen_scale = 0;		/* (C) video */
+int video_fullscreen_first = 0;		/* (C) video */
+int enable_overscan = 0;			/* (C) video */
+int force_43 = 0;				/* (C) video */
+int	serial_enabled[SERIAL_MAX] = {0,0};	/* (C) enable serial ports */
+int bugger_enabled = 0;			/* (C) enable ISAbugger */
+int postcard_enabled = 0;			/* (C) enable POST card */
+int isamem_type[ISAMEM_MAX] = { 0,0,0,0 };	/* (C) enable ISA mem cards */
+int isartc_type = 0;			/* (C) enable ISA RTC card */
 int	gfxcard = 0;				/* (C) graphics/video card */
-int	sound_is_float = 1,			/* (C) sound uses FP values */
-	GAMEBLASTER = 0,			/* (C) sound option */
-	GUS = 0,				/* (C) sound option */
-	SSI2001 = 0,				/* (C) sound option */
-	voodoo_enabled = 0;			/* (C) video option */
+int	sound_is_float = 1;			/* (C) sound uses FP values */
+int GAMEBLASTER = 0;			/* (C) sound option */
+int GUS = 0;				/* (C) sound option */
+int SSI2001 = 0;				/* (C) sound option */
+int voodoo_enabled = 0;			/* (C) video option */
 uint32_t mem_size = 0;				/* (C) memory size */
-int	cpu_use_dynarec = 0,			/* (C) cpu uses/needs Dyna */
-	cpu = 0,				/* (C) cpu type */
-	fpu_type = 0;				/* (C) fpu type */
+int	cpu_use_dynarec = 0;			/* (C) cpu uses/needs Dyna */
+int cpu = 0;				/* (C) cpu type */
+int fpu_type = 0;				/* (C) fpu type */
 int	time_sync = 0;				/* (C) enable time sync */
-int	confirm_reset = 1,			/* (C) enable reset confirmation */
-	confirm_exit = 1,			/* (C) enable exit confirmation */
-	confirm_save = 1;			/* (C) enable save confirmation */
+int	confirm_reset = 1;			/* (C) enable reset confirmation */
+int confirm_exit = 1;			/* (C) enable exit confirmation */
+int confirm_save = 1;			/* (C) enable save confirmation */
 #ifdef USE_DISCORD
 int	enable_discord = 0;			/* (C) enable Discord integration */
 #endif
 int	enable_crashdump = 0;			/* (C) enable crash dump */
 
 /* Statistics. */
-extern int
-	mmuflush,
-	readlnum,
-	writelnum;
+extern int mmuflush;
+extern int readlnum;
+extern int writelnum;
 
-int	fps, framecount;			/* emulator % */
+/* emulator % */
+int	fps;
+int framecount;
 
 extern int	CPUID;
 extern int	output;
@@ -168,16 +171,16 @@ wchar_t	exe_path[2048];				/* path (dir) of executable */
 wchar_t	usr_path[1024];				/* path (dir) of user data */
 wchar_t	cfg_path[1024];				/* full path of config file */
 FILE	*stdlog = NULL;				/* file to log output to */
-int	scrnsz_x = SCREEN_RES_X,		/* current screen size, X */
-	scrnsz_y = SCREEN_RES_Y;		/* current screen size, Y */
+int	scrnsz_x = SCREEN_RES_X;		/* current screen size, X */
+int scrnsz_y = SCREEN_RES_Y;		/* current screen size, Y */
 int	config_changed;				/* config has changed */
 int	title_update;
 int64_t	main_time;
 
 
-int	unscaled_size_x = SCREEN_RES_X,	/* current unscaled size X */
-	unscaled_size_y = SCREEN_RES_Y,	/* current unscaled size Y */
-	efscrnsz_y = SCREEN_RES_Y;
+int	unscaled_size_x = SCREEN_RES_X;	/* current unscaled size X */
+int unscaled_size_y = SCREEN_RES_Y;	/* current unscaled size Y */
+int efscrnsz_y = SCREEN_RES_Y;
 
 
 #ifndef RELEASE_BUILD
