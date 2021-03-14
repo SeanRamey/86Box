@@ -166,7 +166,7 @@ int	clockrate;
 
 wchar_t	exe_path[2048];				/* path (dir) of executable */
 wchar_t	usr_path[1024];				/* path (dir) of user data */
-wchar_t	cfg_path[1024];				/* full path of config file */
+char	cfg_path[1024];				/* full path of config file */
 FILE	*stdlog = NULL;				/* file to log output to */
 int	scrnsz_x = SCREEN_RES_X,		/* current screen size, X */
 	scrnsz_y = SCREEN_RES_Y;		/* current screen size, Y */
@@ -500,7 +500,9 @@ usage:
     plat_path_slash(usr_path);
 
     /* At this point, we can safely create the full path name. */
-    plat_append_filename(cfg_path, usr_path, p);
+    //plat_append_filename(cfg_path, usr_path, p);
+    c16stombs(cfg_path, usr_path, sizeof(cfg_path));
+    c16stombs(cfg_path + strlen(cfg_path), p, sizeof(cfg_path) - strlen(cfg_path));
 
     /*
      * This is where we start outputting to the log file,
@@ -513,7 +515,7 @@ usage:
 		EMU_NAME_W, EMU_VERSION_W, temp);
     pclog("# Emulator path: %ls\n", exe_path);
     pclog("# Userfiles path: %ls\n", usr_path);
-    pclog("# Configuration file: %ls\n#\n\n", cfg_path);
+    pclog("# Configuration file: %s\n#\n\n", cfg_path);
 
     /*
      * We are about to read the configuration file, which MAY

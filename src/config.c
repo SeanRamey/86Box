@@ -262,7 +262,7 @@ config_free(void)
 
 /* Read and parse the configuration file into memory. */
 static int
-config_read(wchar_t *fn)
+config_read(char *fn)
 {
     char sname[128], ename[128];
     wchar_t buff[1024];
@@ -272,9 +272,9 @@ config_read(wchar_t *fn)
     FILE *f;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_wfopen(fn, L"rt");
+    f = plat_fopen(fn, "rt");
 #else
-    f = plat_wfopen(fn, L"rt, ccs=UNICODE");
+    f = plat_fopen(fn, "rt, ccs=UNICODE");
 #endif
     if (f == NULL) return(0);
 	
@@ -374,7 +374,7 @@ config_read(wchar_t *fn)
  * has changed it.
  */
 void
-config_write(wchar_t *fn)
+config_write(char *fn)
 {
     wchar_t wtemp[512];
     section_t *sec;
@@ -382,9 +382,9 @@ config_write(wchar_t *fn)
     int fl = 0;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_wfopen(fn, L"wt");
+    f = plat_fopen(fn, "wt");
 #else
-    f = plat_wfopen(fn, L"wt, ccs=UNICODE");
+    f = plat_fopen(fn, "wt, ccs=UNICODE");
 #endif
     if (f == NULL) return;
 
@@ -1698,7 +1698,7 @@ config_load(void)
 {
     int i;
 
-    config_log("Loading config file '%ls'..\n", cfg_path);
+    config_log("Loading config file '%s'..\n", cfg_path);
 
     memset(hdd, 0, sizeof(hard_disk_t));
     memset(cdrom, 0, sizeof(cdrom_t) * CDROM_NUM);
