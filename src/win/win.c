@@ -173,6 +173,36 @@ LoadCommonStrings(void)
 }
 
 
+size_t mbstoc16s(uint16_t dst[], const char src[], int len)
+{
+    if (src == NULL) return 0;
+    if (len < 0) return 0;
+
+    size_t ret = MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len);
+
+    if (!ret) {
+	return -1;
+    }
+
+    return ret;
+}
+
+
+size_t c16stombs(char dst[], const uint16_t src[], int len)
+{
+    if (src == NULL) return 0;
+    if (len < 0) return 0;
+
+    size_t ret = WideCharToMultiByte(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len, NULL, NULL);
+
+    if (!ret) {
+	return -1;
+    }
+
+    return ret;
+}
+
+
 /* Set (or re-set) the language for the application. */
 void
 set_language(int id)

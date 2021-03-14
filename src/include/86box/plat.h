@@ -170,6 +170,10 @@ extern void	startblit(void);
 extern void	endblit(void);
 extern void	take_screenshot(void);
 
+/* Conversion between UTF-8 and UTF-16. */
+extern size_t	mbstoc16s(uint16_t dst[], const char src[], int len);
+extern size_t	c16stombs(char dst[], const uint16_t src[], int len);
+
 #ifdef MTR_ENABLED
 extern void init_trace(void);
 extern void shutdown_trace(void);
