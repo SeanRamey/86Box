@@ -63,6 +63,7 @@ HINSTANCE	hinstance;		/* application instance */
 HANDLE		ghMutex;
 LCID		lang_id;		/* current language ID used */
 DWORD		dwSubLangID;
+int		acp_utf8;		/* Windows supports UTF-8 codepage */
 
 
 /* Local data. */
@@ -364,6 +365,12 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     wchar_t * AppID = L"86Box.86Box\0";
 
     SetCurrentProcessExplicitAppUserModelID(AppID);
+
+    /* Check if Windows supports UTF-8 */
+    if (GetACP() == CP_UTF8)
+	acp_utf8 = 1;
+    else
+	acp_utf8 = 0;
 
     /* Set this to the default value (windowed mode). */
     video_fullscreen = 0;
