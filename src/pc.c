@@ -109,7 +109,7 @@ int	confirm_exit_cmdl = 1;			/* (O) do not ask for confirmation on quit if set t
 uint64_t	unique_id = 0;
 uint64_t	source_hwnd = 0;
 #endif
-wchar_t log_path[1024] = { L'\0'};		/* (O) full path of logfile */
+char	log_path[1024] = { '\0'};		/* (O) full path of logfile */
 
 /* Configuration values. */
 int	window_w, window_h,			/* (C) window size and */
@@ -204,8 +204,8 @@ pclog_ex(const char *fmt, va_list ap)
 	return;
 
     if (stdlog == NULL) {
-	if (log_path[0] != L'\0') {
-		stdlog = plat_wfopen(log_path, L"w");
+	if (log_path[0] != '\0') {
+		stdlog = plat_fopen(log_path, "w");
 		if (stdlog == NULL)
 			stdlog = stdout;
 	} else {
@@ -264,8 +264,8 @@ fatal(const char *fmt, ...)
     va_start(ap, fmt);
 
     if (stdlog == NULL) {
-	if (log_path[0] != L'\0') {
-		stdlog = plat_wfopen(log_path, L"w");
+	if (log_path[0] != '\0') {
+		stdlog = plat_fopen(log_path, "w");
 		if (stdlog == NULL)
 			stdlog = stdout;
 	} else {
@@ -393,7 +393,7 @@ usage:
 		   !strcasecmp(argv[c], "-L")) {
 		if ((c+1) == argc) goto usage;
 
-		mbstoc16s(log_path, argv[++c], sizeof_w(log_path));
+		strcpy(log_path, argv[++c]);
 	} else if (!strcasecmp(argv[c], "--vmpath") ||
 		   !strcasecmp(argv[c], "-P")) {
 		if ((c+1) == argc) goto usage;

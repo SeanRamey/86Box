@@ -72,7 +72,7 @@ extern int	confirm_exit_cmdl;		/* (O) do not ask for confirmation on quit if set
 extern uint64_t	unique_id;
 extern uint64_t	source_hwnd;
 #endif
-extern wchar_t	log_path[1024];			/* (O) full path of logfile */
+extern char	log_path[1024];			/* (O) full path of logfile */
 
 
 extern int	window_w, window_h,		/* (C) window size and */
