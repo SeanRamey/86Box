@@ -157,7 +157,7 @@ dump_page(prnt_t *dev)
     wcscat(path, dev->filename);
 
     /* Create the file. */
-    fp = plat_fopen(path, L"a");
+    fp = plat_wfopen(path, L"a");
     if (fp == NULL) {
 	//ERRLOG("PRNT: unable to create print page '%ls'\n", path);
 	return;

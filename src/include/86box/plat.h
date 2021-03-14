@@ -82,8 +82,8 @@ extern int	unscaled_size_x,		/* current unscaled size X */
 
 /* System-related functions. */
 extern wchar_t	*fix_exe_path(wchar_t *str);
-extern FILE	*plat_fopen(wchar_t *path, wchar_t *mode);
-extern FILE	*plat_fopen64(const wchar_t *path, const wchar_t *mode);
+extern FILE	*plat_wfopen(wchar_t *path, wchar_t *mode);
+extern FILE	*plat_wfopen64(const wchar_t *path, const wchar_t *mode);
 extern void	plat_remove(wchar_t *path);
 extern int	plat_getcwd(wchar_t *bufp, int max);
 extern int	plat_chdir(wchar_t *path);

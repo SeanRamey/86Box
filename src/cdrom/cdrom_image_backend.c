@@ -153,7 +153,7 @@ bin_init(const wchar_t *filename, int *error)
 	wcscpy(tf->fn, filename);
     else
 	wcsncpy(tf->fn, filename, 260);
-    tf->file = plat_fopen64(tf->fn, L"rb");
+    tf->file = plat_wfopen64(tf->fn, L"rb");
     cdrom_image_backend_log("CDROM: binary_open(%ls) = %08lx\n", tf->fn, tf->file);
 
     *error = (tf->file == NULL);
@@ -804,7 +804,7 @@ cdi_load_cue(cd_img_t *cdi, const wchar_t *cuefile)
     plat_get_dirname(pathname, cuefile);
 
     /* Open the file. */
-    fp = plat_fopen((wchar_t *) cuefile, L"r");
+    fp = plat_wfopen((wchar_t *) cuefile, L"r");
     if (fp == NULL)
 	return 0;
 

@@ -634,9 +634,9 @@ imd_load(int drive, wchar_t *fn)
     dev = (imd_t *)malloc(sizeof(imd_t));
     memset(dev, 0x00, sizeof(imd_t));
 
-    dev->f = plat_fopen(fn, L"rb+");
+    dev->f = plat_wfopen(fn, L"rb+");
     if (dev->f == NULL) {
-	dev->f = plat_fopen(fn, L"rb");
+	dev->f = plat_wfopen(fn, L"rb");
 	if (dev->f == NULL) {
 		memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
 		free(dev);

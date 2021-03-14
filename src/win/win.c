@@ -541,7 +541,7 @@ plat_chdir(wchar_t *path)
 
 
 FILE *
-plat_fopen(wchar_t *path, wchar_t *mode)
+plat_wfopen(wchar_t *path, wchar_t *mode)
 {
     return(_wfopen(path, mode));
 }
@@ -549,7 +549,7 @@ plat_fopen(wchar_t *path, wchar_t *mode)
 
 /* Open a file, using Unicode pathname, with 64bit pointers. */
 FILE *
-plat_fopen64(const wchar_t *path, const wchar_t *mode)
+plat_wfopen64(const wchar_t *path, const wchar_t *mode)
 {
     return(_wfopen(path, mode));
 }

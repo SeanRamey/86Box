@@ -539,7 +539,7 @@ json_load(int drive, wchar_t *fn)
     memset(dev, 0x00, sizeof(json_t));
 
     /* Open the image file. */
-    dev->f = plat_fopen(fn, L"rb");
+    dev->f = plat_wfopen(fn, L"rb");
     if (dev->f == NULL) {
 	free(dev);
 	memset(fn, 0x00, sizeof(wchar_t));

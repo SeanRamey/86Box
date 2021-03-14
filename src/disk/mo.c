@@ -355,10 +355,10 @@ mo_load(mo_t *dev, wchar_t *fn)
 
     is_mdi = image_is_mdi(fn);
 
-    dev->drv->f = plat_fopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
+    dev->drv->f = plat_wfopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
     if (!dev->drv->f) {
 	if (!dev->drv->read_only) {
-		dev->drv->f = plat_fopen(fn, L"rb");
+		dev->drv->f = plat_wfopen(fn, L"rb");
 		if (dev->drv->f)
 			dev->drv->read_only = 1;
 		else
@@ -548,7 +548,7 @@ mo_mode_sense_load(mo_t *dev)
 	swprintf(file_name, 512, L"scsi_mo_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"mo_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"rb");
+    f = plat_wfopen(nvr_path(file_name), L"rb");
     if (f) {
 	/* Nothing to read, not used by MO. */
 	fclose(f);
@@ -567,7 +567,7 @@ mo_mode_sense_save(mo_t *dev)
 	swprintf(file_name, 512, L"scsi_mo_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"mo_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"wb");
+    f = plat_wfopen(nvr_path(file_name), L"wb");
     if (f) {
 	/* Nothing to write, not used by MO. */
 	fclose(f);

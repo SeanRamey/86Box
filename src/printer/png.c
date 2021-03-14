@@ -114,7 +114,7 @@ png_write_gray(wchar_t *fn, int inv, uint8_t *pix, int16_t w, int16_t h)
     FILE *fp;
 
     /* Create the image file. */
-    fp = plat_fopen(fn, L"wb");
+    fp = plat_wfopen(fn, L"wb");
     if (fp == NULL) {
 	/* Yes, this looks weird. */
 	if (fp == NULL)
@@ -195,7 +195,7 @@ png_write_rgb(wchar_t *fn, uint8_t *pix, int16_t w, int16_t h, uint16_t pitch, P
     int i;
 
     /* Create the image file. */
-    fp = plat_fopen(fn, L"wb");
+    fp = plat_wfopen(fn, L"wb");
     if (fp == NULL) {
 	png_log("PNG: File %ls could not be opened for writing!\n", fn);
 error:

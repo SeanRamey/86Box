@@ -346,7 +346,7 @@ video_take_screenshot(const wchar_t *fn, int startx, int starty, int y1, int y2,
     uint32_t temp = 0x00000000;
 
     /* create file */
-    fp = plat_fopen((wchar_t *) fn, (wchar_t *) L"wb");
+    fp = plat_wfopen((wchar_t *) fn, (wchar_t *) L"wb");
     if (!fp) {
 	video_log("[video_take_screenshot] File %ls could not be opened for writing", fn);
 	return;

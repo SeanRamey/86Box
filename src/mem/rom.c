@@ -70,7 +70,7 @@ rom_fopen(wchar_t *fn, wchar_t *mode)
     plat_put_backslash(temp);
     wcscat(temp, fn);
 
-    return(plat_fopen(temp, mode));
+    return(plat_wfopen(temp, mode));
 }
 
 
@@ -83,7 +83,7 @@ rom_getfile(wchar_t *fn, wchar_t *s, int size)
     plat_put_backslash(s);
     wcscat(s, fn);
 
-    f = plat_fopen(s, L"rb");
+    f = plat_wfopen(s, L"rb");
     if (f != NULL) {
 	(void)fclose(f);
 	return(1);

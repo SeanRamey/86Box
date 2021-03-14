@@ -455,7 +455,7 @@ scsi_cdrom_mode_sense_load(scsi_cdrom_t *dev)
 	swprintf(file_name, 512, L"scsi_cdrom_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"cdrom_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"rb");
+    f = plat_wfopen(nvr_path(file_name), L"rb");
     if (f) {
 	if (fread(dev->ms_pages_saved.pages[GPMODE_CDROM_AUDIO_PAGE], 1, 0x10, f) != 0x10)
 		fatal("scsi_cdrom_mode_sense_load(): Error reading data\n");
@@ -475,7 +475,7 @@ scsi_cdrom_mode_sense_save(scsi_cdrom_t *dev)
 	swprintf(file_name, 512, L"scsi_cdrom_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"cdrom_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"wb");
+    f = plat_wfopen(nvr_path(file_name), L"wb");
     if (f) {
 	fwrite(dev->ms_pages_saved.pages[GPMODE_CDROM_AUDIO_PAGE], 1, 0x10, f);
 	fclose(f);

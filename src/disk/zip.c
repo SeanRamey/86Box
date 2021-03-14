@@ -488,10 +488,10 @@ zip_load(zip_t *dev, wchar_t *fn)
 {
     int size = 0;
 
-    dev->drv->f = plat_fopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
+    dev->drv->f = plat_wfopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
     if (!dev->drv->f) {
 	if (!dev->drv->read_only) {
-		dev->drv->f = plat_fopen(fn, L"rb");
+		dev->drv->f = plat_wfopen(fn, L"rb");
 		if (dev->drv->f)
 			dev->drv->read_only = 1;
 		else
@@ -693,7 +693,7 @@ zip_mode_sense_load(zip_t *dev)
 	swprintf(file_name, 512, L"scsi_zip_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"zip_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"rb");
+    f = plat_wfopen(nvr_path(file_name), L"rb");
     if (f) {
 	/* Nothing to read, not used by ZIP. */
 	fclose(f);
@@ -712,7 +712,7 @@ zip_mode_sense_save(zip_t *dev)
 	swprintf(file_name, 512, L"scsi_zip_%02i_mode_sense_bin", dev->id);
     else
 	swprintf(file_name, 512, L"zip_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"wb");
+    f = plat_wfopen(nvr_path(file_name), L"wb");
     if (f) {
 	/* Nothing to write, not used by ZIP. */
 	fclose(f);

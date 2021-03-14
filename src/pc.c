@@ -205,7 +205,7 @@ pclog_ex(const char *fmt, va_list ap)
 
     if (stdlog == NULL) {
 	if (log_path[0] != L'\0') {
-		stdlog = plat_fopen(log_path, L"w");
+		stdlog = plat_wfopen(log_path, L"w");
 		if (stdlog == NULL)
 			stdlog = stdout;
 	} else {
@@ -265,7 +265,7 @@ fatal(const char *fmt, ...)
 
     if (stdlog == NULL) {
 	if (log_path[0] != L'\0') {
-		stdlog = plat_fopen(log_path, L"w");
+		stdlog = plat_wfopen(log_path, L"w");
 		if (stdlog == NULL)
 			stdlog = stdout;
 	} else {

@@ -199,7 +199,7 @@ write_buffer(ps_t *dev, bool finish)
     wcscat(path, dev->printer_path);
     wcscat(path, dev->filename);
 
-    fp = plat_fopen(path, L"a");
+    fp = plat_wfopen(path, L"a");
     if (fp == NULL)
 	return;
 

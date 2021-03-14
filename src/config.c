@@ -272,9 +272,9 @@ config_read(wchar_t *fn)
     FILE *f;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_fopen(fn, L"rt");
+    f = plat_wfopen(fn, L"rt");
 #else
-    f = plat_fopen(fn, L"rt, ccs=UNICODE");
+    f = plat_wfopen(fn, L"rt, ccs=UNICODE");
 #endif
     if (f == NULL) return(0);
 	
@@ -382,9 +382,9 @@ config_write(wchar_t *fn)
     int fl = 0;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_fopen(fn, L"wt");
+    f = plat_wfopen(fn, L"wt");
 #else
-    f = plat_fopen(fn, L"wt, ccs=UNICODE");
+    f = plat_wfopen(fn, L"wt, ccs=UNICODE");
 #endif
     if (f == NULL) return;
 

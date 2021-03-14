@@ -3146,7 +3146,7 @@ d86f_writeback(int drive)
 	/* The image is compressed. */
 
 	/* Open the original, compressed file. */
-	cf = plat_fopen(dev->original_file_name, L"wb");
+	cf = plat_wfopen(dev->original_file_name, L"wb");
 
 	/* Write the header to the original file. */
 	fwrite(header, 1, header_size, cf);
@@ -3440,7 +3440,7 @@ d86f_export(int drive, wchar_t *fn)
 
     memset(tt, 0, 512 * sizeof(uint32_t));
 
-    f = plat_fopen(fn, L"wb");
+    f = plat_wfopen(fn, L"wb");
     if (!f)
 	return 0;
 
@@ -3470,7 +3470,7 @@ d86f_export(int drive, wchar_t *fn)
 
     fclose(f);
 
-    f = plat_fopen(fn, L"rb+");
+    f = plat_wfopen(fn, L"rb+");
 
     fseek(f, 8, SEEK_SET);
     fwrite(tt, 1, ((d86f_get_sides(drive) == 2) ? 2048 : 1024), f);
@@ -3504,9 +3504,9 @@ d86f_load(int drive, wchar_t *fn)
 
     writeprot[drive] = 0;
 
-    dev->f = plat_fopen(fn, L"rb+");
+    dev->f = plat_wfopen(fn, L"rb+");
     if (! dev->f) {
-	dev->f = plat_fopen(fn, L"rb");
+	dev->f = plat_wfopen(fn, L"rb");
 	if (! dev->f) {
 		memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
 		free(dev);
@@ -3623,7 +3623,7 @@ d86f_load(int drive, wchar_t *fn)
 	fclose(dev->f);
 	dev->f = NULL;
 
-	dev->f = plat_fopen(temp_file_name, L"wb");
+	dev->f = plat_wfopen(temp_file_name, L"wb");
 	if (! dev->f) {
 		d86f_log("86F: Unable to create temporary decompressed file\n");
 		memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
@@ -3631,7 +3631,7 @@ d86f_load(int drive, wchar_t *fn)
 		return;
 	}
 
-	tf = plat_fopen(fn, L"rb");
+	tf = plat_wfopen(fn, L"rb");
 
 	for (i = 0; i < 8; i++) {
 		fread(&temp, 1, 2, tf);
@@ -3660,7 +3660,7 @@ d86f_load(int drive, wchar_t *fn)
 		return;
 	}
 
-	dev->f = plat_fopen(temp_file_name, L"rb+");
+	dev->f = plat_wfopen(temp_file_name, L"rb+");
     }
 #endif
 
@@ -3703,10 +3703,10 @@ d86f_load(int drive, wchar_t *fn)
 
 #ifdef D86F_COMPRESS
 	if (dev->is_compressed)
-		dev->f = plat_fopen(temp_file_name, L"rb");
+		dev->f = plat_wfopen(temp_file_name, L"rb");
 	else
 #endif
-		dev->f = plat_fopen(fn, L"rb");
+		dev->f = plat_wfopen(fn, L"rb");
     }
 
     /* OK, set the drive data, other code needs it. */

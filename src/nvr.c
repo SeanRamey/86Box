@@ -263,7 +263,7 @@ nvr_load(void)
     if (saved_nvr->size != 0) {
 	path = nvr_path(saved_nvr->fn);
 	nvr_log("NVR: loading from '%ls'\n", path);
-	fp = plat_fopen(path, L"rb");
+	fp = plat_wfopen(path, L"rb");
 	if (fp != NULL) {
 		/* Read NVR contents from file. */
 		if (fread(saved_nvr->regs, 1, saved_nvr->size, fp) != saved_nvr->size)
@@ -300,7 +300,7 @@ nvr_save(void)
     if (saved_nvr->size != 0) {
 	path = nvr_path(saved_nvr->fn);
 	nvr_log("NVR: saving to '%ls'\n", path);
-	fp = plat_fopen(path, L"wb");
+	fp = plat_wfopen(path, L"wb");
 	if (fp != NULL) {
 		/* Save NVR contents to file. */
 		(void)fwrite(saved_nvr->regs, saved_nvr->size, 1, fp);
@@ -366,5 +366,5 @@ nvr_time_set(struct tm *tm)
 FILE *
 nvr_fopen(wchar_t *str, wchar_t *mode)
 {
-    return(plat_fopen(nvr_path(str), mode));
+    return(plat_wfopen(nvr_path(str), mode));
 }

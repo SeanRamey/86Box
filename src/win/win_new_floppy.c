@@ -139,7 +139,7 @@ create_86f(WCHAR *file_name, disk_size_t disk_size, uint8_t rpm_mode)
     memset(tarray, 0, 2048);
     memset(empty, 0, array_size);
 
-    f = plat_fopen(file_name, L"wb");
+    f = plat_wfopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -191,7 +191,7 @@ create_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_fdi)
     uint32_t zero_bytes = 0;
     uint16_t base = 0x1000;
     
-    f = plat_fopen(file_name, L"wb");
+    f = plat_wfopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -301,7 +301,7 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
     uint32_t i;
     MSG msg;
     
-    f = plat_fopen(file_name, L"wb");
+    f = plat_wfopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -535,7 +535,7 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
     uint32_t i, j;
     MSG msg;
     
-    f = plat_fopen(file_name, L"wb");
+    f = plat_wfopen(file_name, L"wb");
     if (!f)
 	return 0;
 
