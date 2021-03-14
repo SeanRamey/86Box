@@ -329,10 +329,10 @@ pc_log(const char *fmt, ...)
  * configuration file.
  */
 int
-pc_init(int argc, wchar_t *argv[])
+pc_init(int argc, char *argv[])
 {
-    wchar_t path[2048];
-    wchar_t *cfg = NULL, *p;
+    wchar_t path[2048], cfg[2048];
+    wchar_t *p;
     char temp[128];
     struct tm *info;
     time_t now;
@@ -356,9 +356,9 @@ pc_init(int argc, wchar_t *argv[])
     memset(path, 0x00, sizeof(path));
 
     for (c=1; c<argc; c++) {
-	if (argv[c][0] != L'-') break;
+	if (argv[c][0] != '-') break;
 
-	if (!wcscasecmp(argv[c], L"--help") || !wcscasecmp(argv[c], L"-?")) {
+	if (!strcasecmp(argv[c], "--help") || !strcasecmp(argv[c], "-?")) {
 usage:
 		printf("\nUsage: 86box [options] [cfg-file]\n\n");
 		printf("Valid options are:\n\n");
@@ -378,48 +378,47 @@ usage:
 		printf("-R or --crashdump    - enables crashdump on exception\n");
 		printf("\nA config file can be specified. If none is, the default file will be used.\n");
 		return(0);
-	} else if (!wcscasecmp(argv[c], L"--dumpcfg") ||
-		   !wcscasecmp(argv[c], L"-C")) {
+	} else if (!strcasecmp(argv[c], "--dumpcfg") ||
+		   !strcasecmp(argv[c], "-C")) {
 		do_dump_config = 1;
 #ifdef _WIN32
-	} else if (!wcscasecmp(argv[c], L"--debug") ||
-		   !wcscasecmp(argv[c], L"-D")) {
+	} else if (!strcasecmp(argv[c], "--debug") ||
+		   !strcasecmp(argv[c], "-D")) {
 		force_debug = 1;
 #endif
-	} else if (!wcscasecmp(argv[c], L"--fullscreen") ||
-		   !wcscasecmp(argv[c], L"-F")) {
+	} else if (!strcasecmp(argv[c], "--fullscreen") ||
+		   !strcasecmp(argv[c], "-F")) {
 		start_in_fullscreen = 1;
-	} else if (!wcscasecmp(argv[c], L"--logfile") ||
-		   !wcscasecmp(argv[c], L"-L")) {
+	} else if (!strcasecmp(argv[c], "--logfile") ||
+		   !strcasecmp(argv[c], "-L")) {
 		if ((c+1) == argc) goto usage;
 
-		wcscpy(log_path, argv[++c]);
-	} else if (!wcscasecmp(argv[c], L"--vmpath") ||
-		   !wcscasecmp(argv[c], L"-P")) {
+		mbstoc16s(log_path, argv[++c], sizeof_w(log_path));
+	} else if (!strcasecmp(argv[c], "--vmpath") ||
+		   !strcasecmp(argv[c], "-P")) {
 		if ((c+1) == argc) goto usage;
 
-		wcscpy(path, argv[++c]);
-	} else if (!wcscasecmp(argv[c], L"--settings") ||
-		   !wcscasecmp(argv[c], L"-S")) {
+		mbstoc16s(path, argv[++c], sizeof_w(path));
+	} else if (!strcasecmp(argv[c], "--settings") ||
+		   !strcasecmp(argv[c], "-S")) {
 		settings_only = 1;
-	} else if (!wcscasecmp(argv[c], L"--noconfirm") ||
-		   !wcscasecmp(argv[c], L"-N")) {
+	} else if (!strcasecmp(argv[c], "--noconfirm") ||
+		   !strcasecmp(argv[c], "-N")) {
 		confirm_exit_cmdl = 0;
-	} else if (!wcscasecmp(argv[c], L"--crashdump") ||
-		   !wcscasecmp(argv[c], L"-R")) {
+	} else if (!strcasecmp(argv[c], "--crashdump") ||
+		   !strcasecmp(argv[c], "-R")) {
 		enable_crashdump = 1;
 #ifdef _WIN32
-	} else if (!wcscasecmp(argv[c], L"--hwnd") ||
-		   !wcscasecmp(argv[c], L"-H")) {
+	} else if (!strcasecmp(argv[c], "--hwnd") ||
+		   !strcasecmp(argv[c], "-H")) {
 
 		if ((c+1) == argc) goto usage;
 
-		wcstombs(temp, argv[++c], 128);
 		uid = (uint32_t *) &unique_id;
 		shwnd = (uint32_t *) &source_hwnd;
-		sscanf(temp, "%08X%08X,%08X%08X", uid + 1, uid, shwnd + 1, shwnd);
+		sscanf(argv[++c], "%08X%08X,%08X%08X", uid + 1, uid, shwnd + 1, shwnd);
 #endif
-	} else if (!wcscasecmp(argv[c], L"--test")) {
+	} else if (!strcasecmp(argv[c], "--test")) {
 		/* some (undocumented) test function here.. */
 
 		/* .. and then exit. */
@@ -432,7 +431,10 @@ usage:
 
     /* One argument (config file) allowed. */
     if (c < argc)
-	cfg = argv[c++];
+	mbstoc16s(cfg, argv[c], sizeof_w(cfg));
+    else
+	wcscpy(cfg, CONFIG_FILE);
+
     if (c != argc) goto usage;
 
     /*
@@ -464,10 +466,6 @@ usage:
 	if (! plat_dir_check(usr_path))
 		plat_dir_create(usr_path);
     }
-
-    /* Grab the name of the configuration file. */
-    if (cfg == NULL)
-	cfg = CONFIG_FILE;
 
     /*
      * If the configuration file name has (part of)

@@ -158,7 +158,7 @@ extern void	set_screen_size_natural(void);
 extern void	pc_reload(wchar_t *fn);
 #endif
 extern int	pc_init_modules(void);
-extern int	pc_init(int argc, wchar_t *argv[]);
+extern int	pc_init(int argc, char *argv[]);
 extern void	pc_close(void *threadid);
 extern void	pc_reset_hard_close(void);
 extern void	pc_reset_hard_init(void);

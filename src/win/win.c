@@ -79,7 +79,7 @@ static rc_str_t	*lpRCstr2048,
 		*lpRCstr6144,
 		*lpRCstr7168;
 static int	vid_api_inited = 0;
-static wchar_t	*argbuf;
+static char	*argbuf;
 
 
 static const struct {
@@ -324,21 +324,25 @@ CloseConsole(void)
 
 /* Process the commandline, and create standard argc/argv array. */
 static int
-ProcessCommandLine(wchar_t ***argw)
+ProcessCommandLine(char ***argv)
 {
-    WCHAR *cmdline;
-    wchar_t **args;
+    char **args;
     int argc_max;
     int i, q, argc;
 
-    cmdline = GetCommandLine();
-    i = wcslen(cmdline) + 1;
-    argbuf = (wchar_t *)malloc(sizeof(wchar_t)*i);
-    wcscpy(argbuf, cmdline);
+    if (acp_utf8) {
+	i = strlen(GetCommandLineA()) + 1;
+	argbuf = (char *)malloc(i);
+	strcpy(argbuf, GetCommandLineA());
+    } else {
+	i = c16stombs(NULL, GetCommandLineW(), 0) + 1;
+	argbuf = (char *)malloc(i);
+	c16stombs(argbuf, GetCommandLineW(), i);
+    }
 
     argc = 0;
     argc_max = 64;
-    args = (wchar_t **)malloc(sizeof(wchar_t *) * argc_max);
+    args = (char **)malloc(sizeof(char *) * argc_max);
     if (args == NULL) {
 	free(argbuf);
 	return(0);
@@ -347,11 +351,11 @@ ProcessCommandLine(wchar_t ***argw)
     /* parse commandline into argc/argv format */
     i = 0;
     while (argbuf[i]) {
-	while (argbuf[i] == L' ')
+	while (argbuf[i] == ' ')
 		  i++;
 
 	if (argbuf[i]) {
-		if ((argbuf[i] == L'\'') || (argbuf[i] == L'"')) {
+		if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
 			q = argbuf[i++];
 			if (!argbuf[i])
 				break;
@@ -362,7 +366,7 @@ ProcessCommandLine(wchar_t ***argw)
 
 		if (argc >= argc_max) {
 			argc_max += 64;
-			args = realloc(args, sizeof(wchar_t *)*argc_max);
+			args = realloc(args, sizeof(char *)*argc_max);
 			if (args == NULL) {
 				free(argbuf);
 				return(0);
@@ -370,7 +374,7 @@ ProcessCommandLine(wchar_t ***argw)
 		}
 
 		while ((argbuf[i]) && ((q)
-			? (argbuf[i]!=q) : (argbuf[i]!=L' '))) i++;
+			? (argbuf[i]!=q) : (argbuf[i]!=' '))) i++;
 
 		if (argbuf[i]) {
 			argbuf[i] = 0;
@@ -380,7 +384,7 @@ ProcessCommandLine(wchar_t ***argw)
     }
 
     args[argc] = NULL;
-    *argw = args;
+    *argv = args;
 
     return(argc);
 }
@@ -390,7 +394,7 @@ ProcessCommandLine(wchar_t ***argw)
 int WINAPI
 WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
 {
-    wchar_t **argw = NULL;
+    char **argv = NULL;
     int	argc, i;
     wchar_t * AppID = L"86Box.86Box\0";
 
@@ -415,10 +419,10 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     set_language(0x0409);
 
     /* Process the command line for options. */
-    argc = ProcessCommandLine(&argw);
+    argc = ProcessCommandLine(&argv);
 
     /* Pre-initialize the system, this loads the config file. */
-    if (! pc_init(argc, argw)) {
+    if (! pc_init(argc, argv)) {
 	/* Detach from console. */
 	if (force_debug)
 		CreateConsole(0);
@@ -427,7 +431,7 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
 		PostMessage((HWND) (uintptr_t) source_hwnd, WM_HAS_SHUTDOWN, (WPARAM) 0, (LPARAM) hwndMain);
 
 	free(argbuf);
-	free(argw);
+	free(argv);
 	return(1);
     }
 	
@@ -445,7 +449,7 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     i = ui_init(nCmdShow);
 
     free(argbuf);
-    free(argw);
+    free(argv);
     return(i);
 }
 
