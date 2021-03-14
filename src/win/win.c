@@ -541,6 +541,35 @@ plat_chdir(wchar_t *path)
 
 
 FILE *
+plat_fopen(const char *path, const char *mode)
+{
+    wchar_t *pathw, *modew;
+    int len;
+
+    if (acp_utf8)
+	return fopen(path, mode);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	pathw = malloc(sizeof(wchar_t) * len);
+	mbstoc16s(pathw, path, len);
+
+	len = mbstoc16s(NULL, mode, 0) + 1;
+	modew = malloc(sizeof(wchar_t) * len);
+	mbstoc16s(modew, mode, len);
+
+	return _wfopen(pathw, modew);
+    }
+}
+
+
+FILE *
+plat_fopen64(const char *path, const char *mode)
+{
+    return plat_fopen(path, mode);
+}
+
+
+FILE *
 plat_wfopen(wchar_t *path, wchar_t *mode)
 {
     return(_wfopen(path, mode));
