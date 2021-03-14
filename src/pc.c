@@ -164,7 +164,7 @@ extern int	output;
 int	atfullspeed;
 int	clockrate;
 
-wchar_t	exe_path[2048];				/* path (dir) of executable */
+char	exe_path[2048];				/* path (dir) of executable */
 wchar_t	usr_path[1024];				/* path (dir) of user data */
 char	cfg_path[1024];				/* full path of config file */
 FILE	*stdlog = NULL;				/* file to log output to */
@@ -340,8 +340,8 @@ pc_init(int argc, char *argv[])
     uint32_t *uid, *shwnd;
 
     /* Grab the executable's full path. */
-    plat_get_exe_name(exe_path, sizeof_w(exe_path)-1);
-    p = plat_get_filename(exe_path);
+    plat_get_exe_name(exe_path, sizeof(exe_path)-1);
+    p = plat_get_filename_a(exe_path);
     *p = L'\0';
 
     /*
@@ -513,7 +513,7 @@ usage:
     strftime(temp, sizeof(temp), "%Y/%m/%d %H:%M:%S", info);
     pclog("#\n# %ls v%ls logfile, created %s\n#\n",
 		EMU_NAME_W, EMU_VERSION_W, temp);
-    pclog("# Emulator path: %ls\n", exe_path);
+    pclog("# Emulator path: %s\n", exe_path);
     pclog("# Userfiles path: %ls\n", usr_path);
     pclog("# Configuration file: %s\n#\n\n", cfg_path);
 

@@ -2058,12 +2058,12 @@ escp_init(void *lpt)
     dev->lpt = lpt;
 
     /* Create a full pathname for the font files. */
-    if(wcslen(exe_path) >= sizeof_w(dev->fontpath)) {
+    if(mbstoc16s(NULL, exe_path, 0) >= sizeof_w(dev->fontpath)) {
 	free(dev);
 	return(NULL);
     }
 
-    wcscpy(dev->fontpath, exe_path);
+    mbstoc16s(dev->fontpath, exe_path, sizeof_w(dev->fontpath));
     plat_path_slash(dev->fontpath);
     wcscat(dev->fontpath, L"roms/printer/fonts/");
 

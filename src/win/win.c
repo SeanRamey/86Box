@@ -497,9 +497,16 @@ do_stop(void)
 
 
 void
-plat_get_exe_name(wchar_t *s, int size)
+plat_get_exe_name(char *s, int size)
 {
-    GetModuleFileName(hinstance, s, size);
+    wchar_t temp[MAX_PATH];
+
+    if (acp_utf8)
+	GetModuleFileNameA(hinstance, s, size);
+    else {
+	GetModuleFileNameW(hinstance, temp, sizeof_w(temp));
+	c16stombs(s, temp, size);
+    }
 }
 
 
@@ -660,6 +667,21 @@ plat_get_filename(wchar_t *s)
 
     while (c > 0) {
 	if (s[c] == L'/' || s[c] == L'\\')
+	   return(&s[c+1]);
+       c--;
+    }
+
+    return(s);
+}
+
+
+char *
+plat_get_filename_a(char *s)
+{
+    int c = strlen(s) - 1;
+
+    while (c > 0) {
+	if (s[c] == '/' || s[c] == '\\')
 	   return(&s[c+1]);
        c--;
     }
