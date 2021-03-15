@@ -191,7 +191,7 @@ file_dlg_w(HWND hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save)
     else
 	r = GetOpenFileName(&ofn);
 
-    plat_chdir(usr_path);
+    plat_chdir_a(usr_path);
 
     if (r) {
 	wcstombs(openfilestring, wopenfilestring, sizeof(openfilestring));

@@ -165,7 +165,7 @@ int	atfullspeed;
 int	clockrate;
 
 char	exe_path[2048];				/* path (dir) of executable */
-wchar_t	usr_path[1024];				/* path (dir) of user data */
+char	usr_path[1024];				/* path (dir) of user data */
 char	cfg_path[1024];				/* full path of config file */
 FILE	*stdlog = NULL;				/* file to log output to */
 int	scrnsz_x = SCREEN_RES_X,		/* current screen size, X */
@@ -331,8 +331,8 @@ pc_log(const char *fmt, ...)
 int
 pc_init(int argc, char *argv[])
 {
-    wchar_t path[2048], cfg[2048];
-    wchar_t *p;
+    char path[2048], cfg[2048];
+    char *p;
     char temp[128];
     struct tm *info;
     time_t now;
@@ -352,7 +352,7 @@ pc_init(int argc, char *argv[])
      * a shortcut (desktop icon), however, the CWD
      * could have been set to something else.
      */
-    plat_getcwd(usr_path, sizeof_w(usr_path)-1);
+    plat_getcwd(usr_path, sizeof(usr_path) - 1);
     memset(path, 0x00, sizeof(path));
 
     for (c=1; c<argc; c++) {
@@ -398,7 +398,7 @@ usage:
 		   !strcasecmp(argv[c], "-P")) {
 		if ((c+1) == argc) goto usage;
 
-		mbstoc16s(path, argv[++c], sizeof_w(path));
+		strcpy(path, argv[++c]);
 	} else if (!strcasecmp(argv[c], "--settings") ||
 		   !strcasecmp(argv[c], "-S")) {
 		settings_only = 1;
@@ -431,9 +431,9 @@ usage:
 
     /* One argument (config file) allowed. */
     if (c < argc)
-	mbstoc16s(cfg, argv[c], sizeof_w(cfg));
+	strcpy(cfg, argv[c]);
     else
-	wcscpy(cfg, CONFIG_FILE);
+	strcpy(cfg, CONFIG_FILE);
 
     if (c != argc) goto usage;
 
@@ -444,27 +444,27 @@ usage:
      * make it absolute.
      */
     if (path[0] != L'\0') {
-	if (! plat_path_abs(path)) {
+	if (! plat_path_abs_a(path)) {
 		/*
 		 * This looks like a relative path.
 		 *
 		 * Add it to the current working directory
 		 * to convert it (back) to an absolute path.
 		 */
-		plat_path_slash(usr_path);
-		wcscat(usr_path, path);
+		plat_path_slash_a(usr_path);
+		strcat(usr_path, path);
 	} else {
 		/*
 		 * The user-provided path seems like an
 		 * absolute path, so just use that.
 		 */
-		wcscpy(usr_path, path);
+		strcpy(usr_path, path);
 	}
 
 	/* If the specified path does not yet exist,
 	   create it. */
-	if (! plat_dir_check(usr_path))
-		plat_dir_create(usr_path);
+	if (! plat_dir_check_a(usr_path))
+		plat_dir_create_a(usr_path);
     }
 
     /*
@@ -475,7 +475,7 @@ usage:
      * This can happen when people load a config 
      * file using the UI, for example.
      */
-    p = plat_get_filename(cfg);
+    p = plat_get_filename_a(cfg);
     if (cfg != p) {
 	/*
 	 * OK, the configuration file name has a
@@ -490,19 +490,17 @@ usage:
 	 * Otherwise, assume the pathname given is
 	 * relative to whatever the usr_path is.
 	 */
-	if (plat_path_abs(cfg))
-		wcscpy(usr_path, cfg);
+	if (plat_path_abs_a(cfg))
+		strcpy(usr_path, cfg);
 	  else
-		wcscat(usr_path, cfg);
+		strcat(usr_path, cfg);
     }
 
     /* Make sure we have a trailing backslash. */
-    plat_path_slash(usr_path);
+    plat_path_slash_a(usr_path);
 
     /* At this point, we can safely create the full path name. */
-    //plat_append_filename(cfg_path, usr_path, p);
-    c16stombs(cfg_path, usr_path, sizeof(cfg_path));
-    c16stombs(cfg_path + strlen(cfg_path), p, sizeof(cfg_path) - strlen(cfg_path));
+    plat_append_filename_a(cfg_path, usr_path, p);
 
     /*
      * This is where we start outputting to the log file,
@@ -514,7 +512,7 @@ usage:
     pclog("#\n# %ls v%ls logfile, created %s\n#\n",
 		EMU_NAME_W, EMU_VERSION_W, temp);
     pclog("# Emulator path: %s\n", exe_path);
-    pclog("# Userfiles path: %ls\n", usr_path);
+    pclog("# Userfiles path: %s\n", usr_path);
     pclog("# Configuration file: %s\n#\n\n", cfg_path);
 
     /*

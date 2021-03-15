@@ -150,7 +150,9 @@ dump_page(prnt_t *dev)
 
     /* Create the full path for this file. */
     memset(path, 0x00, sizeof(path));
-    plat_append_filename(path, usr_path, L"printer");
+    //plat_append_filename(path, usr_path, L"printer");
+    mbstoc16s(path, usr_path, sizeof_w(path));
+    wcscat(path, L"printer");
     if (! plat_dir_check(path))
         plat_dir_create(path);
     plat_path_slash(path);

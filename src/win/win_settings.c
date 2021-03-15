@@ -2100,7 +2100,7 @@ win_settings_hard_disks_update_item(HWND hdlg, int i, int column)
 {
     HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
     LVITEM lvI;
-    WCHAR szText[256];
+    WCHAR szText[256], usr_path_w[1024];
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -2132,8 +2132,9 @@ win_settings_hard_disks_update_item(HWND hdlg, int i, int column)
 	lvI.pszText = szText;
 	lvI.iImage = 0;
     } else if (column == 1) {
-	if (!wcsnicmp(temp_hdd[i].fn, usr_path, wcslen(usr_path)))
-		lvI.pszText = temp_hdd[i].fn + wcslen(usr_path);
+	mbstoc16s(usr_path_w, usr_path, sizeof_w(usr_path_w));
+	if (!wcsnicmp(temp_hdd[i].fn, usr_path_w, wcslen(usr_path_w)))
+		lvI.pszText = temp_hdd[i].fn + wcslen(usr_path_w);
 	else
 		lvI.pszText = temp_hdd[i].fn;
 	lvI.iImage = 0;
@@ -2165,8 +2166,10 @@ win_settings_hard_disks_recalc_list(HWND hdlg)
 {
     LVITEM lvI;
     int i, j = 0;
-    WCHAR szText[256];
+    WCHAR szText[256], usr_path_w[1024];
     HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
+
+    mbstoc16s(usr_path_w, usr_path, sizeof_w(usr_path_w));
 
     hd_listview_items = 0;
     lv1_current_sel = -1;
@@ -2208,8 +2211,8 @@ win_settings_hard_disks_recalc_list(HWND hdlg)
 			return FALSE;
 
 		lvI.iSubItem = 1;
-		if (!wcsnicmp(temp_hdd[i].fn, usr_path, wcslen(usr_path)))
-			lvI.pszText = temp_hdd[i].fn + wcslen(usr_path);
+		if (!wcsnicmp(temp_hdd[i].fn, usr_path_w, wcslen(usr_path_w)))
+			lvI.pszText = temp_hdd[i].fn + wcslen(usr_path_w);
 		else
 			lvI.pszText = temp_hdd[i].fn;
 

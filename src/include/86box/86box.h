@@ -27,7 +27,7 @@
 #define SCREEN_RES_Y	480
 
 /* Filename and pathname info. */
-#define CONFIG_FILE	L"86box.cfg"
+#define CONFIG_FILE	"86box.cfg"
 #define NVR_PATH        L"nvr"
 #define SCREENSHOT_PATH L"screenshots"
 
@@ -133,7 +133,7 @@ extern int	nic_do_log;
 #endif
 
 extern char	exe_path[2048];			/* path (dir) of executable */
-extern wchar_t	usr_path[1024];			/* path (dir) of user data */
+extern char	usr_path[1024];			/* path (dir) of user data */
 extern char	cfg_path[1024];			/* full path of config file */
 #ifndef USE_NEW_DYNAREC
 extern FILE	*stdlog;			/* file to log output to */

@@ -416,7 +416,9 @@ video_screenshot(int x, int y, int y1, int y2, int w, int h)
     memset(fn, 0, sizeof(fn));
     memset(path, 0, sizeof(path));
 
-    plat_append_filename(path, usr_path, SCREENSHOT_PATH);
+    //plat_append_filename(path, usr_path, SCREENSHOT_PATH);
+    mbstoc16s(path, usr_path, sizeof_w(path));
+    wcscat(path, SCREENSHOT_PATH);
 
     if (! plat_dir_check(path))
 	plat_dir_create(path);

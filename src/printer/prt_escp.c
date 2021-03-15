@@ -2068,7 +2068,9 @@ escp_init(void *lpt)
     wcscat(dev->fontpath, L"roms/printer/fonts/");
 
     /* Create the full path for the page images. */
-    plat_append_filename(dev->pagepath, usr_path, L"printer");
+    //plat_append_filename(dev->pagepath, usr_path, L"printer");
+    mbstoc16s(dev->pagepath, usr_path, sizeof_w(dev->pagepath));
+    wcscat(dev->pagepath, L"printer");
     if (! plat_dir_check(dev->pagepath))
         plat_dir_create(dev->pagepath);
     plat_path_slash(dev->pagepath);

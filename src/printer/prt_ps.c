@@ -357,7 +357,9 @@ ps_init(void *lpt)
 
     /* Cache print folder path. */
     memset(dev->printer_path, 0x00, sizeof(dev->printer_path));
-    plat_append_filename(dev->printer_path, usr_path, L"printer");
+    //plat_append_filename(dev->printer_path, usr_path, L"printer");
+    mbstoc16s(dev->printer_path, usr_path, sizeof_w(dev->printer_path));
+    wcscat(dev->printer_path, L"printer");
     if (!plat_dir_check(dev->printer_path))
 	plat_dir_create(dev->printer_path);
     plat_path_slash(dev->printer_path);

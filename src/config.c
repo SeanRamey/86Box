@@ -1116,8 +1116,10 @@ load_hard_disks(void)
 	if (plat_path_abs(wp)) {
 		wcsncpy(hdd[c].fn, wp, sizeof_w(hdd[c].fn));
 	} else {
-		wcsncpy(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
-		wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn)-wcslen(usr_path));
+		//wcsncpy(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
+		//wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn)-wcslen(usr_path));
+		mbstoc16s(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
+		wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn) - mbstoc16s(NULL, usr_path, 0));
 	}
 
 	/* If disk is empty or invalid, mark it for deletion. */
@@ -2271,6 +2273,9 @@ save_hard_disks(void)
     char *p;
     int c;
 
+    wchar_t usr_path_w[1024];
+    mbstoc16s(usr_path_w, usr_path, sizeof_w(usr_path_w));
+
     memset(temp, 0x00, sizeof(temp));
     for (c=0; c<HDD_NUM; c++) {
 	sprintf(temp, "hdd_%02i_parameters", c+1);
@@ -2317,8 +2322,8 @@ save_hard_disks(void)
 
 	sprintf(temp, "hdd_%02i_fn", c+1);
 	if (hdd_is_valid(c) && (wcslen(hdd[c].fn) != 0))
-		if (!wcsnicmp(hdd[c].fn, usr_path, wcslen(usr_path)))
-			config_set_wstring(cat, temp, &hdd[c].fn[wcslen(usr_path)]);
+		if (!wcsnicmp(hdd[c].fn, usr_path_w, wcslen(usr_path_w)))
+			config_set_wstring(cat, temp, &hdd[c].fn[wcslen(usr_path_w)]);
 		else
 			config_set_wstring(cat, temp, hdd[c].fn);
 	else

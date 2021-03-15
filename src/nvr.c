@@ -217,7 +217,8 @@ nvr_path(wchar_t *str)
 
     /* Get the full prefix in place. */
     memset(temp, 0x00, sizeof(temp));
-    wcscpy(temp, usr_path);
+    //wcscpy(temp, usr_path);
+    mbstoc16s(temp, usr_path, sizeof_w(temp));
     wcscat(temp, NVR_PATH);
 
     /* Create the directory if needed. */

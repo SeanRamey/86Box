@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <direct.h>
 #include <wchar.h>
 #define HAVE_STDARG_H
 #include <86box/86box.h>
@@ -532,9 +533,18 @@ plat_tempfile(wchar_t *bufp, wchar_t *prefix, wchar_t *suffix)
 
 
 int
-plat_getcwd(wchar_t *bufp, int max)
+plat_getcwd(char *bufp, int max)
 {
-    (void)_wgetcwd(bufp, max);
+    wchar_t *temp;
+
+    if (acp_utf8)
+	(void)_getcwd(bufp, max);
+    else {
+	temp = malloc(max * sizeof(wchar_t));
+	(void)_wgetcwd(temp, max);
+	c16stombs(bufp, temp, max);
+	free(temp);
+    }
 
     return(0);
 }
@@ -544,6 +554,24 @@ int
 plat_chdir(wchar_t *path)
 {
     return(_wchdir(path));
+}
+
+
+int
+plat_chdir_a(char *path)
+{
+    wchar_t *temp;
+    int len, ret;
+
+    if (acp_utf8)
+	return(_chdir(path));
+    else {
+	len = mbstoc16s(NULL, path, 0);
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+	ret = _wchdir(temp);
+	free(temp);
+    }
 }
 
 
@@ -609,11 +637,33 @@ plat_path_slash(wchar_t *path)
 }
 
 
+/* Make sure a path ends with a trailing (back)slash. */
+void
+plat_path_slash_a(char *path)
+{
+    if ((path[strlen(path)-1] != '\\') &&
+	(path[strlen(path)-1] != '/')) {
+	strcat(path, "\\");
+    }
+}
+
+
 /* Check if the given path is absolute or not. */
 int
 plat_path_abs(wchar_t *path)
 {
     if ((path[1] == L':') || (path[0] == L'\\') || (path[0] == L'/'))
+	return(1);
+
+    return(0);
+}
+
+
+/* Check if the given path is absolute or not. */
+int
+plat_path_abs_a(char *path)
+{
+    if ((path[1] == ':') || (path[0] == '\\') || (path[0] == '/'))
 	return(1);
 
     return(0);
@@ -657,6 +707,30 @@ plat_get_dirname(wchar_t *dest, const wchar_t *path)
     while (path < ptr)
 	*dest++ = *path++;
     *dest = L'\0';
+}
+
+
+/* Return the 'directory' element of a pathname. */
+void
+plat_get_dirname_a(char *dest, const char *path)
+{
+    int c = (int)strlen(path);
+    char *ptr;
+
+    ptr = (char *)path;
+
+    while (c > 0) {
+	if (path[c] == '/' || path[c] == '\\') {
+		ptr = (char *)&path[c];
+		break;
+	}
+ 	c--;
+    }
+
+    /* Copy to destination. */
+    while (path < ptr)
+	*dest++ = *path++;
+    *dest = '\0';
 }
 
 
@@ -718,6 +792,15 @@ plat_append_filename(wchar_t *dest, wchar_t *s1, wchar_t *s2)
 
 
 void
+plat_append_filename_a(char *dest, char *s1, char *s2)
+{
+    strcat(dest, s1);
+    plat_path_slash_a(dest);
+    strcat(dest, s2);
+}
+
+
+void
 plat_put_backslash(wchar_t *s)
 {
     int c = wcslen(s) - 1;
@@ -738,9 +821,48 @@ plat_dir_check(wchar_t *path)
 
 
 int
+plat_dir_check_a(char *path)
+{
+    DWORD dwAttrib;
+    int len;
+    wchar_t *temp;
+    
+    if (acp_utf8) 
+	dwAttrib = GetFileAttributesA(path);
+    else {
+	len = mbstoc16s(NULL, path, 0);
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	dwAttrib = GetFileAttributesW(temp);
+
+	free(temp);
+    }
+
+    return(((dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	   (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) ? 1 : 0);
+}
+
+
+int
 plat_dir_create(wchar_t *path)
 {
     return((int)SHCreateDirectory(hwndMain, path));
+}
+
+
+int
+plat_dir_create_a(char *path)
+{
+    int ret, len = mbstoc16s(NULL, path, 0);
+    wchar_t *temp = malloc(len * sizeof(wchar_t));
+    mbstoc16s(temp, path, len);
+    
+    ret = (int)SHCreateDirectory(hwndMain, temp);
+
+    free(temp);
+
+    return ret;
 }
 
 
