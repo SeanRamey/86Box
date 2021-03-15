@@ -612,7 +612,7 @@ aha_setbios(x54x_t *dev)
 
     /* Open the BIOS image file and make sure it exists. */
     aha_log("%s: loading BIOS from '%ls'\n", dev->name, dev->bios_path);
-    if ((f = rom_fopen(dev->bios_path, L"rb")) == NULL) {
+    if ((f = rom_fopen(dev->bios_path, "rb")) == NULL) {
 	aha_log("%s: BIOS ROM not found!\n", dev->name);
 	return;
     }
@@ -791,7 +791,7 @@ aha_init(const device_t *info)
 	case AHA_154xA:
 		strcpy(dev->name, "AHA-154xA");
 		dev->fw_rev = "A003";	/* The 3.07 microcode says A006. */
-		dev->bios_path = L"roms/scsi/adaptec/aha1540a307.bin"; /*Only for port 0x330*/
+		dev->bios_path = "roms/scsi/adaptec/aha1540a307.bin"; /*Only for port 0x330*/
 		/* This is configurable from the configuration for the 154xB, the rest of the controllers read it from the EEPROM. */
 		dev->HostID = device_get_config_int("hostid");
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
@@ -804,12 +804,12 @@ aha_init(const device_t *info)
 		switch(dev->Base) {
 			case 0x0330:
 				dev->bios_path =
-				    L"roms/scsi/adaptec/aha1540b320_330.bin";
+				    "roms/scsi/adaptec/aha1540b320_330.bin";
 				break;
 
 			case 0x0334:
 				dev->bios_path =
-				    L"roms/scsi/adaptec/aha1540b320_334.bin";
+				    "roms/scsi/adaptec/aha1540b320_334.bin";
 				break;
 		}
 		dev->fw_rev = "A005";	/* The 3.2 microcode says A012. */
@@ -822,7 +822,7 @@ aha_init(const device_t *info)
 
 	case AHA_154xC:
 		strcpy(dev->name, "AHA-154xC");
-		dev->bios_path = L"roms/scsi/adaptec/aha1542c102.bin";
+		dev->bios_path = "roms/scsi/adaptec/aha1542c102.bin";
 		dev->nvr_path = L"aha1542c.nvr";
 		dev->fw_rev = "D001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
@@ -837,7 +837,7 @@ aha_init(const device_t *info)
 
 	case AHA_154xCF:
 		strcpy(dev->name, "AHA-154xCF");
-		dev->bios_path = L"roms/scsi/adaptec/aha1542cf211.bin";
+		dev->bios_path = "roms/scsi/adaptec/aha1542cf211.bin";
 		dev->nvr_path = L"aha1542cf.nvr";
 		dev->fw_rev = "E001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
@@ -855,7 +855,7 @@ aha_init(const device_t *info)
 
 	case AHA_154xCP:
 		strcpy(dev->name, "AHA-154xCP");
-		dev->bios_path = L"roms/scsi/adaptec/aha1542cp102.bin";
+		dev->bios_path = "roms/scsi/adaptec/aha1542cp102.bin";
 		dev->nvr_path = L"aha1540cp.nvr";
 		dev->fw_rev = "F001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
@@ -870,7 +870,7 @@ aha_init(const device_t *info)
 
 	case AHA_1640:
 		strcpy(dev->name, "AHA-1640");
-		dev->bios_path = L"roms/scsi/adaptec/aha1640.bin";
+		dev->bios_path = "roms/scsi/adaptec/aha1640.bin";
 		dev->fw_rev = "BB01";
 
 		dev->flags |= X54X_LBA_BIOS;

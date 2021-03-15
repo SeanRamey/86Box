@@ -42,10 +42,10 @@
 #undef CLAMP
 #endif
 
-#define BIOS_ROM_PATH		L"roms/video/mach64/bios.bin"
-#define BIOS_ISA_ROM_PATH	L"roms/video/mach64/M64-1994.VBI"
-#define BIOS_VLB_ROM_PATH	L"roms/video/mach64/mach64_vlb_vram.bin"
-#define BIOS_ROMVT2_PATH	L"roms/video/mach64/atimach64vt2pci.bin"
+#define BIOS_ROM_PATH		"roms/video/mach64/bios.bin"
+#define BIOS_ISA_ROM_PATH	"roms/video/mach64/M64-1994.VBI"
+#define BIOS_VLB_ROM_PATH	"roms/video/mach64/mach64_vlb_vram.bin"
+#define BIOS_ROMVT2_PATH	"roms/video/mach64/atimach64vt2pci.bin"
 
 
 #define FIFO_SIZE 65536

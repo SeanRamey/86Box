@@ -46,17 +46,17 @@
 #include <86box/scsi_ncr53c8xx.h>
 
 
-#define NCR53C810_SDMS3_ROM	L"roms/scsi/ncr53c8xx/810/NCR307.BIN"
-#define SYM53C810_SDMS4_ROM	L"roms/scsi/ncr53c8xx/810/8XX_64.ROM"
-#define NCR53C815_SDMS3_ROM	L"roms/scsi/ncr53c8xx/815/NCR307.BIN"
-#define SYM53C815_SDMS4_ROM	L"roms/scsi/ncr53c8xx/815/8XX_64.ROM"
-#define NCR53C825A_SDMS3_ROM	L"roms/scsi/ncr53c8xx/825A/NCR307.BIN"
-#define SYM53C825A_SDMS4_ROM	L"roms/scsi/ncr53c8xx/825A/8XX_64.ROM"
-#define NCR53C860_SDMS3_ROM	L"roms/scsi/ncr53c8xx/860/NCR307.BIN"
-#define SYM53C860_SDMS4_ROM	L"roms/scsi/ncr53c8xx/860/8XX_64.ROM"
-#define NCR53C875_SDMS3_ROM	L"roms/scsi/ncr53c8xx/875/NCR307.BIN"
-#define SYM53C875_SDMS4_ROM	L"roms/scsi/ncr53c8xx/875/8XX_64.ROM"
-// #define SYM53C875_SDMS4_ROM	L"roms/scsi/ncr53c8xx/875/8xx_64.rom.419"
+#define NCR53C810_SDMS3_ROM	"roms/scsi/ncr53c8xx/810/NCR307.BIN"
+#define SYM53C810_SDMS4_ROM	"roms/scsi/ncr53c8xx/810/8XX_64.ROM"
+#define NCR53C815_SDMS3_ROM	"roms/scsi/ncr53c8xx/815/NCR307.BIN"
+#define SYM53C815_SDMS4_ROM	"roms/scsi/ncr53c8xx/815/8XX_64.ROM"
+#define NCR53C825A_SDMS3_ROM	"roms/scsi/ncr53c8xx/825A/NCR307.BIN"
+#define SYM53C825A_SDMS4_ROM	"roms/scsi/ncr53c8xx/825A/8XX_64.ROM"
+#define NCR53C860_SDMS3_ROM	"roms/scsi/ncr53c8xx/860/NCR307.BIN"
+#define SYM53C860_SDMS4_ROM	"roms/scsi/ncr53c8xx/860/8XX_64.ROM"
+#define NCR53C875_SDMS3_ROM	"roms/scsi/ncr53c8xx/875/NCR307.BIN"
+#define SYM53C875_SDMS4_ROM	"roms/scsi/ncr53c8xx/875/8XX_64.ROM"
+// #define SYM53C875_SDMS4_ROM	"roms/scsi/ncr53c8xx/875/8xx_64.rom.419"
 
 #define HA_ID		  7
 

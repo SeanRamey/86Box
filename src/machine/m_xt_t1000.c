@@ -857,7 +857,7 @@ machine_xt_t1000_init(const machine_t *model)
 
     int ret;
 
-    ret = bios_load_linear(L"roms/machines/t1000/t1000.rom",
+    ret = bios_load_linear("roms/machines/t1000/t1000.rom",
 			   0x000f8000, 32768, 0);
 
     if (bios_only || !ret)
@@ -869,7 +869,7 @@ machine_xt_t1000_init(const machine_t *model)
     t1000.ems_port_index = 7;	/* EMS disabled */
 
     /* Load the T1000 CGA Font ROM. */
-    loadfont(L"roms/machines/t1000/t1000font.rom", 2);
+    loadfont("roms/machines/t1000/t1000font.rom", 2);
 
     /*
      * The ROM drive is optional.
@@ -877,7 +877,7 @@ machine_xt_t1000_init(const machine_t *model)
      * If the file is missing, continue to boot; the BIOS will
      * complain 'No ROM drive' but boot normally from floppy.
      */
-    f = rom_fopen(L"roms/machines/t1000/t1000dos.rom", L"rb");
+    f = rom_fopen("roms/machines/t1000/t1000dos.rom", "rb");
     if (f != NULL) {
 	t1000.romdrive = malloc(T1000_ROMSIZE);
 	if (t1000.romdrive) {
@@ -950,7 +950,7 @@ machine_xt_t1200_init(const machine_t *model)
 
     int ret;
 
-    ret = bios_load_linear(L"roms/machines/t1200/t1200_019e.ic15.bin",
+    ret = bios_load_linear("roms/machines/t1200/t1200_019e.ic15.bin",
 			   0x000f8000, 32768, 0);
 
     if (bios_only || !ret)
@@ -961,7 +961,7 @@ machine_xt_t1200_init(const machine_t *model)
     t1000.ems_port_index = 7;	/* EMS disabled */
 
     /* Load the T1200 CGA Font ROM. */
-    loadfont(L"roms/machines/t1200/t1000font.bin", 2);
+    loadfont("roms/machines/t1200/t1000font.bin", 2);
 
     /* Map the EMS page frame */
     for (pg = 0; pg < 4; pg++) {

@@ -1050,11 +1050,11 @@ loadfont_common(FILE *f, int format)
 }
 
 void
-loadfont_ex(wchar_t *s, int format, int offset)
+loadfont_ex(char *s, int format, int offset)
 {
 	FILE *f;
     
-    f = rom_fopen(s, L"rb");
+    f = rom_fopen(s, "rb");
     if (f == NULL)
 		return;
 
@@ -1064,7 +1064,7 @@ loadfont_ex(wchar_t *s, int format, int offset)
 }
 
 void
-loadfont(wchar_t *s, int format)
+loadfont(char *s, int format)
 {
     loadfont_ex(s, format, 0);
 }

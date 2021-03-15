@@ -45,7 +45,7 @@
 #include <86box/scsi_pcscsi.h>
 #include <86box/vid_ati_eeprom.h>
 
-#define DC390_ROM	L"roms/scsi/esp_pci/INT13.BIN"
+#define DC390_ROM	"roms/scsi/esp_pci/INT13.BIN"
 
 #define ESP_REGS 16
 #define TI_BUFSZ 32

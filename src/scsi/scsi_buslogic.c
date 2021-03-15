@@ -1515,14 +1515,14 @@ static void *
 buslogic_init(const device_t *info)
 {
     x54x_t *dev;
-    wchar_t *bios_rom_name;
+    char *bios_rom_name;
     uint16_t bios_rom_size;
     uint16_t bios_rom_mask;
     uint8_t has_autoscsi_rom;
-    wchar_t *autoscsi_rom_name;
+    char *autoscsi_rom_name;
     uint16_t autoscsi_rom_size;
     uint8_t has_scam_rom;
-    wchar_t *scam_rom_name;
+    char *scam_rom_name;
     uint16_t scam_rom_size;
     FILE *f;
     buslogic_data_t *bl;
@@ -1583,7 +1583,7 @@ buslogic_init(const device_t *info)
     {
 	case CHIP_BUSLOGIC_ISA_542_1991:
 		strcpy(dev->name, "BT-542B");
-		bios_rom_name = L"roms/scsi/buslogic/BT-542B_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-542B_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 0;
@@ -1594,7 +1594,7 @@ buslogic_init(const device_t *info)
 		break;		
 	case CHIP_BUSLOGIC_ISA_542:
 		strcpy(dev->name, "BT-542BH");
-		bios_rom_name = L"roms/scsi/buslogic/BT-542BH_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-542BH_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 0;
@@ -1606,11 +1606,11 @@ buslogic_init(const device_t *info)
 	case CHIP_BUSLOGIC_ISA:
 	default:
 		strcpy(dev->name, "BT-545S");
-		bios_rom_name = L"roms/scsi/buslogic/BT-545S_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-545S_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 1;
-		autoscsi_rom_name = L"roms/scsi/buslogic/BT-545S_AutoSCSI.rom";
+		autoscsi_rom_name = "roms/scsi/buslogic/BT-545S_AutoSCSI.rom";
 		autoscsi_rom_size = 0x4000;
 		has_scam_rom = 0;
 		dev->fw_rev = "AA421E";
@@ -1619,7 +1619,7 @@ buslogic_init(const device_t *info)
 		break;
 	case CHIP_BUSLOGIC_MCA:
 		strcpy(dev->name, "BT-640A");
-		bios_rom_name = L"roms/scsi/buslogic/BT-640A_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-640A_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 0;
@@ -1634,14 +1634,14 @@ buslogic_init(const device_t *info)
 		break;
 	case CHIP_BUSLOGIC_VLB:
 		strcpy(dev->name, "BT-445S");
-		bios_rom_name = L"roms/scsi/buslogic/BT-445S_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-445S_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 1;
-		autoscsi_rom_name = L"roms/scsi/buslogic/BT-445S_AutoSCSI.rom";
+		autoscsi_rom_name = "roms/scsi/buslogic/BT-445S_AutoSCSI.rom";
 		autoscsi_rom_size = 0x8000;
 		has_scam_rom = 1;
-		scam_rom_name = L"roms/scsi/buslogic/BT-445S_SCAM.rom";
+		scam_rom_name = "roms/scsi/buslogic/BT-445S_SCAM.rom";
 		scam_rom_size = 0x0200;
 		dev->fw_rev = "AA507B";
 		dev->flags |= X54X_32BIT;
@@ -1650,14 +1650,14 @@ buslogic_init(const device_t *info)
 		break;
 	case CHIP_BUSLOGIC_PCI:
 		strcpy(dev->name, "BT-958D");
-		bios_rom_name = L"roms/scsi/buslogic/BT-958D_BIOS.rom";
+		bios_rom_name = "roms/scsi/buslogic/BT-958D_BIOS.rom";
 		bios_rom_size = 0x4000;
 		bios_rom_mask = 0x3fff;
 		has_autoscsi_rom = 1;
-		autoscsi_rom_name = L"roms/scsi/buslogic/BT-958D_AutoSCSI.rom";
+		autoscsi_rom_name = "roms/scsi/buslogic/BT-958D_AutoSCSI.rom";
 		autoscsi_rom_size = 0x8000;
 		has_scam_rom = 1;
-		scam_rom_name = L"roms/scsi/buslogic/BT-958D_SCAM.rom";
+		scam_rom_name = "roms/scsi/buslogic/BT-958D_SCAM.rom";
 		scam_rom_size = 0x0200;
 		dev->fw_rev = "AA507B";
 		dev->flags |= (X54X_CDROM_BOOT | X54X_32BIT);
@@ -1683,7 +1683,7 @@ buslogic_init(const device_t *info)
 	rom_init(&bl->bios, bios_rom_name, bios_rom_addr, bios_rom_size, bios_rom_mask, 0, MEM_MAPPING_EXTERNAL);
 
 	if (has_autoscsi_rom) {
-		f = rom_fopen(autoscsi_rom_name, L"rb");
+		f = rom_fopen(autoscsi_rom_name, "rb");
 		if (f) {
 			fread(bl->AutoSCSIROM, 1, autoscsi_rom_size, f);
 			fclose(f);
@@ -1692,7 +1692,7 @@ buslogic_init(const device_t *info)
 	}
 
 	if (has_scam_rom) {
-		f = rom_fopen(scam_rom_name, L"rb");
+		f = rom_fopen(scam_rom_name, "rb");
 		if (f) {
 			fread(bl->SCAMData, 1, scam_rom_size, f);
 			fclose(f);
