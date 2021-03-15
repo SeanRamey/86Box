@@ -274,7 +274,7 @@ config_read(char *fn)
 #if defined(ANSI_CFG) || !defined(_WIN32)
     f = plat_fopen(fn, "rt");
 #else
-    f = plat_fopen(fn, "rt, ccs=UNICODE");
+    f = plat_fopen(fn, "rt, ccs=UTF-8");
 #endif
     if (f == NULL) return(0);
 	
@@ -384,7 +384,7 @@ config_write(char *fn)
 #if defined(ANSI_CFG) || !defined(_WIN32)
     f = plat_fopen(fn, "wt");
 #else
-    f = plat_fopen(fn, "wt, ccs=UNICODE");
+    f = plat_fopen(fn, "wt, ccs=UTF-8");
 #endif
     if (f == NULL) return;
 
@@ -429,7 +429,7 @@ config_new(void)
 #if defined(ANSI_CFG) || !defined(_WIN32)
     FILE *f = _wfopen(config_file, L"wt");
 #else
-    FILE *f = _wfopen(config_file, L"wt, ccs=UNICODE");
+    FILE *f = _wfopen(config_file, L"wt, ccs=UTF-8");
 #endif
 
     if (file != NULL)
