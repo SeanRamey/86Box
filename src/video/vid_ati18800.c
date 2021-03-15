@@ -230,7 +230,7 @@ static void *ati18800_init(const device_t *info)
 
         ati18800->svga.miscout = 1;
 
-	ati_eeprom_load(&ati18800->eeprom, L"ati18800.nvr", 0);
+	ati_eeprom_load(&ati18800->eeprom, "ati18800.nvr", 0);
 
         return ati18800;
 }

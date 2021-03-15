@@ -105,7 +105,7 @@ typedef struct {
 } t1kvid_t;
 
 typedef struct {
-    wchar_t		*path;
+    char		*path;
 
     int			state;
     int			count;
@@ -1288,16 +1288,16 @@ eep_init(const device_t *info)
 
     switch (info->local) {
 	case TYPE_TANDY1000HX:
-		eep->path = L"tandy1000hx.bin";
+		eep->path = "tandy1000hx.bin";
 		break;
 
 	case TYPE_TANDY1000SL2:
-		eep->path = L"tandy1000sl2.bin";
+		eep->path = "tandy1000sl2.bin";
 		break;
 
     }
 
-    f = nvr_fopen(eep->path, L"rb");
+    f = nvr_fopen(eep->path, "rb");
     if (f != NULL) {
 	if (fread(eep->store, 1, 128, f) != 128)
 		fatal("eep_init(): Error reading Tandy EEPROM\n");
@@ -1316,7 +1316,7 @@ eep_close(void *priv)
     t1keep_t *eep = (t1keep_t *)priv;
     FILE *f = NULL;
 
-    f = nvr_fopen(eep->path, L"wb");
+    f = nvr_fopen(eep->path, "wb");
     if (f != NULL) {
 	(void)fwrite(eep->store, 128, 1, f);
 	(void)fclose(f);

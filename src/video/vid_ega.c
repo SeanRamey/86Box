@@ -1086,7 +1086,7 @@ ega_standalone_init(const device_t *info)
 	io_sethandler(0x01ce, 0x0002, ega_in, NULL, NULL, ega_out, NULL, NULL, ega);
 	ega->eeprom = malloc(sizeof(ati_eeprom_t));
 	memset(ega->eeprom, 0, sizeof(ati_eeprom_t));
-	ati_eeprom_load((ati_eeprom_t *) ega->eeprom, L"egawonder800.nvr", 0);
+	ati_eeprom_load((ati_eeprom_t *) ega->eeprom, "egawonder800.nvr", 0);
     }
 
     return ega;

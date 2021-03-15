@@ -160,7 +160,7 @@ aha_eeprom_save(x54x_t *dev)
 {
     FILE *f;
 
-    f = nvr_fopen(dev->nvr_path, L"wb");
+    f = nvr_fopen(dev->nvr_path, "wb");
     if (f)
     {
 	fwrite(dev->nvr, 1, NVR_SIZE, f);
@@ -737,7 +737,7 @@ aha_setnvr(x54x_t *dev)
     dev->nvr = (uint8_t *)malloc(NVR_SIZE);
     memset(dev->nvr, 0x00, NVR_SIZE);
 
-    f = nvr_fopen(dev->nvr_path, L"rb");
+    f = nvr_fopen(dev->nvr_path, "rb");
     if (f) {
 	if (fread(dev->nvr, 1, NVR_SIZE, f) != NVR_SIZE)
 		fatal("aha_setnvr(): Error reading data\n");
@@ -823,7 +823,7 @@ aha_init(const device_t *info)
 	case AHA_154xC:
 		strcpy(dev->name, "AHA-154xC");
 		dev->bios_path = "roms/scsi/adaptec/aha1542c102.bin";
-		dev->nvr_path = L"aha1542c.nvr";
+		dev->nvr_path = "aha1542c.nvr";
 		dev->fw_rev = "D001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
 		dev->rom_shramsz = 128;		/* size of shadow RAM */
@@ -838,7 +838,7 @@ aha_init(const device_t *info)
 	case AHA_154xCF:
 		strcpy(dev->name, "AHA-154xCF");
 		dev->bios_path = "roms/scsi/adaptec/aha1542cf211.bin";
-		dev->nvr_path = L"aha1542cf.nvr";
+		dev->nvr_path = "aha1542cf.nvr";
 		dev->fw_rev = "E001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
 		dev->rom_shramsz = 128;		/* size of shadow RAM */
@@ -856,7 +856,7 @@ aha_init(const device_t *info)
 	case AHA_154xCP:
 		strcpy(dev->name, "AHA-154xCP");
 		dev->bios_path = "roms/scsi/adaptec/aha1542cp102.bin";
-		dev->nvr_path = L"aha1540cp.nvr";
+		dev->nvr_path = "aha1540cp.nvr";
 		dev->fw_rev = "F001";
 		dev->rom_shram = 0x3F80;	/* shadow RAM address base */
 		dev->rom_shramsz = 128;		/* size of shadow RAM */

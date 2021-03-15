@@ -216,7 +216,7 @@ typedef enum
 } scsi_state_t;
 
 typedef struct {
-    wchar_t	*nvr_path;
+    char	*nvr_path;
     uint8_t	pci_slot;
     uint8_t	chip, wide;
     int		has_bios;
@@ -1460,7 +1460,7 @@ ncr53c8xx_eeprom(ncr53c8xx_t *dev, uint8_t save)
 {
     FILE *f;
 
-    f = nvr_fopen(dev->nvr_path, save ? L"wb": L"rb");
+    f = nvr_fopen(dev->nvr_path, save ? "wb": "rb");
     if (f) {
 	if (save)
 		fwrite(&dev->nvram, sizeof(dev->nvram), 1, f);
@@ -2531,7 +2531,7 @@ ncr53c8xx_init(const device_t *info)
 	else if (dev->has_bios == 1)
 	    rom_init(&dev->bios, NCR53C875_SDMS3_ROM, 0xc8000, 0x4000, 0x3fff, 0, MEM_MAPPING_EXTERNAL);
 	dev->chip_rev = 0x04;
-	dev->nvr_path = L"ncr53c875.nvr";
+	dev->nvr_path = "ncr53c875.nvr";
 	dev->wide = 1;
     } else if (dev->chip == CHIP_860) {
 	if (dev->has_bios == 2)
@@ -2539,10 +2539,10 @@ ncr53c8xx_init(const device_t *info)
 	else if (dev->has_bios == 1)
 	    rom_init(&dev->bios, NCR53C860_SDMS3_ROM, 0xc8000, 0x4000, 0x3fff, 0, MEM_MAPPING_EXTERNAL);
 	dev->chip_rev = 0x04;
-	dev->nvr_path = L"ncr53c860.nvr";
+	dev->nvr_path = "ncr53c860.nvr";
 	dev->wide = 1;
     } else if (dev->chip == CHIP_820) {
-	dev->nvr_path = L"ncr53c820.nvr";
+	dev->nvr_path = "ncr53c820.nvr";
 	dev->wide = 1;
     } else if (dev->chip == CHIP_825) {
 	if (dev->has_bios == 2)
@@ -2550,10 +2550,10 @@ ncr53c8xx_init(const device_t *info)
 	else if (dev->has_bios == 1)
 	    rom_init(&dev->bios, NCR53C825A_SDMS3_ROM, 0xc8000, 0x4000, 0x3fff, 0, MEM_MAPPING_EXTERNAL);
 	dev->chip_rev = 0x26;
-	dev->nvr_path = L"ncr53c825a.nvr";
+	dev->nvr_path = "ncr53c825a.nvr";
 	dev->wide = 1;
     } else if (dev->chip == CHIP_810) {
-	dev->nvr_path = L"ncr53c810.nvr";
+	dev->nvr_path = "ncr53c810.nvr";
 	dev->wide = 0;
     } else if (dev->chip == CHIP_815) {
 	if (dev->has_bios == 2)
@@ -2561,7 +2561,7 @@ ncr53c8xx_init(const device_t *info)
 	else if (dev->has_bios == 1)
 	    rom_init(&dev->bios, NCR53C815_SDMS3_ROM, 0xc8000, 0x4000, 0x3fff, 0, MEM_MAPPING_EXTERNAL);
 	dev->chip_rev = 0x04;
-	dev->nvr_path = L"ncr53c815.nvr";	
+	dev->nvr_path = "ncr53c815.nvr";	
 	dev->wide = 0;
     }
     

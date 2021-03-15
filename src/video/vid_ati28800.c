@@ -517,7 +517,7 @@ ati28800k_init(const device_t *info)
     ati28800->svga.ksc5601_swap_mode = 0;
     ati28800->svga.ksc5601_english_font_type = 0;
 
-    ati_eeprom_load(&ati28800->eeprom, L"atikorvga.nvr", 0);
+    ati_eeprom_load(&ati28800->eeprom, "atikorvga.nvr", 0);
 
     return ati28800;
 }
@@ -583,17 +583,17 @@ ati28800_init(const device_t *info)
 
     switch (info->local) {
 	case VGAWONDERXL:
-		ati_eeprom_load(&ati28800->eeprom, L"ati28800xl.nvr", 0);
+		ati_eeprom_load(&ati28800->eeprom, "ati28800xl.nvr", 0);
 		break;
 
 #if defined(DEV_BRANCH) && defined(USE_XL24)
 	case VGAWONDERXL24:
-		ati_eeprom_load(&ati28800->eeprom, L"ati28800xl24.nvr", 0);
+		ati_eeprom_load(&ati28800->eeprom, "ati28800xl24.nvr", 0);
 		break;
 #endif
 
 	default:
-		ati_eeprom_load(&ati28800->eeprom, L"ati28800.nvr", 0);
+		ati_eeprom_load(&ati28800->eeprom, "ati28800.nvr", 0);
 		break;
     }	
 

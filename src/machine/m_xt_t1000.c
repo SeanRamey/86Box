@@ -1020,7 +1020,7 @@ t1000_configsys_load(void)
     int size;
 
     memset(t1000.t1000_nvram, 0x1a, sizeof(t1000.t1000_nvram));
-    f = plat_wfopen(nvr_path(L"t1000_config.nvr"), L"rb");
+    f = plat_fopen(nvr_path("t1000_config.nvr"), "rb");
     if (f != NULL) {
 	size = sizeof(t1000.t1000_nvram);
 	if (fread(t1000.t1000_nvram, 1, size, f) != size)
@@ -1036,7 +1036,7 @@ t1000_configsys_save(void)
     FILE *f;
     int size;
 
-    f = plat_wfopen(nvr_path(L"t1000_config.nvr"), L"wb");
+    f = plat_fopen(nvr_path("t1000_config.nvr"), "wb");
     if (f != NULL) {
 	size = sizeof(t1000.t1000_nvram);
 	if (fwrite(t1000.t1000_nvram, 1, size, f) != size)
@@ -1053,7 +1053,7 @@ t1200_state_load(void)
     int size;
 
     memset(t1000.t1200_nvram, 0, sizeof(t1000.t1200_nvram));
-    f = plat_wfopen(nvr_path(L"t1200_state.nvr"), L"rb");
+    f = plat_fopen(nvr_path("t1200_state.nvr"), "rb");
     if (f != NULL) {
 	size = sizeof(t1000.t1200_nvram);
 	if (fread(t1000.t1200_nvram, 1, size, f) != size)
@@ -1069,7 +1069,7 @@ t1200_state_save(void)
     FILE *f;
     int size;
 
-    f = plat_wfopen(nvr_path(L"t1200_state.nvr"), L"wb");
+    f = plat_fopen(nvr_path("t1200_state.nvr"), "wb");
     if (f != NULL) {
 	size = sizeof(t1000.t1200_nvram);
 	if (fwrite(t1000.t1200_nvram, 1, size, f) != size)
@@ -1086,7 +1086,7 @@ t1000_emsboard_load(void)
     FILE *f;
 
     if (mem_size > 512) {
-	f = plat_wfopen(nvr_path(L"t1000_ems.nvr"), L"rb");
+	f = plat_fopen(nvr_path("t1000_ems.nvr"), "rb");
 	if (f != NULL) {
 		fread(&ram[512 * 1024], 1024, (mem_size - 512), f);
 		fclose(f);
@@ -1101,7 +1101,7 @@ t1000_emsboard_save(void)
     FILE *f;
 
     if (mem_size > 512) {
-	f = plat_wfopen(nvr_path(L"t1000_ems.nvr"), L"wb");
+	f = plat_fopen(nvr_path("t1000_ems.nvr"), "wb");
 	if (f != NULL) {
 		fwrite(&ram[512 * 1024], 1024, (mem_size - 512), f);
 		fclose(f);

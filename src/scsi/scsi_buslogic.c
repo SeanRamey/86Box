@@ -261,23 +261,23 @@ buslogic_log(const char *fmt, ...)
 #endif
 
 
-static wchar_t *
+static char *
 BuslogicGetNVRFileName(buslogic_data_t *bl)
 {
 	switch(bl->chip)
 	{
 		case CHIP_BUSLOGIC_ISA_542_1991:
-			return L"bt542b.nvr";		
+			return "bt542b.nvr";		
 		case CHIP_BUSLOGIC_ISA_542:
-			return L"bt542bh.nvr";
+			return "bt542bh.nvr";
 		case CHIP_BUSLOGIC_ISA:
-			return L"bt545s.nvr";
+			return "bt545s.nvr";
 		case CHIP_BUSLOGIC_MCA:
-			return L"bt640a.nvr";
+			return "bt640a.nvr";
 		case CHIP_BUSLOGIC_VLB:
-			return L"bt445s.nvr";
+			return "bt445s.nvr";
 		case CHIP_BUSLOGIC_PCI:
-			return L"bt958d.nvr";
+			return "bt958d.nvr";
 		default:
 			fatal("Unrecognized BusLogic chip: %i\n", bl->chip);
 			return NULL;
@@ -409,7 +409,7 @@ BuslogicInitializeAutoSCSIRam(x54x_t *dev)
 
     FILE *f;
 
-    f = nvr_fopen(BuslogicGetNVRFileName(bl), L"rb");
+    f = nvr_fopen(BuslogicGetNVRFileName(bl), "rb");
     if (f)
     {
 	if (fread(&(bl->LocalRAM.structured.autoSCSIData), 1, 64, f) != 64)
@@ -887,7 +887,7 @@ buslogic_cmds(void *p)
 				BuslogicAutoSCSIRamSetDefaults(dev, 3);
 				break;
 			case 1:
-				f = nvr_fopen(BuslogicGetNVRFileName(bl), L"wb");
+				f = nvr_fopen(BuslogicGetNVRFileName(bl), "wb");
 				if (f) {
 					fwrite(&(bl->LocalRAM.structured.autoSCSIData), 1, 64, f);
 					fclose(f);

@@ -444,8 +444,8 @@ typedef struct {
     double	media_period, ha_bps;		/* bytes per second */
 
     /* 8 bytes */
-    char	*bios_path;			/* path to BIOS image file */
-    wchar_t	*nvr_path;			/* path to NVR image file */
+    char	*bios_path,			/* path to BIOS image file */
+		*nvr_path;			/* path to NVR image file */
 
     /* 56 bytes */
     /* Pointer to a structure of vendor-specific data that only the vendor-specific code can understand */

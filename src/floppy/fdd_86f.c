@@ -3841,7 +3841,7 @@ d86f_close(int drive)
     /* Make sure the drive is alive. */
     if (dev == NULL) return;
 
-    memcpy(temp_file_name, drive ? nvr_path(L"TEMP$$$1.$$$") : nvr_path(L"TEMP$$$0.$$$"), 26);
+    memcpy(temp_file_name, drive ? nvr_path("TEMP$$$1.$$$") : nvr_path("TEMP$$$0.$$$"), 26);
 
     if (d86f_has_surface_desc(drive)) {
 	for (i = 0; i < 2; i++) {
