@@ -551,14 +551,7 @@ plat_getcwd(char *bufp, int max)
 
 
 int
-plat_chdir(wchar_t *path)
-{
-    return(_wchdir(path));
-}
-
-
-int
-plat_chdir_a(char *path)
+plat_chdir(char *path)
 {
     wchar_t *temp;
     int len, ret;
@@ -671,18 +664,18 @@ plat_path_abs_a(char *path)
 
 
 /* Return the last element of a pathname. */
-wchar_t *
-plat_get_basename(const wchar_t *path)
+char *
+plat_get_basename(const char *path)
 {
-    int c = (int)wcslen(path);
+    int c = (int)strlen(path);
 
     while (c > 0) {
-	if (path[c] == L'/' || path[c] == L'\\')
-	   return((wchar_t *)&path[c]);
+	if (path[c] == '/' || path[c] == '\\')
+	   return((char *)&path[c]);
        c--;
     }
 
-    return((wchar_t *)path);
+    return((char *)path);
 }
 
 
@@ -801,12 +794,12 @@ plat_append_filename_a(char *dest, char *s1, char *s2)
 
 
 void
-plat_put_backslash(wchar_t *s)
+plat_put_backslash(char *s)
 {
-    int c = wcslen(s) - 1;
+    int c = strlen(s) - 1;
 
-    if (s[c] != L'/' && s[c] != L'\\')
-	   s[c] = L'/';
+    if (s[c] != '/' && s[c] != '\\')
+	   s[c] = '/';
 }
 
 
