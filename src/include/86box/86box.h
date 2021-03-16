@@ -29,7 +29,7 @@
 /* Filename and pathname info. */
 #define CONFIG_FILE	"86box.cfg"
 #define NVR_PATH        "nvr"
-#define SCREENSHOT_PATH L"screenshots"
+#define SCREENSHOT_PATH "screenshots"
 
 
 #if defined(ENABLE_BUSLOGIC_LOG) || \
