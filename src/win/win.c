@@ -512,28 +512,7 @@ plat_get_exe_name(char *s, int size)
 
 
 void
-plat_tempfile(wchar_t *bufp, wchar_t *prefix, wchar_t *suffix)
-{
-    SYSTEMTIME SystemTime;
-    char temp[1024];
-
-    if (prefix != NULL)
-	sprintf(temp, "%ls-", prefix);
-      else
-	strcpy(temp, "");
-
-    GetSystemTime(&SystemTime);
-    sprintf(&temp[strlen(temp)], "%d%02d%02d-%02d%02d%02d-%03d%ls",
-        SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay,
-	SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
-	SystemTime.wMilliseconds,
-	suffix);
-    mbstowcs(bufp, temp, strlen(temp)+1);
-}
-
-
-void
-plat_tempfile_a(char *bufp, char *prefix, char *suffix)
+plat_tempfile(char *bufp, char *prefix, char *suffix)
 {
     SYSTEMTIME SystemTime;
     char temp[1024];
@@ -769,23 +748,8 @@ plat_get_dirname_a(char *dest, const char *path)
 }
 
 
-wchar_t *
-plat_get_filename(wchar_t *s)
-{
-    int c = wcslen(s) - 1;
-
-    while (c > 0) {
-	if (s[c] == L'/' || s[c] == L'\\')
-	   return(&s[c+1]);
-       c--;
-    }
-
-    return(s);
-}
-
-
 char *
-plat_get_filename_a(char *s)
+plat_get_filename(char *s)
 {
     int c = strlen(s) - 1;
 
@@ -846,17 +810,7 @@ plat_put_backslash(char *s)
 
 
 int
-plat_dir_check(wchar_t *path)
-{
-    DWORD dwAttrib = GetFileAttributes(path);
-
-    return(((dwAttrib != INVALID_FILE_ATTRIBUTES &&
-	   (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) ? 1 : 0);
-}
-
-
-int
-plat_dir_check_a(char *path)
+plat_dir_check(char *path)
 {
     DWORD dwAttrib;
     int len;
@@ -880,14 +834,7 @@ plat_dir_check_a(char *path)
 
 
 int
-plat_dir_create(wchar_t *path)
-{
-    return((int)SHCreateDirectory(hwndMain, path));
-}
-
-
-int
-plat_dir_create_a(char *path)
+plat_dir_create(char *path)
 {
     int ret, len;
     wchar_t *temp;

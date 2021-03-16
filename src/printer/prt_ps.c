@@ -192,7 +192,7 @@ write_buffer(ps_t *dev, bool finish)
 	return;
 
     if (dev->filename[0] == 0)
-	plat_tempfile_a(dev->filename, NULL, ".ps");
+	plat_tempfile(dev->filename, NULL, ".ps");
 
     strcpy(path, dev->printer_path);
     plat_path_slash_a(path);
@@ -357,8 +357,8 @@ ps_init(void *lpt)
     /* Cache print folder path. */
     memset(dev->printer_path, 0x00, sizeof(dev->printer_path));
     plat_append_filename_a(dev->printer_path, usr_path, "printer");
-    if (!plat_dir_check_a(dev->printer_path))
-	plat_dir_create_a(dev->printer_path);
+    if (!plat_dir_check(dev->printer_path))
+	plat_dir_create(dev->printer_path);
     plat_path_slash_a(dev->printer_path);
 
     timer_add(&dev->pulse_timer, pulse_timer, dev, 0);

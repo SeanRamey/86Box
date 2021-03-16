@@ -79,9 +79,9 @@ discord_update_activity(int paused)
     memset(&activity, 0x00, sizeof(activity));
 
     plat_get_dirname_a(config_name, usr_path);
-    if (strlen(plat_get_filename_a(config_name)) < 128)
+    if (strlen(plat_get_filename(config_name)) < 128)
     {
-	sprintf_s(activity.details, 128, "Running \"%s\"", plat_get_filename_a(config_name));
+	sprintf_s(activity.details, 128, "Running \"%s\"", plat_get_filename(config_name));
 	sprintf_s(activity.state, 128, "%s (%s)", strchr(machine_getname(), ']') + 2, cpu_s->name);
     }
     else

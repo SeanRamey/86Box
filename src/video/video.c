@@ -418,12 +418,12 @@ video_screenshot(int x, int y, int y1, int y2, int w, int h)
 
     plat_append_filename_a(path, usr_path, SCREENSHOT_PATH);
 
-    if (! plat_dir_check_a(path))
-	plat_dir_create_a(path);
+    if (! plat_dir_check(path))
+	plat_dir_create(path);
 
     plat_path_slash_a(path);
 
-    plat_tempfile_a(fn, NULL, ".png");
+    plat_tempfile(fn, NULL, ".png");
     strcat(path, fn);
 
     video_log("taking screenshot to: %s\n", path);

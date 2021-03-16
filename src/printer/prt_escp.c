@@ -423,7 +423,7 @@ new_page(escp_t *dev, int8_t save, int8_t resetx)
     }
 
     /* Make the page's file name. */
-    plat_tempfile_a(dev->page_fn, NULL, ".png");
+    plat_tempfile(dev->page_fn, NULL, ".png");
 }
 
 
@@ -2065,8 +2065,8 @@ escp_init(void *lpt)
 
     /* Create the full path for the page images. */
     plat_append_filename_a(dev->pagepath, usr_path, "printer");
-    if (! plat_dir_check_a(dev->pagepath))
-        plat_dir_create_a(dev->pagepath);
+    if (! plat_dir_check(dev->pagepath))
+        plat_dir_create(dev->pagepath);
     plat_path_slash_a(dev->pagepath);
 
     dev->page_width = PAGE_WIDTH;

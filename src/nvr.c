@@ -220,8 +220,8 @@ nvr_path(char *str)
     strcat(temp, NVR_PATH);
 
     /* Create the directory if needed. */
-    if (! plat_dir_check_a(temp))
-	plat_dir_create_a(temp);
+    if (! plat_dir_check(temp))
+	plat_dir_create(temp);
 
     /* Now append the actual filename. */
     plat_path_slash_a(temp);

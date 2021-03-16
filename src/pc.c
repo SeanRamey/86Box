@@ -341,7 +341,7 @@ pc_init(int argc, char *argv[])
 
     /* Grab the executable's full path. */
     plat_get_exe_name(exe_path, sizeof(exe_path)-1);
-    p = plat_get_filename_a(exe_path);
+    p = plat_get_filename(exe_path);
     *p = L'\0';
 
     /*
@@ -463,8 +463,8 @@ usage:
 
 	/* If the specified path does not yet exist,
 	   create it. */
-	if (! plat_dir_check_a(usr_path))
-		plat_dir_create_a(usr_path);
+	if (! plat_dir_check(usr_path))
+		plat_dir_create(usr_path);
     }
 
     /*
@@ -475,7 +475,7 @@ usage:
      * This can happen when people load a config 
      * file using the UI, for example.
      */
-    p = plat_get_filename_a(cfg);
+    p = plat_get_filename(cfg);
     if (cfg != p) {
 	/*
 	 * OK, the configuration file name has a

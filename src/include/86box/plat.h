@@ -81,7 +81,7 @@ extern int	unscaled_size_x,		/* current unscaled size X */
 		unscaled_size_y;		/* current unscaled size Y */
 
 /* System-related functions. */
-extern wchar_t	*fix_exe_path(wchar_t *str);
+extern char	*fix_exe_path(char *str);
 extern FILE	*plat_fopen(const char *path, const char *mode);
 extern FILE	*plat_fopen64(const char *path, const char *mode);
 extern FILE	*plat_wfopen(wchar_t *path, wchar_t *mode);
@@ -89,14 +89,12 @@ extern FILE	*plat_wfopen64(const wchar_t *path, const wchar_t *mode);
 extern void	plat_remove(char *path);
 extern int	plat_getcwd(char *bufp, int max);
 extern int	plat_chdir(char *path);
-extern void	plat_tempfile(wchar_t *bufp, wchar_t *prefix, wchar_t *suffix);
-extern void	plat_tempfile_a(char *bufp, char *prefix, char *suffix);
+extern void	plat_tempfile(char *bufp, char *prefix, char *suffix);
 extern void	plat_get_exe_name(char *s, int size);
 extern char	*plat_get_basename(const char *path);
 extern void	plat_get_dirname(wchar_t *dest, const wchar_t *path);
 extern void	plat_get_dirname_a(char *dest, const char *path);
-extern wchar_t	*plat_get_filename(wchar_t *s);
-extern char	*plat_get_filename_a(char *s);
+extern char	*plat_get_filename(char *s);
 extern wchar_t	*plat_get_extension(wchar_t *s);
 extern void	plat_append_filename(wchar_t *dest, wchar_t *s1, wchar_t *s2);
 extern void	plat_append_filename_a(char *dest, char *s1, char *s2);
@@ -105,10 +103,8 @@ extern void	plat_path_slash(wchar_t *path);
 extern void	plat_path_slash_a(char *path);
 extern int	plat_path_abs(wchar_t *path);
 extern int	plat_path_abs_a(char *path);
-extern int	plat_dir_check(wchar_t *path);
-extern int	plat_dir_check_a(char *path);
-extern int	plat_dir_create(wchar_t *path);
-extern int	plat_dir_create_a(char *path);
+extern int	plat_dir_check(char *path);
+extern int	plat_dir_create(char *path);
 extern uint64_t	plat_timer_read(void);
 extern uint32_t	plat_get_ticks(void);
 extern void	plat_delay_ms(uint32_t count);

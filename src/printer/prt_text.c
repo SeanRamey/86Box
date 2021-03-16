@@ -151,8 +151,8 @@ dump_page(prnt_t *dev)
     /* Create the full path for this file. */
     memset(path, 0x00, sizeof(path));
     plat_append_filename_a(path, usr_path, "printer");
-    if (! plat_dir_check_a(path))
-        plat_dir_create_a(path);
+    if (! plat_dir_check(path))
+        plat_dir_create(path);
     plat_path_slash_a(path);
     strcpy(path, dev->filename);
 
@@ -250,7 +250,7 @@ reset_printer(prnt_t *dev)
 	dev->page->dirty = 0;
 
     /* Create a file for this page. */
-    plat_tempfile_a(dev->filename, NULL, ".txt");
+    plat_tempfile(dev->filename, NULL, ".txt");
 
     timer_disable(&dev->pulse_timer);
     timer_disable(&dev->timeout_timer);
