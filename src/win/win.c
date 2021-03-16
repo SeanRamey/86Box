@@ -559,11 +559,14 @@ plat_chdir(char *path)
     if (acp_utf8)
 	return(_chdir(path));
     else {
-	len = mbstoc16s(NULL, path, 0);
+	len = mbstoc16s(NULL, path, 0) + 1;
 	temp = malloc(len * sizeof(wchar_t));
 	mbstoc16s(temp, path, len);
+
 	ret = _wchdir(temp);
+
 	free(temp);
+	return ret;
     }
 }
 
@@ -573,6 +576,7 @@ plat_fopen(const char *path, const char *mode)
 {
     wchar_t *pathw, *modew;
     int len;
+    FILE *fp;
 
     if (acp_utf8)
 	return fopen(path, mode);
@@ -585,7 +589,12 @@ plat_fopen(const char *path, const char *mode)
 	modew = malloc(sizeof(wchar_t) * len);
 	mbstoc16s(modew, mode, len);
 
-	return _wfopen(pathw, modew);
+	fp = _wfopen(pathw, modew);
+
+	free(pathw);
+	free(modew);
+
+	return fp;
     }
 }
 
@@ -847,15 +856,22 @@ plat_dir_create(wchar_t *path)
 int
 plat_dir_create_a(char *path)
 {
-    int ret, len = mbstoc16s(NULL, path, 0);
-    wchar_t *temp = malloc(len * sizeof(wchar_t));
-    mbstoc16s(temp, path, len);
+    int ret, len;
+    wchar_t *temp;
     
-    ret = (int)SHCreateDirectory(hwndMain, temp);
+    if (acp_utf8)
+	return (int)SHCreateDirectoryExA(NULL, path, NULL);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
 
-    free(temp);
+	ret = (int)SHCreateDirectoryExW(NULL, path, NULL);
 
-    return ret;
+	free(temp);
+
+	return ret;
+    }
 }
 
 
