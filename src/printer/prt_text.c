@@ -102,7 +102,7 @@ typedef struct {
     void *	lpt;
 
     /* Output file name. */
-    wchar_t	filename[1024];
+    char	filename[1024];
 
     /* Printer timeout. */
     pc_timer_t	pulse_timer;
@@ -143,23 +143,21 @@ typedef struct {
 static void 
 dump_page(prnt_t *dev)
 {
-    wchar_t path[1024];
+    char path[1024];
     uint16_t x, y;
     uint8_t ch;
     FILE *fp;
 
     /* Create the full path for this file. */
     memset(path, 0x00, sizeof(path));
-    //plat_append_filename(path, usr_path, L"printer");
-    mbstoc16s(path, usr_path, sizeof_w(path));
-    wcscat(path, L"printer");
-    if (! plat_dir_check(path))
-        plat_dir_create(path);
-    plat_path_slash(path);
-    wcscat(path, dev->filename);
+    plat_append_filename_a(path, usr_path, "printer");
+    if (! plat_dir_check_a(path))
+        plat_dir_create_a(path);
+    plat_path_slash_a(path);
+    strcpy(path, dev->filename);
 
     /* Create the file. */
-    fp = plat_wfopen(path, L"a");
+    fp = plat_fopen(path, "a");
     if (fp == NULL) {
 	//ERRLOG("PRNT: unable to create print page '%ls'\n", path);
 	return;
@@ -252,7 +250,7 @@ reset_printer(prnt_t *dev)
 	dev->page->dirty = 0;
 
     /* Create a file for this page. */
-    plat_tempfile(dev->filename, NULL, L".txt");
+    plat_tempfile_a(dev->filename, NULL, ".txt");
 
     timer_disable(&dev->pulse_timer);
     timer_disable(&dev->timeout_timer);

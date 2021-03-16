@@ -532,6 +532,26 @@ plat_tempfile(wchar_t *bufp, wchar_t *prefix, wchar_t *suffix)
 }
 
 
+void
+plat_tempfile_a(char *bufp, char *prefix, char *suffix)
+{
+    SYSTEMTIME SystemTime;
+    char temp[1024];
+
+    if (prefix != NULL)
+	sprintf(bufp, "%s-", prefix);
+      else
+	strcpy(bufp, "");
+
+    GetSystemTime(&SystemTime);
+    sprintf(&bufp[strlen(bufp)], "%d%02d%02d-%02d%02d%02d-%03d%s",
+        SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay,
+	SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
+	SystemTime.wMilliseconds,
+	suffix);
+}
+
+
 int
 plat_getcwd(char *bufp, int max)
 {
@@ -622,9 +642,22 @@ plat_wfopen64(const wchar_t *path, const wchar_t *mode)
 
 
 void
-plat_remove(wchar_t *path)
+plat_remove(char *path)
 {
-    _wremove(path);
+    wchar_t *temp;
+    int len;
+
+    if (acp_utf8)
+	remove(path);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	_wremove(temp);
+
+	free(temp);
+    }
 }
 
 
@@ -866,7 +899,7 @@ plat_dir_create_a(char *path)
 	temp = malloc(len * sizeof(wchar_t));
 	mbstoc16s(temp, path, len);
 
-	ret = (int)SHCreateDirectoryExW(NULL, path, NULL);
+	ret = (int)SHCreateDirectoryExW(NULL, temp, NULL);
 
 	free(temp);
 
