@@ -351,7 +351,11 @@ config_read(char *fn)
 	memcpy(ne->name, ename, 128);
 	wcsncpy(ne->wdata, &buff[d], sizeof_w(ne->wdata)-1);
 	ne->wdata[sizeof_w(ne->wdata)-1] = L'\0';
+#ifdef _WIN32	/* Make sure the string is converted to UTF-8 rather than a legacy codepage */
+	c16stombs(ne->data, ne->wdata, sizeof(ne->data));
+#else
 	wcstombs(ne->data, ne->wdata, sizeof(ne->data));
+#endif
 	ne->data[sizeof(ne->data)-1] = '\0';
 
 	/* .. and insert it. */
@@ -2832,7 +2836,11 @@ config_set_string(char *head, char *name, char *val)
 	memcpy(ent->data, val, strlen(val) + 1);
     else
 	memcpy(ent->data, val, sizeof(ent->data));
+#ifdef _WIN32	/* Make sure the string is converted from UTF-8 rather than a legacy codepage */
+    mbstoc16s(ent->wdata, ent->data, sizeof_w(ent->wdata));
+#else
     mbstowcs(ent->wdata, ent->data, sizeof_w(ent->wdata));
+#endif
 }
 
 
@@ -2851,5 +2859,9 @@ config_set_wstring(char *head, char *name, wchar_t *val)
 	ent = create_entry(section, name);
 
     memcpy(ent->wdata, val, sizeof_w(ent->wdata));
+#ifdef _WIN32	/* Make sure the string is converted to UTF-8 rather than a legacy codepage */
+    c16stombs(ent->data, ent->wdata, sizeof(ent->data));
+#else
     wcstombs(ent->data, ent->wdata, sizeof(ent->data));
+#endif
 }
