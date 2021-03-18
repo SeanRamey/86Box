@@ -75,10 +75,10 @@ enum {
 };
 
 /* ROM BIOS file paths. */
-#define ROM_PATH_NE1000		L"roms/network/ne1000/ne1000.rom"
-#define ROM_PATH_NE2000		L"roms/network/ne2000/ne2000.rom"
-#define ROM_PATH_RTL8019	L"roms/network/rtl8019as/rtl8019as.rom"
-#define ROM_PATH_RTL8029	L"roms/network/rtl8029as/rtl8029as.rom"
+#define ROM_PATH_NE1000		"roms/network/ne1000/ne1000.rom"
+#define ROM_PATH_NE2000		"roms/network/ne2000/ne2000.rom"
+#define ROM_PATH_RTL8019	"roms/network/rtl8019as/rtl8019as.rom"
+#define ROM_PATH_RTL8029	"roms/network/rtl8029as/rtl8029as.rom"
 
 /* PCI info. */
 #define PNP_VENDID		0x4a8c		/* Realtek, Inc */
@@ -1085,7 +1085,7 @@ nic_pci_write(int func, int addr, uint8_t val, void *priv)
 
 
 static void
-nic_rom_init(nic_t *dev, wchar_t *s)
+nic_rom_init(nic_t *dev, char *s)
 {
     uint32_t temp;
     FILE *f;
@@ -1094,7 +1094,7 @@ nic_rom_init(nic_t *dev, wchar_t *s)
 
     if (dev->bios_addr == 0) return;
 
-    if ((f = rom_fopen(s, L"rb")) != NULL) {
+    if ((f = rom_fopen(s, "rb")) != NULL) {
 	fseek(f, 0L, SEEK_END);
 	temp = ftell(f);
 	fclose(f);
@@ -1194,7 +1194,7 @@ static void *
 nic_init(const device_t *info)
 {
     uint32_t mac;
-    wchar_t *rom;
+    char *rom;
     nic_t *dev;
 #ifdef ENABLE_NIC_LOG
     int i;

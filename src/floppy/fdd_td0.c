@@ -1204,7 +1204,7 @@ td0_load(int drive, wchar_t *fn)
     memset(dev, 0x00, sizeof(td0_t));
     td0[drive] = dev;
 
-    dev->f = plat_fopen(fn, L"rb");
+    dev->f = plat_wfopen(fn, L"rb");
     if (dev->f == NULL) {
 	memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
 	return;

@@ -654,9 +654,9 @@ img_load(int drive, wchar_t *fn)
     dev = (img_t *)malloc(sizeof(img_t));
     memset(dev, 0x00, sizeof(img_t));
 
-    dev->f = plat_fopen(fn, L"rb+");
+    dev->f = plat_wfopen(fn, L"rb+");
     if (dev->f == NULL) {
-	dev->f = plat_fopen(fn, L"rb");
+	dev->f = plat_wfopen(fn, L"rb");
 	if (dev->f == NULL) {
 		free(dev);
 		memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
@@ -721,7 +721,7 @@ img_load(int drive, wchar_t *fn)
 		img_log("img_load(): File is a FDF image...\n");
 		fwriteprot[drive] = writeprot[drive] = 1;
 		fclose(dev->f);
-		dev->f = plat_fopen(fn, L"rb");
+		dev->f = plat_wfopen(fn, L"rb");
 
 		fdf = 1;
 		cqm = 0;
@@ -861,7 +861,7 @@ img_load(int drive, wchar_t *fn)
 		img_log("img_load(): File is a CopyQM image...\n");
 		fwriteprot[drive] = writeprot[drive] = 1;
 		fclose(dev->f);
-		dev->f = plat_fopen(fn, L"rb");
+		dev->f = plat_wfopen(fn, L"rb");
 
 		fseek(dev->f, 0x03, SEEK_SET);
 		fread(&bpb_bps, 1, 2, dev->f);

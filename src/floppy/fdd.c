@@ -488,7 +488,7 @@ fdd_load(int drive, wchar_t *fn)
     p = plat_get_extension(fn);
     if (!p)
 	return;
-    f = plat_fopen(fn, L"rb");
+    f = plat_wfopen(fn, L"rb");
     if (!f)
 	return;
     if (fseek(f, -1, SEEK_END) == -1)

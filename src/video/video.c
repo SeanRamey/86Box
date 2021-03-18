@@ -338,7 +338,7 @@ static png_infop	info_ptr;
 
 
 static void
-video_take_screenshot(const wchar_t *fn, int startx, int starty, int y1, int y2, int w, int h)
+video_take_screenshot(const char *fn, int startx, int starty, int y1, int y2, int w, int h)
 {
     int i, x, y;
     png_bytep *b_rgb = NULL;
@@ -346,9 +346,9 @@ video_take_screenshot(const wchar_t *fn, int startx, int starty, int y1, int y2,
     uint32_t temp = 0x00000000;
 
     /* create file */
-    fp = plat_fopen((wchar_t *) fn, (wchar_t *) L"wb");
+    fp = plat_fopen((char *) fn, (char *) "wb");
     if (!fp) {
-	video_log("[video_take_screenshot] File %ls could not be opened for writing", fn);
+	video_log("[video_take_screenshot] File %s could not be opened for writing", fn);
 	return;
     }
 
@@ -411,24 +411,24 @@ video_take_screenshot(const wchar_t *fn, int startx, int starty, int y1, int y2,
 static void
 video_screenshot(int x, int y, int y1, int y2, int w, int h)
 {
-    wchar_t path[1024], fn[128];
+    char path[1024], fn[128];
 
     memset(fn, 0, sizeof(fn));
     memset(path, 0, sizeof(path));
 
-    plat_append_filename(path, usr_path, SCREENSHOT_PATH);
+    plat_append_filename_a(path, usr_path, SCREENSHOT_PATH);
 
     if (! plat_dir_check(path))
 	plat_dir_create(path);
 
-    wcscat(path, L"\\");
+    plat_path_slash_a(path);
 
-    plat_tempfile(fn, NULL, L".png");
-    wcscat(path, fn);
+    plat_tempfile(fn, NULL, ".png");
+    strcat(path, fn);
 
-    video_log("taking screenshot to: %S\n", path);
+    video_log("taking screenshot to: %s\n", path);
 
-    video_take_screenshot((const wchar_t *) path, x, y, y1, y2, w, h);
+    video_take_screenshot((const char *) path, x, y, y1, y2, w, h);
     png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
@@ -1050,11 +1050,11 @@ loadfont_common(FILE *f, int format)
 }
 
 void
-loadfont_ex(wchar_t *s, int format, int offset)
+loadfont_ex(char *s, int format, int offset)
 {
 	FILE *f;
     
-    f = rom_fopen(s, L"rb");
+    f = rom_fopen(s, "rb");
     if (f == NULL)
 		return;
 
@@ -1064,7 +1064,7 @@ loadfont_ex(wchar_t *s, int format, int offset)
 }
 
 void
-loadfont(wchar_t *s, int format)
+loadfont(char *s, int format)
 {
     loadfont_ex(s, format, 0);
 }

@@ -339,7 +339,7 @@ fdi_load(int drive, wchar_t *fn)
 
     d86f_unregister(drive);
 
-    dev->f = plat_fopen(fn, L"rb");
+    dev->f = plat_wfopen(fn, L"rb");
     if (fread(header, 1, 25, dev->f) != 25)
 	fatal("fdi_load(): Error reading header\n");
     if (fseek(dev->f, 0, SEEK_SET) == -1)

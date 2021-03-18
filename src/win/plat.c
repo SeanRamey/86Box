@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <direct.h>
 #include <wchar.h>
 #define HAVE_STDARG_H
 #include <86box/86box.h>
@@ -63,6 +64,7 @@ HINSTANCE	hinstance;		/* application instance */
 HANDLE		ghMutex;
 LCID		lang_id;		/* current language ID used */
 DWORD		dwSubLangID;
+int		acp_utf8;		/* Windows supports UTF-8 codepage */
 
 
 /* Local data. */
@@ -78,7 +80,7 @@ static rc_str_t	*lpRCstr2048,
         *lpRCstr6144,
         *lpRCstr7168;
 static int	vid_api_inited = 0;
-static wchar_t	*argbuf;
+static char	*argbuf;
 
 
 static const struct {
@@ -169,6 +171,36 @@ LoadCommonStrings(void)
 
     for (i=0; i<STR_NUM_7168; i++)
     LoadString(hinstance, 7168+i, lpRCstr7168[i].str, 512);
+}
+
+
+size_t mbstoc16s(uint16_t dst[], const char src[], int len)
+{
+    if (src == NULL) return 0;
+    if (len < 0) return 0;
+
+    size_t ret = MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len);
+
+    if (!ret) {
+	return -1;
+    }
+
+    return ret;
+}
+
+
+size_t c16stombs(char dst[], const uint16_t src[], int len)
+{
+    if (src == NULL) return 0;
+    if (len < 0) return 0;
+
+    size_t ret = WideCharToMultiByte(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len, NULL, NULL);
+
+    if (!ret) {
+	return -1;
+    }
+
+    return ret;
 }
 
 
@@ -293,21 +325,25 @@ CloseConsole(void)
 
 /* Process the commandline, and create standard argc/argv array. */
 static int
-ProcessCommandLine(wchar_t ***argw)
+ProcessCommandLine(char ***argv)
 {
-    WCHAR *cmdline;
-    wchar_t **args;
+    char **args;
     int argc_max;
     int i, q, argc;
 
-    cmdline = GetCommandLine();
-    i = wcslen(cmdline) + 1;
-    argbuf = (wchar_t *)malloc(sizeof(wchar_t)*i);
-    wcscpy(argbuf, cmdline);
+    if (acp_utf8) {
+	i = strlen(GetCommandLineA()) + 1;
+	argbuf = (char *)malloc(i);
+	strcpy(argbuf, GetCommandLineA());
+    } else {
+	i = c16stombs(NULL, GetCommandLineW(), 0) + 1;
+	argbuf = (char *)malloc(i);
+	c16stombs(argbuf, GetCommandLineW(), i);
+    }
 
     argc = 0;
     argc_max = 64;
-    args = (wchar_t **)malloc(sizeof(wchar_t *) * argc_max);
+    args = (char **)malloc(sizeof(char *) * argc_max);
     if (args == NULL) {
     free(argbuf);
     return(0);
@@ -316,40 +352,40 @@ ProcessCommandLine(wchar_t ***argw)
     /* parse commandline into argc/argv format */
     i = 0;
     while (argbuf[i]) {
-    while (argbuf[i] == L' ')
-          i++;
+	while (argbuf[i] == ' ')
+		  i++;
 
-    if (argbuf[i]) {
-        if ((argbuf[i] == L'\'') || (argbuf[i] == L'"')) {
-            q = argbuf[i++];
-            if (!argbuf[i])
-                break;
-        } else
-            q = 0;
+	if (argbuf[i]) {
+		if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
+			q = argbuf[i++];
+			if (!argbuf[i])
+				break;
+		} else
+			q = 0;
 
-        args[argc++] = &argbuf[i];
+		args[argc++] = &argbuf[i];
 
-        if (argc >= argc_max) {
-            argc_max += 64;
-            args = realloc(args, sizeof(wchar_t *)*argc_max);
-            if (args == NULL) {
-                free(argbuf);
-                return(0);
-            }
-        }
+		if (argc >= argc_max) {
+			argc_max += 64;
+			args = realloc(args, sizeof(char *)*argc_max);
+			if (args == NULL) {
+				free(argbuf);
+				return(0);
+			}
+		}
 
-        while ((argbuf[i]) && ((q)
-            ? (argbuf[i]!=q) : (argbuf[i]!=L' '))) i++;
+		while ((argbuf[i]) && ((q)
+			? (argbuf[i]!=q) : (argbuf[i]!=' '))) i++;
 
-        if (argbuf[i]) {
-            argbuf[i] = 0;
-            i++;
-        }
-    }
+		if (argbuf[i]) {
+			argbuf[i] = 0;
+			i++;
+		}
+	}
     }
 
     args[argc] = NULL;
-    *argw = args;
+    *argv = args;
 
     return(argc);
 }
@@ -359,11 +395,17 @@ ProcessCommandLine(wchar_t ***argw)
 int WINAPI
 WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
 {
-    wchar_t **argw = NULL;
+    char **argv = NULL;
     int	argc, i;
     wchar_t * AppID = L"86Box.86Box\0";
 
     SetCurrentProcessExplicitAppUserModelID(AppID);
+
+    /* Check if Windows supports UTF-8 */
+    if (GetACP() == CP_UTF8)
+	acp_utf8 = 1;
+    else
+	acp_utf8 = 0;
 
     /* Set this to the default value (windowed mode). */
     video_fullscreen = 0;
@@ -378,10 +420,10 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     set_language(0x0409);
 
     /* Process the command line for options. */
-    argc = ProcessCommandLine(&argw);
+    argc = ProcessCommandLine(&argv);
 
     /* Pre-initialize the system, this loads the config file. */
-    if (! pc_init(argc, argw))
+    if (! pc_init(argc, argv))
     {
         /* Detach from console. */
         if (force_debug)
@@ -417,7 +459,7 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     i = ui_init(nCmdShow);
 
     free(argbuf);
-    free(argw);
+    free(argv);
     return(i);
 }
 
@@ -465,51 +507,115 @@ do_stop(void)
 
 
 void
-plat_get_exe_name(wchar_t *s, int size)
+plat_get_exe_name(char *s, int size)
 {
-    GetModuleFileName(hinstance, s, size);
+    wchar_t temp[MAX_PATH];
+
+    if (acp_utf8)
+	GetModuleFileNameA(hinstance, s, size);
+    else {
+	GetModuleFileNameW(hinstance, temp, sizeof_w(temp));
+	c16stombs(s, temp, size);
+    }
 }
 
 
 void
-plat_tempfile(wchar_t *bufp, wchar_t *prefix, wchar_t *suffix)
+plat_tempfile(char *bufp, char *prefix, char *suffix)
 {
     SYSTEMTIME SystemTime;
     char temp[1024];
 
     if (prefix != NULL)
-    sprintf(temp, "%ls-", prefix);
+	sprintf(bufp, "%s-", prefix);
       else
-    strcpy(temp, "");
+	strcpy(bufp, "");
 
     GetSystemTime(&SystemTime);
-    sprintf(&temp[strlen(temp)], "%d%02d%02d-%02d%02d%02d-%03d%ls",
+    sprintf(&bufp[strlen(bufp)], "%d%02d%02d-%02d%02d%02d-%03d%s",
         SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay,
-    SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
-    SystemTime.wMilliseconds,
-    suffix);
-    mbstowcs(bufp, temp, strlen(temp)+1);
+	SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
+	SystemTime.wMilliseconds,
+	suffix);
 }
 
 
 int
-plat_getcwd(wchar_t *bufp, int max)
+plat_getcwd(char *bufp, int max)
 {
-    (void)_wgetcwd(bufp, max);
+    wchar_t *temp;
+
+    if (acp_utf8)
+	(void)_getcwd(bufp, max);
+    else {
+	temp = malloc(max * sizeof(wchar_t));
+	(void)_wgetcwd(temp, max);
+	c16stombs(bufp, temp, max);
+	free(temp);
+    }
 
     return(0);
 }
 
 
 int
-plat_chdir(wchar_t *path)
+plat_chdir(char *path)
 {
-    return(_wchdir(path));
+    wchar_t *temp;
+    int len, ret;
+
+    if (acp_utf8)
+	return(_chdir(path));
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	ret = _wchdir(temp);
+
+	free(temp);
+	return ret;
+    }
 }
 
 
 FILE *
-plat_fopen(wchar_t *path, wchar_t *mode)
+plat_fopen(const char *path, const char *mode)
+{
+    wchar_t *pathw, *modew;
+    int len;
+    FILE *fp;
+
+    if (acp_utf8)
+	return fopen(path, mode);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	pathw = malloc(sizeof(wchar_t) * len);
+	mbstoc16s(pathw, path, len);
+
+	len = mbstoc16s(NULL, mode, 0) + 1;
+	modew = malloc(sizeof(wchar_t) * len);
+	mbstoc16s(modew, mode, len);
+
+	fp = _wfopen(pathw, modew);
+
+	free(pathw);
+	free(modew);
+
+	return fp;
+    }
+}
+
+
+FILE *
+plat_fopen64(const char *path, const char *mode)
+{
+    return plat_fopen(path, mode);
+}
+
+
+FILE *
+plat_wfopen(wchar_t *path, wchar_t *mode)
 {
     return(_wfopen(path, mode));
 }
@@ -517,16 +623,29 @@ plat_fopen(wchar_t *path, wchar_t *mode)
 
 /* Open a file, using Unicode pathname, with 64bit pointers. */
 FILE *
-plat_fopen64(const wchar_t *path, const wchar_t *mode)
+plat_wfopen64(const wchar_t *path, const wchar_t *mode)
 {
     return(_wfopen(path, mode));
 }
 
 
 void
-plat_remove(wchar_t *path)
+plat_remove(char *path)
 {
-    _wremove(path);
+    wchar_t *temp;
+    int len;
+
+    if (acp_utf8)
+	remove(path);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	_wremove(temp);
+
+	free(temp);
+    }
 }
 
 
@@ -537,6 +656,17 @@ plat_path_slash(wchar_t *path)
     if ((path[wcslen(path)-1] != L'\\') &&
     (path[wcslen(path)-1] != L'/')) {
     wcscat(path, L"\\");
+    }
+}
+
+
+/* Make sure a path ends with a trailing (back)slash. */
+void
+plat_path_slash_a(char *path)
+{
+    if ((path[strlen(path)-1] != '\\') &&
+	(path[strlen(path)-1] != '/')) {
+	strcat(path, "\\");
     }
 }
 
@@ -552,19 +682,30 @@ plat_path_abs(wchar_t *path)
 }
 
 
-/* Return the last element of a pathname. */
-wchar_t *
-plat_get_basename(const wchar_t *path)
+/* Check if the given path is absolute or not. */
+int
+plat_path_abs_a(char *path)
 {
-    int c = (int)wcslen(path);
+    if ((path[1] == ':') || (path[0] == '\\') || (path[0] == '/'))
+	return(1);
+
+    return(0);
+}
+
+
+/* Return the last element of a pathname. */
+char *
+plat_get_basename(const char *path)
+{
+    int c = (int)strlen(path);
 
     while (c > 0) {
-    if (path[c] == L'/' || path[c] == L'\\')
-       return((wchar_t *)&path[c]);
+	if (path[c] == '/' || path[c] == '\\')
+	   return((char *)&path[c]);
        c--;
     }
 
-    return((wchar_t *)path);
+    return((char *)path);
 }
 
 
@@ -592,14 +733,38 @@ plat_get_dirname(wchar_t *dest, const wchar_t *path)
 }
 
 
-wchar_t *
-plat_get_filename(wchar_t *s)
+/* Return the 'directory' element of a pathname. */
+void
+plat_get_dirname_a(char *dest, const char *path)
 {
-    int c = wcslen(s) - 1;
+    int c = (int)strlen(path);
+    char *ptr;
+
+    ptr = (char *)path;
 
     while (c > 0) {
-    if (s[c] == L'/' || s[c] == L'\\')
-       return(&s[c+1]);
+	if (path[c] == '/' || path[c] == '\\') {
+		ptr = (char *)&path[c];
+		break;
+	}
+ 	c--;
+    }
+
+    /* Copy to destination. */
+    while (path < ptr)
+	*dest++ = *path++;
+    *dest = '\0';
+}
+
+
+char *
+plat_get_filename(char *s)
+{
+    int c = strlen(s) - 1;
+
+    while (c > 0) {
+	if (s[c] == '/' || s[c] == '\\')
+	   return(&s[c+1]);
        c--;
     }
 
@@ -635,19 +800,42 @@ plat_append_filename(wchar_t *dest, wchar_t *s1, wchar_t *s2)
 
 
 void
-plat_put_backslash(wchar_t *s)
+plat_append_filename_a(char *dest, char *s1, char *s2)
 {
-    int c = wcslen(s) - 1;
+    strcat(dest, s1);
+    plat_path_slash_a(dest);
+    strcat(dest, s2);
+}
 
-    if (s[c] != L'/' && s[c] != L'\\')
-       s[c] = L'/';
+
+void
+plat_put_backslash(char *s)
+{
+    int c = strlen(s) - 1;
+
+    if (s[c] != '/' && s[c] != '\\')
+	   s[c] = '/';
 }
 
 
 int
-plat_dir_check(wchar_t *path)
+plat_dir_check(char *path)
 {
-    DWORD dwAttrib = GetFileAttributes(path);
+    DWORD dwAttrib;
+    int len;
+    wchar_t *temp;
+
+    if (acp_utf8)
+	dwAttrib = GetFileAttributesA(path);
+    else {
+	len = mbstoc16s(NULL, path, 0);
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	dwAttrib = GetFileAttributesW(temp);
+
+	free(temp);
+    }
 
     return(((dwAttrib != INVALID_FILE_ATTRIBUTES &&
        (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) ? 1 : 0);
@@ -655,9 +843,24 @@ plat_dir_check(wchar_t *path)
 
 
 int
-plat_dir_create(wchar_t *path)
+plat_dir_create(char *path)
 {
-    return((int)SHCreateDirectory(hwndMain, path));
+    int ret, len;
+    wchar_t *temp;
+
+    if (acp_utf8)
+	return (int)SHCreateDirectoryExA(NULL, path, NULL);
+    else {
+	len = mbstoc16s(NULL, path, 0) + 1;
+	temp = malloc(len * sizeof(wchar_t));
+	mbstoc16s(temp, path, len);
+
+	ret = (int)SHCreateDirectoryExW(NULL, temp, NULL);
+
+	free(temp);
+
+	return ret;
+    }
 }
 
 

@@ -488,10 +488,10 @@ zip_load(zip_t *dev, wchar_t *fn)
 {
     int size = 0;
 
-    dev->drv->f = plat_fopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
+    dev->drv->f = plat_wfopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
     if (!dev->drv->f) {
 	if (!dev->drv->read_only) {
-		dev->drv->f = plat_fopen(fn, L"rb");
+		dev->drv->f = plat_wfopen(fn, L"rb");
 		if (dev->drv->f)
 			dev->drv->read_only = 1;
 		else
@@ -673,7 +673,7 @@ static void
 zip_mode_sense_load(zip_t *dev)
 {
     FILE *f;
-    wchar_t file_name[512];
+    char file_name[512];
 
     memset(&dev->ms_pages_saved, 0, sizeof(mode_sense_pages_t));
     if (dev->drv->is_250) {
@@ -688,12 +688,12 @@ zip_mode_sense_load(zip_t *dev)
 	    memcpy(&dev->ms_pages_saved, &zip_mode_sense_pages_default, sizeof(mode_sense_pages_t));
     }
 
-    memset(file_name, 0, 512 * sizeof(wchar_t));
+    memset(file_name, 0, 512);
     if (dev->drv->bus_type == ZIP_BUS_SCSI)
-	swprintf(file_name, 512, L"scsi_zip_%02i_mode_sense_bin", dev->id);
+	sprintf(file_name, "scsi_zip_%02i_mode_sense_bin", dev->id);
     else
-	swprintf(file_name, 512, L"zip_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"rb");
+	sprintf(file_name, "zip_%02i_mode_sense_bin", dev->id);
+    f = plat_fopen(nvr_path(file_name), "rb");
     if (f) {
 	/* Nothing to read, not used by ZIP. */
 	fclose(f);
@@ -705,14 +705,14 @@ static void
 zip_mode_sense_save(zip_t *dev)
 {
     FILE *f;
-    wchar_t file_name[512];
+    char file_name[512];
 
-    memset(file_name, 0, 512 * sizeof(wchar_t));
+    memset(file_name, 0, 512);
     if (dev->drv->bus_type == ZIP_BUS_SCSI)
-	swprintf(file_name, 512, L"scsi_zip_%02i_mode_sense_bin", dev->id);
+	sprintf(file_name, "scsi_zip_%02i_mode_sense_bin", dev->id);
     else
-	swprintf(file_name, 512, L"zip_%02i_mode_sense_bin", dev->id);
-    f = plat_fopen(nvr_path(file_name), L"wb");
+	sprintf(file_name, "zip_%02i_mode_sense_bin", dev->id);
+    f = plat_fopen(nvr_path(file_name), "wb");
     if (f) {
 	/* Nothing to write, not used by ZIP. */
 	fclose(f);

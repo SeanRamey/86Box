@@ -68,8 +68,7 @@ void
 discord_update_activity(int paused)
 {
     struct DiscordActivity activity;
-    wchar_t config_name_w[1024];
-    char config_name[128];
+    char config_name[1024];
     char *temp;
 
     if(discord_activities == NULL)
@@ -79,10 +78,10 @@ discord_update_activity(int paused)
 
     memset(&activity, 0x00, sizeof(activity));
 
-    plat_get_dirname(config_name_w, usr_path);
-    if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, plat_get_filename(config_name_w), -1, config_name, 128, NULL, NULL) > 0)
+    plat_get_dirname_a(config_name, usr_path);
+    if (strlen(plat_get_filename(config_name)) < 128)
     {
-	sprintf_s(activity.details, 128, "Running \"%s\"", config_name);
+	sprintf_s(activity.details, 128, "Running \"%s\"", plat_get_filename(config_name));
 	sprintf_s(activity.state, 128, "%s (%s)", strchr(machine_getname(), ']') + 2, cpu_s->name);
     }
     else

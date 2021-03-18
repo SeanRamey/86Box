@@ -38,11 +38,11 @@
 #include <86box/vid_svga_render.h>
 
 
-#define BIOS_ROM_PATH_DIAMOND	L"roms/video/et4000w32/et4000w32.bin"
-#define BIOS_ROM_PATH_CARDEX	L"roms/video/et4000w32/et4000w32pcardex.BIN"
-#define BIOS_ROM_PATH_W32		L"roms/video/et4000w32/et4000w32isa.BIN"
-#define BIOS_ROM_PATH_W32I		L"roms/video/et4000w32/ET4KW32I.VBI"
-#define BIOS_ROM_PATH_W32P		L"roms/video/et4000w32/tsenget4000w32ppci.BIN"
+#define BIOS_ROM_PATH_DIAMOND	"roms/video/et4000w32/et4000w32.bin"
+#define BIOS_ROM_PATH_CARDEX	"roms/video/et4000w32/et4000w32pcardex.BIN"
+#define BIOS_ROM_PATH_W32	"roms/video/et4000w32/et4000w32isa.BIN"
+#define BIOS_ROM_PATH_W32I	"roms/video/et4000w32/ET4KW32I.VBI"
+#define BIOS_ROM_PATH_W32P	"roms/video/et4000w32/tsenget4000w32ppci.BIN"
 
 #define FIFO_SIZE 65536
 #define FIFO_MASK (FIFO_SIZE - 1)

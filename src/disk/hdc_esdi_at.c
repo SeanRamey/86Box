@@ -44,7 +44,7 @@
 
 
 #define HDC_TIME		(TIMER_USEC*10LL)
-#define BIOS_FILE		L"roms/hdd/esdi_at/62-000279-061.bin"
+#define BIOS_FILE		"roms/hdd/esdi_at/62-000279-061.bin"
 
 #define STAT_ERR		0x01
 #define STAT_INDEX		0x02

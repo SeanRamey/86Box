@@ -59,31 +59,28 @@ rom_log(const char *fmt, ...)
 
 
 FILE *
-rom_fopen(wchar_t *fn, wchar_t *mode)
+rom_fopen(char *fn, char *mode)
 {
-    wchar_t temp[1024];
+    char temp[1024];
 
-    if (wcslen(exe_path) <= 1024)
-	wcscpy(temp, exe_path);
-    else
-	wcsncpy(temp, exe_path, 1024);
-    plat_put_backslash(temp);
-    wcscat(temp, fn);
+    strncpy(temp, exe_path, 1024);
+    //plat_put_backslash(temp);
+    strcat(temp, fn);
 
     return(plat_fopen(temp, mode));
 }
 
 
 int
-rom_getfile(wchar_t *fn, wchar_t *s, int size)
+rom_getfile(char *fn, char *s, int size)
 {
     FILE *f;
 
-    wcscpy(s, exe_path);
-    plat_put_backslash(s);
-    wcscat(s, fn);
+    strncpy(s, exe_path, size);
+    //plat_put_backslash(s);
+    strcat(s, fn);
 
-    f = plat_fopen(s, L"rb");
+    f = plat_fopen(s, "rb");
     if (f != NULL) {
 	(void)fclose(f);
 	return(1);
@@ -94,11 +91,11 @@ rom_getfile(wchar_t *fn, wchar_t *s, int size)
 
 
 int
-rom_present(wchar_t *fn)
+rom_present(char *fn)
 {
     FILE *f;
 
-    f = rom_fopen(fn, L"rb");
+    f = rom_fopen(fn, "rb");
     if (f != NULL) {
 	(void)fclose(f);
 	return(1);
@@ -163,9 +160,9 @@ rom_readl(uint32_t addr, void *priv)
 
 
 int
-rom_load_linear_oddeven(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
+rom_load_linear_oddeven(char *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
 {
-    FILE *f = rom_fopen(fn, L"rb");
+    FILE *f = rom_fopen(fn, "rb");
     int i;
         
     if (f == NULL) {
@@ -200,9 +197,9 @@ rom_load_linear_oddeven(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *pt
 
 /* Load a ROM BIOS from its chips, interleaved mode. */
 int
-rom_load_linear(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
+rom_load_linear(char *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
 {
-    FILE *f = rom_fopen(fn, L"rb");
+    FILE *f = rom_fopen(fn, "rb");
         
     if (f == NULL) {
 	rom_log("ROM: image '%ls' not found\n", fn);
@@ -230,9 +227,9 @@ rom_load_linear(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
 
 /* Load a ROM BIOS from its chips, linear mode with high bit flipped. */
 int
-rom_load_linear_inverted(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
+rom_load_linear_inverted(char *fn, uint32_t addr, int sz, int off, uint8_t *ptr)
 {
-    FILE *f = rom_fopen(fn, L"rb");
+    FILE *f = rom_fopen(fn, "rb");
         
     if (f == NULL) {
 	rom_log("ROM: image '%ls' not found\n", fn);
@@ -272,10 +269,10 @@ rom_load_linear_inverted(wchar_t *fn, uint32_t addr, int sz, int off, uint8_t *p
 
 /* Load a ROM BIOS from its chips, interleaved mode. */
 int
-rom_load_interleaved(wchar_t *fnl, wchar_t *fnh, uint32_t addr, int sz, int off, uint8_t *ptr)
+rom_load_interleaved(char *fnl, char *fnh, uint32_t addr, int sz, int off, uint8_t *ptr)
 {
-    FILE *fl = rom_fopen(fnl, L"rb");
-    FILE *fh = rom_fopen(fnh, L"rb");
+    FILE *fl = rom_fopen(fnl, "rb");
+    FILE *fh = rom_fopen(fnh, "rb");
     int c;
 
     if (fl == NULL || fh == NULL) {
@@ -438,7 +435,7 @@ bios_add(void)
 
 /* These four are for loading the BIOS. */
 int
-bios_load(wchar_t *fn1, wchar_t *fn2, uint32_t addr, int sz, int off, int flags)
+bios_load(char *fn1, char *fn2, uint32_t addr, int sz, int off, int flags)
 {
     uint8_t ret = 0;
     uint8_t *ptr = NULL;
@@ -486,7 +483,7 @@ bios_load(wchar_t *fn1, wchar_t *fn2, uint32_t addr, int sz, int off, int flags)
 
 
 int
-bios_load_linear_combined(wchar_t *fn1, wchar_t *fn2, int sz, int off)
+bios_load_linear_combined(char *fn1, char *fn2, int sz, int off)
 {
     uint8_t ret = 0;
 
@@ -498,7 +495,7 @@ bios_load_linear_combined(wchar_t *fn1, wchar_t *fn2, int sz, int off)
 
 
 int
-bios_load_linear_combined2(wchar_t *fn1, wchar_t *fn2, wchar_t *fn3, wchar_t *fn4, wchar_t *fn5, int sz, int off)
+bios_load_linear_combined2(char *fn1, char *fn2, char *fn3, char *fn4, char *fn5, int sz, int off)
 {
     uint8_t ret = 0;
 
@@ -514,7 +511,7 @@ bios_load_linear_combined2(wchar_t *fn1, wchar_t *fn2, wchar_t *fn3, wchar_t *fn
 
 
 int
-rom_init(rom_t *rom, wchar_t *fn, uint32_t addr, int sz, int mask, int off, uint32_t flags)
+rom_init(rom_t *rom, char *fn, uint32_t addr, int sz, int mask, int off, uint32_t flags)
 {
     rom_log("rom_init(%08X, %08X, %08X, %08X, %08X, %08X, %08X)\n", rom, fn, addr, sz, mask, off, flags);
 
@@ -544,7 +541,7 @@ rom_init(rom_t *rom, wchar_t *fn, uint32_t addr, int sz, int mask, int off, uint
 
 
 int
-rom_init_oddeven(rom_t *rom, wchar_t *fn, uint32_t addr, int sz, int mask, int off, uint32_t flags)
+rom_init_oddeven(rom_t *rom, char *fn, uint32_t addr, int sz, int mask, int off, uint32_t flags)
 {
     rom_log("rom_init(%08X, %08X, %08X, %08X, %08X, %08X, %08X)\n", rom, fn, addr, sz, mask, off, flags);
 
@@ -574,7 +571,7 @@ rom_init_oddeven(rom_t *rom, wchar_t *fn, uint32_t addr, int sz, int mask, int o
 
 
 int
-rom_init_interleaved(rom_t *rom, wchar_t *fnl, wchar_t *fnh, uint32_t addr, int sz, int mask, int off, uint32_t flags)
+rom_init_interleaved(rom_t *rom, char *fnl, char *fnh, uint32_t addr, int sz, int mask, int off, uint32_t flags)
 {
     /* Allocate a buffer for the image. */
     rom->rom = malloc(sz);

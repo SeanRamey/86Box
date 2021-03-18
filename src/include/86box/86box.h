@@ -31,9 +31,9 @@
 #define SCREEN_RES_Y	480
 
 /* Filename and pathname info. */
-#define CONFIG_FILE	L"86box.cfg"
-#define NVR_PATH        L"nvr"
-#define SCREENSHOT_PATH L"screenshots"
+#define CONFIG_FILE	"86box.cfg"
+#define NVR_PATH        "nvr"
+#define SCREENSHOT_PATH "screenshots"
 
 
 #if defined(ENABLE_BUSLOGIC_LOG) || \
@@ -76,7 +76,7 @@ extern int	confirm_exit_cmdl;		/* (O) do not ask for confirmation on quit if set
 extern uint64_t	unique_id;
 extern uint64_t	source_hwnd;
 #endif
-extern wchar_t	log_path[1024];			/* (O) full path of logfile */
+extern char	log_path[1024];			/* (O) full path of logfile */
 
 
 extern int window_w;	/* (C) window size and */
@@ -139,9 +139,9 @@ extern int	serial_do_log;
 extern int	nic_do_log;
 #endif
 
-extern wchar_t exe_path[2048];			/* path (dir) of executable */
-extern wchar_t usr_path[1024];			/* path (dir) of user data */
-extern wchar_t cfg_path[1024];			/* full path of config file */
+extern char	exe_path[2048];			/* path (dir) of executable */
+extern char	usr_path[1024];			/* path (dir) of user data */
+extern char	cfg_path[1024];			/* full path of config file */
 #ifndef USE_NEW_DYNAREC
 extern FILE	*stdlog;			/* file to log output to */
 #endif
@@ -164,8 +164,8 @@ extern void	set_screen_size_natural(void);
 #if 0
 extern void	pc_reload(wchar_t *fn);
 #endif
-extern int pc_init_modules(void);
-extern int pc_init(int argc, wchar_t *argv[]);
+extern int	pc_init_modules(void);
+extern int	pc_init(int argc, char *argv[]);
 extern void	pc_close(void *threadid);
 extern void	pc_reset_hard_close(void);
 extern void	pc_reset_hard_init(void);

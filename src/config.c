@@ -262,7 +262,7 @@ config_free(void)
 
 /* Read and parse the configuration file into memory. */
 static int
-config_read(wchar_t *fn)
+config_read(char *fn)
 {
     char sname[128], ename[128];
     wchar_t buff[1024];
@@ -272,9 +272,9 @@ config_read(wchar_t *fn)
     FILE *f;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_fopen(fn, L"rt");
+    f = plat_fopen(fn, "rt");
 #else
-    f = plat_fopen(fn, L"rt, ccs=UNICODE");
+    f = plat_fopen(fn, "rt, ccs=UTF-8");
 #endif
     if (f == NULL) return(0);
 	
@@ -351,7 +351,11 @@ config_read(wchar_t *fn)
 	memcpy(ne->name, ename, 128);
 	wcsncpy(ne->wdata, &buff[d], sizeof_w(ne->wdata)-1);
 	ne->wdata[sizeof_w(ne->wdata)-1] = L'\0';
+#ifdef _WIN32	/* Make sure the string is converted to UTF-8 rather than a legacy codepage */
+	c16stombs(ne->data, ne->wdata, sizeof(ne->data));
+#else
 	wcstombs(ne->data, ne->wdata, sizeof(ne->data));
+#endif
 	ne->data[sizeof(ne->data)-1] = '\0';
 
 	/* .. and insert it. */
@@ -374,7 +378,7 @@ config_read(wchar_t *fn)
  * has changed it.
  */
 void
-config_write(wchar_t *fn)
+config_write(char *fn)
 {
     wchar_t wtemp[512];
     section_t *sec;
@@ -382,9 +386,9 @@ config_write(wchar_t *fn)
     int fl = 0;
 
 #if defined(ANSI_CFG) || !defined(_WIN32)
-    f = plat_fopen(fn, L"wt");
+    f = plat_fopen(fn, "wt");
 #else
-    f = plat_fopen(fn, L"wt, ccs=UNICODE");
+    f = plat_fopen(fn, "wt, ccs=UTF-8");
 #endif
     if (f == NULL) return;
 
@@ -429,7 +433,7 @@ config_new(void)
 #if defined(ANSI_CFG) || !defined(_WIN32)
     FILE *f = _wfopen(config_file, L"wt");
 #else
-    FILE *f = _wfopen(config_file, L"wt, ccs=UNICODE");
+    FILE *f = _wfopen(config_file, L"wt, ccs=UTF-8");
 #endif
 
     if (file != NULL)
@@ -1116,8 +1120,10 @@ load_hard_disks(void)
 	if (plat_path_abs(wp)) {
 		wcsncpy(hdd[c].fn, wp, sizeof_w(hdd[c].fn));
 	} else {
-		wcsncpy(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
-		wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn)-wcslen(usr_path));
+		//wcsncpy(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
+		//wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn)-wcslen(usr_path));
+		mbstoc16s(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
+		wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn) - mbstoc16s(NULL, usr_path, 0));
 	}
 
 	/* If disk is empty or invalid, mark it for deletion. */
@@ -1698,7 +1704,7 @@ config_load(void)
 {
     int i;
 
-    config_log("Loading config file '%ls'..\n", cfg_path);
+    config_log("Loading config file '%s'..\n", cfg_path);
 
     memset(hdd, 0, sizeof(hard_disk_t));
     memset(cdrom, 0, sizeof(cdrom_t) * CDROM_NUM);
@@ -2271,6 +2277,9 @@ save_hard_disks(void)
     char *p;
     int c;
 
+    wchar_t usr_path_w[1024];
+    mbstoc16s(usr_path_w, usr_path, sizeof_w(usr_path_w));
+
     memset(temp, 0x00, sizeof(temp));
     for (c=0; c<HDD_NUM; c++) {
 	sprintf(temp, "hdd_%02i_parameters", c+1);
@@ -2317,8 +2326,8 @@ save_hard_disks(void)
 
 	sprintf(temp, "hdd_%02i_fn", c+1);
 	if (hdd_is_valid(c) && (wcslen(hdd[c].fn) != 0))
-		if (!wcsnicmp(hdd[c].fn, usr_path, wcslen(usr_path)))
-			config_set_wstring(cat, temp, &hdd[c].fn[wcslen(usr_path)]);
+		if (!wcsnicmp(hdd[c].fn, usr_path_w, wcslen(usr_path_w)))
+			config_set_wstring(cat, temp, &hdd[c].fn[wcslen(usr_path_w)]);
 		else
 			config_set_wstring(cat, temp, hdd[c].fn);
 	else
@@ -2827,7 +2836,11 @@ config_set_string(char *head, char *name, char *val)
 	memcpy(ent->data, val, strlen(val) + 1);
     else
 	memcpy(ent->data, val, sizeof(ent->data));
+#ifdef _WIN32	/* Make sure the string is converted from UTF-8 rather than a legacy codepage */
+    mbstoc16s(ent->wdata, ent->data, sizeof_w(ent->wdata));
+#else
     mbstowcs(ent->wdata, ent->data, sizeof_w(ent->wdata));
+#endif
 }
 
 
@@ -2846,5 +2859,9 @@ config_set_wstring(char *head, char *name, wchar_t *val)
 	ent = create_entry(section, name);
 
     memcpy(ent->wdata, val, sizeof_w(ent->wdata));
+#ifdef _WIN32	/* Make sure the string is converted to UTF-8 rather than a legacy codepage */
+    c16stombs(ent->data, ent->wdata, sizeof(ent->data));
+#else
     wcstombs(ent->data, ent->wdata, sizeof(ent->data));
+#endif
 }
