@@ -90,8 +90,7 @@ extern FILE	*plat_wfopen64(const wchar_t *path, const wchar_t *mode);
 extern void	plat_remove(char *path);
 extern int	plat_getcwd(char *bufp, int max);
 extern int	plat_chdir(char *path);
-extern void	plat_tempfile(char *bufp, char *prefix, char *suffix);
-extern void	plat_get_exe_name(char *s, int size);
+extern void	plat_get_exe_name(char *s, size_t size);
 extern char	*plat_get_basename(const char *path);
 extern void	plat_get_dirname(wchar_t *dest, const wchar_t *path);
 extern void	plat_get_dirname_a(char *dest, const char *path);
@@ -155,7 +154,7 @@ typedef void thread_t;
 typedef void event_t;
 typedef void mutex_t;
 
-extern thread_t	*thread_create(void (*thread_func)(void *param), void *param);
+extern thread_t	*thread_create(int (*thread_func)(void *param), void *param);
 extern void	thread_kill(thread_t *arg);
 extern int thread_wait(thread_t *arg, int timeout);
 extern event_t *thread_create_event(void);

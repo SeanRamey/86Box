@@ -131,7 +131,7 @@ PALETTE		cgapal = {
     {42,0,21},  {21,10,21}, {42,0,42},  {42,0,63},
     {21,21,21}, {21,63,21}, {42,21,42}, {21,63,63},
     {63,0,0},   {42,42,0},  {63,21,42}, {41,41,41},
-        
+
     {0,0,0},   {0,42,42},   {42,0,0},   {42,42,42},
     {0,0,0},   {0,42,42},   {42,0,0},   {42,42,42},
     {0,0,0},   {0,63,63},   {63,0,0},   {63,63,63},
@@ -423,7 +423,7 @@ video_screenshot(int x, int y, int y1, int y2, int w, int h)
 
     plat_path_slash_a(path);
 
-    plat_tempfile(fn, NULL, ".png");
+	emu_generate_tempfilename(fn, sizeof(fn), NULL, ".png");
     strcat(path, fn);
 
     video_log("taking screenshot to: %s\n", path);
@@ -837,7 +837,7 @@ video_init(void)
 	cgapal[c + 64].r = (((c & 4) ? 2 : 0) | ((c & 0x10) ? 1 : 0)) * 21;
 	cgapal[c + 64].g = (((c & 2) ? 2 : 0) | ((c & 0x10) ? 1 : 0)) * 21;
 	cgapal[c + 64].b = (((c & 1) ? 2 : 0) | ((c & 0x10) ? 1 : 0)) * 21;
-	if ((c & 0x17) == 6) 
+	if ((c & 0x17) == 6)
 		cgapal[c + 64].g >>= 1;
     }
     for (c = 0; c < 64; c++) {
@@ -929,7 +929,7 @@ void
 loadfont_common(FILE *f, int format)
 {
     int c, d;
-	
+
 	switch (format) {
 	case 0:		/* MDA */
 		for (c=0; c<256; c++)
@@ -1043,7 +1043,7 @@ loadfont_common(FILE *f, int format)
 		for (c = 0; c < 256; c++)
 			fread(&fontdat12x18[c][0], 1, 36, f);
 		break;
-		
+
 	}
 
     (void)fclose(f);
@@ -1053,7 +1053,7 @@ void
 loadfont_ex(char *s, int format, int offset)
 {
 	FILE *f;
-    
+
     f = rom_fopen(s, "rb");
     if (f == NULL)
 		return;

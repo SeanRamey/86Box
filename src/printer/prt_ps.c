@@ -41,7 +41,7 @@
 
 
 #define GS_ARG_ENCODING_UTF8	1
-#define gs_error_Quit		-101 
+#define gs_error_Quit		-101
 
 #define PATH_GHOSTSCRIPT_DLL		"gsdll32.dll"
 #define PATH_GHOSTSCRIPT_SO		"libgs.so"
@@ -192,7 +192,7 @@ write_buffer(ps_t *dev, bool finish)
 	return;
 
     if (dev->filename[0] == 0)
-	plat_tempfile(dev->filename, NULL, ".ps");
+    emu_generate_tempfilename(dev->filename, sizeof(dev->filename), NULL, ".ps")
 
     strcpy(path, dev->printer_path);
     plat_path_slash_a(path);

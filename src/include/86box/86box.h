@@ -123,9 +123,9 @@ extern int confirm_save;			/* (C) enable save confirmation */
 #ifdef USE_DISCORD
 extern int	enable_discord;			/* (C) enable Discord integration */
 #endif
-extern int	enable_crashdump;		/* (C) enable crash dump */
+extern int enable_crashdump;		/* (C) enable crash dump */
 
-extern int	is_pentium;			/* TODO: Move back to cpu/cpu.h when it's figured out,
+extern int is_pentium;			/* TODO: Move back to cpu/cpu.h when it's figured out,
 							 how to remove that hack from the ET4000/W32p. */
 
 
@@ -178,6 +178,7 @@ extern void	pc_send_cab(void);
 extern void	pc_thread(void *param);
 extern void	pc_start(void);
 extern void	pc_onesec(void);
+extern void emu_generate_tempfilename(char *buff, size_t bufsize, char *prefix, char *suffix);
 
 extern uint16_t	get_last_addr(void);
 

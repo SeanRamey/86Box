@@ -423,7 +423,7 @@ new_page(escp_t *dev, int8_t save, int8_t resetx)
     }
 
     /* Make the page's file name. */
-    plat_tempfile(dev->page_fn, NULL, ".png");
+	emu_generate_tempfilename(dev->page_fn, sizeof(dev->page_fn), NULL, ".png");
 }
 
 
