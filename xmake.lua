@@ -8,11 +8,18 @@ target("86box-lib")
 	set_languages("gnu11", "gnu++11")
 	add_packages("libsdl","libpng", "glib", "freetype")
 
+	-- common compiler flags
+	add_cxflags("-Wpedantic", "-Wall", "-Wextra", "-Wno-deprecated", "-Wno-deprecated-declarations", "-march=native")
+	add_ldflags("-march=native")
+
 	if is_mode("debug") then
         add_defines("DEBUG")
-    end
-	if is_mode("release") then
+		add_cxflags("-fno-omit-frame-pointer")
+		add_ldflags("-fno-omit-frame-pointer")
+    else is_mode("release")
         add_defines("RELEASE")
+		add_cxflags("-flto")
+		add_ldflags("-flto")
     end
 
 	-- recursively search for .c and .cpp files under the src directory
@@ -55,8 +62,18 @@ target("86box")
 	add_packages("libsdl","libpng", "glib", "freetype")
 	set_rundir("$(projectdir)")
 
+	-- common compiler flags
+	add_cxflags("-Wpedantic", "-Wall", "-Wextra", "-Wno-deprecated", "-Wno-deprecated-declarations", "-march=native")
+	add_ldflags("-march=native")
+
 	if is_mode("debug") then
         add_defines("DEBUG")
+		add_cxflags("-fno-omit-frame-pointer")
+		add_ldflags("-fno-omit-frame-pointer")
+    else is_mode("release")
+        add_defines("RELEASE")
+		add_cxflags("-flto")
+		add_ldflags("-flto")
     end
 
 	-- only need the main.c because the rest is in the 86box-lib dependency
