@@ -65,7 +65,7 @@ namespace Platform {
 /* Global variables residing in the platform module. */
 extern int dopause;	/* system is paused */
 extern int doresize;			/* screen resize requested */
-extern int quited;				/* system exit requested */
+extern int is_quit;				/* system exit requested */
 extern int mouse_capture;			/* mouse is captured in app */
 
 #ifdef MTR_ENABLED

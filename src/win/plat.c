@@ -482,7 +482,7 @@ main_thread(void *param)
     title_update = 1;
     old_time = GetTickCount();
     drawits = frames = 0;
-    while (!quited) {
+    while (!is_quit) {
 	/* See if it is time to run a frame of code. */
 	new_time = GetTickCount();
 	drawits += (new_time - old_time);
@@ -1105,41 +1105,41 @@ plat_setfullscreen(int on)
     if (vid_apis[vid_api].set_fs)
     vid_apis[vid_api].set_fs(on);
     if (!on) {
-    plat_resize(scrnsz_x, scrnsz_y);
-    if (vid_resize) {
-        /* scale the screen base on DPI */
-        if (window_remember) {
-            MoveWindow(hwndMain, window_x, window_y, window_w, window_h, TRUE);
-            GetClientRect(hwndMain, &rect);
+	plat_resize(scrnsz_x, scrnsz_y);
+	if (vid_resize) {
+		/* scale the screen base on DPI */
+		if (window_remember) {
+			MoveWindow(hwndMain, window_x, window_y, window_w, window_h, TRUE);
+			GetClientRect(hwndMain, &rect);
 
-            temp_x = rect.right - rect.left + 1;
-            temp_y = rect.bottom - rect.top + 1 - sbar_height;
-        } else {
-            if (dpi_scale) {
-                temp_x = MulDiv(unscaled_size_x, dpi, 96);
-                temp_y = MulDiv(unscaled_size_y, dpi, 96);
-            } else {
-                temp_x = unscaled_size_x;
-                temp_y = unscaled_size_y;
-            }
+			temp_x = rect.right - rect.left + 1;
+			temp_y = rect.bottom - rect.top + 1 - sbar_height;
+		} else {
+			if (dpi_scale) {
+				temp_x = MulDiv(unscaled_size_x, dpi, 96);
+				temp_y = MulDiv(unscaled_size_y, dpi, 96);
+			} else {
+				temp_x = unscaled_size_x;
+				temp_y = unscaled_size_y;
+			}
 
-            /* Main Window. */
-            ResizeWindowByClientArea(hwndMain, temp_x, temp_y + sbar_height);
-        }
+			/* Main Window. */
+			ResizeWindowByClientArea(hwndMain, temp_x, temp_y + sbar_height);
+		}
 
-        /* Render window. */
-        MoveWindow(hwndRender, 0, 0, temp_x, temp_y, TRUE);
-        GetWindowRect(hwndRender, &rect);
+		/* Render window. */
+		MoveWindow(hwndRender, 0, 0, temp_x, temp_y, TRUE);
+		GetWindowRect(hwndRender, &rect);
 
-        /* Status bar. */
-        MoveWindow(hwndSBAR, 0, rect.bottom, temp_x, 17, TRUE);
+		/* Status bar. */
+		MoveWindow(hwndSBAR, 0, rect.bottom, temp_x, 17, TRUE);
 
-        if (mouse_capture)
-            ClipCursor(&rect);
+		if (mouse_capture)
+			ClipCursor(&rect);
 
-        scrnsz_x = unscaled_size_x;
-        scrnsz_y = unscaled_size_y;
-    }
+		scrnsz_x = unscaled_size_x;
+		scrnsz_y = unscaled_size_y;
+	}
     }
     video_fullscreen &= 1;
     video_force_resize_set(1);
