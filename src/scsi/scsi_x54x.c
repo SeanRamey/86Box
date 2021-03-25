@@ -92,6 +92,8 @@ x54x_irq(x54x_t *dev, int set)
 	else
        	        pci_clear_irq(dev->pci_slot, PCI_INTA);
     } else {
+	x54x_log("%sing IRQ %i\n", set ? "Rais" : "Lower", irq);
+
 	if (set) {
 		if (dev->interrupt_type)
 			int_type = dev->interrupt_type(dev);
@@ -437,6 +439,8 @@ x54x_bios_command(x54x_t *x54x, uint8_t max_id, BIOSCMD *cmd, int8_t islba)
 		x54x_log("BIOS Target ID %i has no device attached\n", cmd->id);
 		ret = 0x80;
 	} else {
+		scsi_device_identify(dev, 0xff);
+
 		if ((dev->type == SCSI_REMOVABLE_CDROM) && !(x54x->flags & X54X_CDROM_BOOT)) {
 			x54x_log("BIOS Target ID %i is CD-ROM on unsupported BIOS\n", cmd->id);
 			return(0x80);
@@ -961,7 +965,7 @@ x54x_scsi_cmd(x54x_t *dev)
     else
 	dev->callback_sub_phase = 2;
 
-    x54x_log("scsi_devices[%02i].Status = %02X\n", id, sd->status);
+    x54x_log("scsi_devices[%02i].Status = %02X\n", req->TargetID, sd->status);
 }
 
 
@@ -1049,12 +1053,21 @@ x54x_mbo_free(x54x_t *dev)
 static void
 x54x_notify(x54x_t *dev)
 {
+    Req_t *req = &dev->Req;
+    scsi_device_t *sd;
+
+    sd = &scsi_devices[req->TargetID];
+
     x54x_mbo_free(dev);
 
     if (dev->MailboxIsBIOS)
 	x54x_ccb(dev);
     else
 	x54x_mbi(dev);
+
+    /* Make sure to restore device to non-IDENTIFY'd state as we disconnect. */
+    if (sd->type != SCSI_NONE)
+	scsi_device_identify(sd, SCSI_LUN_USE_CDB);
 }
 
 
@@ -1089,14 +1102,14 @@ x54x_req_setup(x54x_t *dev, uint32_t CCBPointer, Mailbox32_t *Mailbox32)
 
     sd->status = SCSI_STATUS_OK;
 
-    /* If there is no device at ID:0, timeout the selection - the LUN is then checked later. */
-    if (! scsi_device_present(sd)) {
+    if (!scsi_device_present(sd) || (lun > 0)) {
 	x54x_log("SCSI Target ID %i and LUN %i have no device attached\n",id,lun);
 	x54x_mbi_setup(dev, CCBPointer, &req->CmdBlock,
 		       CCB_SELECTION_TIMEOUT, SCSI_STATUS_OK, MBI_ERROR);
 	dev->callback_sub_phase = 4;
     } else {
 	x54x_log("SCSI Target ID %i detected and working\n", id);
+	scsi_device_identify(sd, lun);
 
 	x54x_log("Transfer Control %02X\n", req->CmdBlock.common.ControlByte);
 	x54x_log("CDB Length %i\n", req->CmdBlock.common.CdbLength);	
@@ -1310,7 +1323,7 @@ x54x_cmd_callback(void *priv)
 
     period = (1000000.0 / dev->ha_bps) * ((double) dev->temp_period);
     timer_on(&dev->timer, dev->media_period + period + 10.0, 0);
-    x54x_log("Temporary period: %lf us (%" PRIi64 " periods)\n", dev->timer.period, dev->temp_period);
+    // x54x_log("Temporary period: %lf us (%" PRIi64 " periods)\n", dev->timer.period, dev->temp_period);
 }
 
 
@@ -1370,6 +1383,13 @@ x54x_in(uint16_t port, void *priv)
 		}
 		break;
     }
+
+#ifdef ENABLE_X54X_LOG
+    if (port == 0x0332)
+	x54x_log("x54x_in(): %04X, %02X, %08X\n", port, ret, dev->DataReplyLeft);
+    else
+	x54x_log("x54x_in(): %04X, %02X\n", port, ret);
+#endif
 
     return(ret);
 }

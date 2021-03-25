@@ -268,7 +268,7 @@ typedef struct {
 	int32_t		rm_mod_reg_data;
     }		rm_data;
 
-    int8_t	ssegs, ismmx,
+    uint8_t	ssegs, ismmx,
 		abrt, pad;
 
     int		_cycles;
@@ -613,5 +613,8 @@ typedef struct
 
 
 extern cyrix_t	cyrix;
+
+extern void	(*cpu_exec)(int cycs);
+extern uint8_t	do_translate, do_translate2;
 
 #endif	/*EMU_CPU_H*/

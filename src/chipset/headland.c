@@ -31,9 +31,7 @@
 #include <86box/timer.h>
 #include <86box/io.h>
 #include <86box/mem.h>
-#include <86box/rom.h>
 #include <86box/device.h>
-#include <86box/keyboard.h>
 #include <86box/fdd.h>
 #include <86box/fdc.h>
 #include <86box/port_92.h>
@@ -62,8 +60,6 @@ typedef struct headland_t {
 
     headland_mr_t	null_mr,
 			ems_mr[64];
-
-    rom_t		vid_bios;
 
     mem_mapping_t	low_mapping;
     mem_mapping_t	ems_mapping[64];
@@ -132,7 +128,7 @@ get_addr(headland_t *dev, uint32_t addr, headland_mr_t *mr)
     if (mr && mr->valid && (dev->cr[0] & 2) && (mr->mr & 0x200)) {
 	addr = (addr & 0x3fff) | ((mr->mr & 0x1F) << 14);
 
-	bank = (mr->mr >> 7) && 3;
+	bank = (mr->mr >> 7) & 3;
 
 	if (bank_shift[bank] >= 21)
 		addr |= (mr->mr & 0x060) << 14;

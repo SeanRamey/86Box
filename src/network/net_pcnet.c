@@ -40,6 +40,7 @@
 #include <86box/pic.h>
 #include <86box/random.h>
 #include <86box/device.h>
+#include <86box/isapnp.h>
 #include <86box/network.h>
 #include <86box/net_pcnet.h>
 #include <86box/bswap.h>
@@ -80,7 +81,7 @@ typedef struct RTNETETHERHDR
 #define BCR_LED1        5
 #define BCR_LED2        6
 #define BCR_LED3        7
-#define BCR_RESERVED8   8
+#define BCR_SWCONFIG    8
 #define BCR_FDC         9
 /* 10 - 15 = reserved */
 #define BCR_IOBASEL     16  /* Reserved */
@@ -189,6 +190,21 @@ typedef struct RTNETETHERHDR
 #define PHYSADDR(S,A) ((A) | (S)->GCUpperPhys)
 
 
+static const uint8_t am79c961_pnp_rom[] = {
+    0x04, 0x96, 0x55, 0xaa, 0x00, 0x00, 0x00, 0x00, 0x00, /* ADV55AA, dummy checksum (filled in by isapnp_add_card) */
+    0x0a, 0x10, 0x00, /* PnP version 1.0, vendor version 0.0 */
+    0x82, 0x1c, 0x00, 'A', 'M', 'D', ' ', 'E', 't', 'h', 'e', 'r', 'n', 'e', 't', ' ', 'N', 'e', 't', 'w', 'o', 'r', 'k', ' ', 'A', 'd', 'a', 'p', 't', 'e', 'r', /* ANSI identifier */
+
+    0x16, 0x04, 0x96, 0x55, 0xaa, 0x00, 0xbd, /* logical device ADV55AA, supports vendor-specific registers 0x38/0x3A/0x3B/0x3C/0x3D/0x3F */
+	0x1c, 0x41, 0xd0, 0x82, 0x8c, /* compatible device PNP828C */
+	0x47, 0x00, 0x00, 0x02, 0xe0, 0x03, 0x20, 0x18, /* I/O 0x200-0x3E0, decodes 10-bit, 32-byte alignment, 24 addresses */
+	0x2a, 0xe8, 0x02, /* DMA 3/5/6/7, compatibility, no count by word, no count by byte, not bus master, 16-bit only */
+	0x23, 0x38, 0x9e, 0x09, /* IRQ 3/4/5/9/10/11/12/15, low true level sensitive, high true edge sensitive */
+
+    0x79, 0x00 /* end tag, dummy checksum (filled in by isapnp_add_card) */
+};
+
+
 typedef struct {
 	mem_mapping_t mmio_mapping;
     const char	*name;
@@ -211,7 +227,7 @@ typedef struct {
     uint32_t GCRDRA;
     /** Address of the TX descriptor table (ring). Loaded at init. */
     uint32_t GCTDRA;
-    uint8_t  aPROM[16];
+    uint8_t  aPROM[256];
     uint16_t aCSR[CSR_MAX_REG];
     uint16_t aBCR[BCR_MAX_RAP];
     uint16_t aMII[MII_MAX_REG];
@@ -441,15 +457,11 @@ pcnetTmdLoad(nic_t *dev, TMD *tmd, uint32_t addr, int fRetIfNotOwn)
     uint16_t xda[4];
     uint32_t xda32[4];
 
-    use_phys_exec = 1;
-
     if (BCR_SWSTYLE(dev) == 0) {
 	dma_bm_read(addr, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-	    use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)&xda[0], sizeof(xda), dev->transfer_size);
         ((uint32_t *)tmd)[0] = (uint32_t)xda[0] | ((uint32_t)(xda[1] & 0x00ff) << 16);
         ((uint32_t *)tmd)[1] = (uint32_t)xda[2] | ((uint32_t)(xda[1] & 0xff00) << 16);
@@ -458,18 +470,14 @@ pcnetTmdLoad(nic_t *dev, TMD *tmd, uint32_t addr, int fRetIfNotOwn)
     } else if (BCR_SWSTYLE(dev) != 3) {
 	dma_bm_read(addr + 4, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-	    use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)tmd, 16, dev->transfer_size);
     } else {
 	dma_bm_read(addr + 4, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-	    use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)&xda32[0], sizeof(xda32), dev->transfer_size);
         ((uint32_t *)tmd)[0] = xda32[2];
         ((uint32_t *)tmd)[1] = xda32[1];
@@ -481,8 +489,6 @@ pcnetTmdLoad(nic_t *dev, TMD *tmd, uint32_t addr, int fRetIfNotOwn)
         pcnetlog(3, "%s: pcnetTmdLoad: own bit flipped while reading!!\n", dev->name);
     if (!(ownbyte & 0x80))
         tmd->tmd1.own = 0;
-
-    use_phys_exec = 0;
 
     return !!tmd->tmd1.own;
 }
@@ -497,8 +503,6 @@ pcnetTmdStorePassHost(nic_t *dev, TMD *tmd, uint32_t addr)
 {
     uint16_t xda[4];
     uint32_t xda32[3];
-
-    use_phys_exec = 1;
 
     if (BCR_SWSTYLE(dev) == 0) {
         xda[0] =   ((uint32_t *)tmd)[0]        & 0xffff;
@@ -529,8 +533,6 @@ pcnetTmdStorePassHost(nic_t *dev, TMD *tmd, uint32_t addr)
         xda32[1] &= ~0x80000000;
         dma_bm_write(addr, (uint8_t*)&xda32[0], sizeof(xda32), dev->transfer_size);
     }
-
-    use_phys_exec = 0;
 }
 
 
@@ -550,15 +552,11 @@ pcnetRmdLoad(nic_t *dev, RMD *rmd, uint32_t addr, int fRetIfNotOwn)
     uint16_t rda[4];
     uint32_t rda32[4];
 
-    use_phys_exec = 1;
-
     if (BCR_SWSTYLE(dev) == 0) {
         dma_bm_read(addr, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-            use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)&rda[0], sizeof(rda), dev->transfer_size);
         ((uint32_t *)rmd)[0] = (uint32_t)rda[0] | ((rda[1] & 0x00ff) << 16);
         ((uint32_t *)rmd)[1] = (uint32_t)rda[2] | ((rda[1] & 0xff00) << 16);
@@ -567,18 +565,14 @@ pcnetRmdLoad(nic_t *dev, RMD *rmd, uint32_t addr, int fRetIfNotOwn)
     } else if (BCR_SWSTYLE(dev) != 3) {
         dma_bm_read(addr + 4, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-            use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)rmd, 16, dev->transfer_size);
     } else {
         dma_bm_read(addr + 4, (uint8_t *) bytes, 4, dev->transfer_size);
 	ownbyte = bytes[3];
-        if (!(ownbyte & 0x80) && fRetIfNotOwn) {
-            use_phys_exec = 0;
+        if (!(ownbyte & 0x80) && fRetIfNotOwn)
             return 0;
-	}
         dma_bm_read(addr, (uint8_t*)&rda32[0], sizeof(rda32), dev->transfer_size);
         ((uint32_t *)rmd)[0] = rda32[2];
         ((uint32_t *)rmd)[1] = rda32[1];
@@ -591,8 +585,6 @@ pcnetRmdLoad(nic_t *dev, RMD *rmd, uint32_t addr, int fRetIfNotOwn)
 	
     if (!(ownbyte & 0x80))
         rmd->rmd1.own = 0;
-
-    use_phys_exec = 0;
 
     return !!rmd->rmd1.own;
 }
@@ -607,8 +599,6 @@ pcnetRmdStorePassHost(nic_t *dev, RMD *rmd, uint32_t addr)
 {
     uint16_t rda[4];
     uint32_t rda32[3];
-
-    use_phys_exec = 1;
 
     if (BCR_SWSTYLE(dev) == 0) {
         rda[0] =   ((uint32_t *)rmd)[0]      & 0xffff;
@@ -639,8 +629,6 @@ pcnetRmdStorePassHost(nic_t *dev, RMD *rmd, uint32_t addr)
         rda32[1] &= ~0x80000000;
         dma_bm_write(addr, (uint8_t*)&rda32[0], sizeof(rda32), dev->transfer_size);
     }
-
-    use_phys_exec = 0;
 }
 
 
@@ -885,6 +873,7 @@ pcnetSoftReset(nic_t *dev)
 	case DEV_AM79C960:
 	case DEV_AM79C960_EB:
 	case DEV_AM79C960_VLB:
+	case DEV_AM79C961:
 		dev->aCSR[88] = 0x3003;
 		dev->aCSR[89] = 0x0262;
 		break;
@@ -954,10 +943,8 @@ pcnetInit(nic_t *dev)
     /** @todo Documentation says that RCVRL and XMTRL are stored as two's complement!
      *        Software is allowed to write these registers directly. */
 #define PCNET_INIT() do { \
-    use_phys_exec = 1; \
     dma_bm_read(PHYSADDR(dev, CSR_IADR(dev)),         \
 		(uint8_t *)&initblk, sizeof(initblk), dev->transfer_size);             \
-    use_phys_exec = 0; \
     dev->aCSR[15]  = le16_to_cpu(initblk.mode);                        \
     CSR_RCVRL(dev) = (initblk.rlen < 9) ? (1 << initblk.rlen) : 512;   \
     CSR_XMTRL(dev) = (initblk.tlen < 9) ? (1 << initblk.tlen) : 512;   \
@@ -1363,9 +1350,7 @@ pcnetReceiveNoSync(void *priv, uint8_t *buf, int size)
              *  - we don't cache any register state beyond this point
              */
 
-            use_phys_exec = 1;
             dma_bm_write(rbadr, src, cbBuf, dev->transfer_size);
-            use_phys_exec = 0;
 			
             /* RX disabled in the meantime? If so, abort RX. */
             if (CSR_DRX(dev) || CSR_STOP(dev) || CSR_SPND(dev)) {
@@ -1408,9 +1393,7 @@ pcnetReceiveNoSync(void *priv, uint8_t *buf, int size)
                 /* We have to leave the critical section here or we risk deadlocking
                  * with EMT when the write is to an unallocated page or has an access
                  * handler associated with it. See above for additional comments. */
-                use_phys_exec = 1;
                 dma_bm_write(rbadr2, src, cbBuf, dev->transfer_size);
-                use_phys_exec = 0;
 
                 /* RX disabled in the meantime? If so, abort RX. */
                 if (CSR_DRX(dev) || CSR_STOP(dev) || CSR_SPND(dev)) {
@@ -1537,9 +1520,7 @@ pcnetAsyncTransmit(nic_t *dev)
 		 * zero length if it is not the last one in the chain. */
 		if (cb <= MAX_FRAME) {
 		    dev->xmit_pos = cb;
-		    use_phys_exec = 1;
 		    dma_bm_read(PHYSADDR(dev, tmd.tmd0.tbadr), dev->abLoopBuf, cb, dev->transfer_size);
-		    use_phys_exec = 0;
 
 		    if (fLoopback) {
 			if (HOST_IS_OWNER(CSR_CRST(dev)))
@@ -1605,9 +1586,7 @@ pcnetAsyncTransmit(nic_t *dev)
              */
             unsigned cb = 4096 - tmd.tmd1.bcnt;
 	    dev->xmit_pos = pcnetCalcPacketLen(dev, cb);
-	    use_phys_exec = 1;
 	    dma_bm_read(PHYSADDR(dev, tmd.tmd0.tbadr), dev->abLoopBuf, cb, dev->transfer_size);
-	    use_phys_exec = 0;
 
             for (;;) {
                 /*
@@ -1646,9 +1625,7 @@ pcnetAsyncTransmit(nic_t *dev)
                 if (dev->xmit_pos + cb <= MAX_FRAME) { /** @todo this used to be ... + cb < MAX_FRAME. */
 		    int off = dev->xmit_pos;
 		    dev->xmit_pos = cb + off;
-		    use_phys_exec = 1;
 		    dma_bm_read(PHYSADDR(dev, tmd.tmd0.tbadr), dev->abLoopBuf + off, cb, dev->transfer_size);
-		    use_phys_exec = 0;
 		}
 
                 /*
@@ -1750,10 +1727,6 @@ pcnetHardReset(nic_t *dev)
     dev->aBCR[BCR_LED1] = 0x0084;
     dev->aBCR[BCR_LED2] = 0x0088;
     dev->aBCR[BCR_LED3] = 0x0090;
-	
-    /* For ISA PnP cards, BCR8 reports IRQ/DMA (e.g. 0x0035 means IRQ 3, DMA 5). */
-    if (dev->is_isa)
-       dev->aBCR[8] = dev->dma_channel | (dev->base_irq << 4);
 
     dev->aBCR[BCR_FDC] = 0x0000;
     dev->aBCR[BCR_BSBC] = 0x9001;
@@ -1997,11 +1970,6 @@ pcnet_csr_readw(nic_t *dev, uint16_t rap)
 	     return pcnet_bcr_readw(dev,BCR_SWS);
 	case 68: /* Custom register to pass link speed to driver */
 	     return pcnetLinkSpd(dev->u32LinkSpeed);
-	case 88:
-	     val = dev->aCSR[89];
-	     val <<= 16;
-	     val |= dev->aCSR[88];
-	     break;
 	default:
 	     val = dev->aCSR[rap];
 	     break;
@@ -2232,6 +2200,14 @@ pcnet_bcr_readw(nic_t *dev, uint16_t rap)
 		} else
 		    val = 0xffff;
 		break;
+
+	case BCR_SWCONFIG:
+		if (dev->board == DEV_AM79C961)
+		    val = ((dev->base_irq & 0x0f) << 4) | (dev->dma_channel & 0x07);
+		else
+		    val = 0xffff;
+		break;
+
 	default:
 		val = rap < BCR_MAX_RAP ? dev->aBCR[rap] : 0;
 		break;
@@ -2750,6 +2726,65 @@ pcnet_pci_read(int func, int addr, void *p)
     return(0);
 }
 
+static void
+pcnet_pnp_config_changed(uint8_t ld, isapnp_device_config_t *config, void *priv)
+{
+    if (ld)
+	return;
+
+    nic_t *dev = (nic_t *) priv;
+
+    dev->base_address = 0;
+    dev->base_irq = 0;
+    dev->dma_channel = -1;
+
+    if (dev->base_address) {
+	pcnet_ioremove(dev, dev->base_address, 0x20);
+	dev->base_address = 0;
+    }
+
+    if (config->activate) {
+	dev->base_address = config->io[0].base;
+	if (dev->base_address != ISAPNP_IO_DISABLED)
+		pcnet_ioset(dev, dev->base_address, 0x20);
+
+	dev->base_irq = config->irq[0].irq;
+	dev->dma_channel = config->dma[0].dma;
+	if (dev->dma_channel == ISAPNP_DMA_DISABLED)
+		dev->dma_channel = -1;
+
+	/* Update PnP register mirrors in ROM. */
+	dev->aPROM[32] = dev->base_address >> 8;
+	dev->aPROM[33] = dev->base_address;
+	dev->aPROM[34] = dev->base_irq;
+	dev->aPROM[35] = (config->irq[0].level << 1) | config->irq[0].type;
+	dev->aPROM[36] = (dev->dma_channel == -1) ? ISAPNP_DMA_DISABLED : dev->dma_channel;
+    }
+}
+
+static uint8_t
+pcnet_pnp_read_vendor_reg(uint8_t ld, uint8_t reg, void *priv)
+{
+    nic_t *dev = (nic_t *) priv;
+
+    if (!ld && (reg == 0xf0))
+	return dev->aPROM[50];
+    else
+	return 0x00;
+}
+
+static void
+pcnet_pnp_write_vendor_reg(uint8_t ld, uint8_t reg, uint8_t val, void *priv)
+{
+    if (ld)
+	return;
+
+    nic_t *dev = (nic_t *) priv;
+
+    if (reg == 0xf0)
+	dev->aPROM[50] = val & 0x1f;
+}
+
 /**
  * Takes down the link temporarily if it's current status is up.
  *
@@ -2947,6 +2982,8 @@ pcnet_init(const device_t *info)
 	dev->aPROM[9] = 0x11;
     else if (dev->is_vlb)
 	dev->aPROM[9] = 0x10;
+    else if (dev->board == DEV_AM79C961)
+	dev->aPROM[9] = 0x01;
     else
 	dev->aPROM[9] = 0x00;
 
@@ -2986,6 +3023,18 @@ pcnet_init(const device_t *info)
 	/* Add device to the PCI bus, keep its slot number. */
 	dev->card = pci_add_card(PCI_ADD_NORMAL,
 				 pcnet_pci_read, pcnet_pci_write, dev);
+    } else if (dev->board == DEV_AM79C961) {
+	dev->dma_channel = -1;
+
+	/* Weird secondary checksum. The datasheet isn't clear on what
+	   role it might play with the PnP register mirrors before it. */
+	for (c = 0, checksum = 0; c < 54; c++)
+		checksum += dev->aPROM[c];
+
+	dev->aPROM[51] = checksum;
+
+	memcpy(&dev->aPROM[0x40], am79c961_pnp_rom, sizeof(am79c961_pnp_rom));
+	isapnp_add_card(&dev->aPROM[0x40], sizeof(am79c961_pnp_rom), pcnet_pnp_config_changed, NULL, pcnet_pnp_read_vendor_reg, pcnet_pnp_write_vendor_reg, dev);
     } else {
 	dev->base_address = device_get_config_hex16("base");
 	dev->base_irq = device_get_config_int("irq");
@@ -3169,7 +3218,7 @@ static const device_config_t pcnet_vlb_config[] =
 };
 
 const device_t pcnet_am79c960_device = {
-    "AMD Am79c960 (PCnet-ISA) ",
+    "AMD PCnet-ISA ",
     DEVICE_AT | DEVICE_ISA,
     DEV_AM79C960,
     pcnet_init, pcnet_close, NULL,
@@ -3178,7 +3227,7 @@ const device_t pcnet_am79c960_device = {
 };
 
 const device_t pcnet_am79c960_eb_device = {
-    "AMD Am79c960EB (PCnet-ISA) ",
+    "Racal Interlan EtherBlaster",
     DEVICE_AT | DEVICE_ISA,
     DEV_AM79C960_EB,
     pcnet_init, pcnet_close, NULL,
@@ -3187,7 +3236,7 @@ const device_t pcnet_am79c960_eb_device = {
 };
 
 const device_t pcnet_am79c960_vlb_device = {
-    "AMD Am79c960 (PCnet-VL) ",
+    "AMD PCnet-VL",
     DEVICE_VLB,
     DEV_AM79C960_VLB,
     pcnet_init, pcnet_close, NULL,
@@ -3195,8 +3244,17 @@ const device_t pcnet_am79c960_vlb_device = {
     pcnet_vlb_config
 };
 
+const device_t pcnet_am79c961_device = {
+    "AMD PCnet-ISA+",
+    DEVICE_AT | DEVICE_ISA,
+    DEV_AM79C961,
+    pcnet_init, pcnet_close, NULL,
+    { NULL }, NULL, NULL,
+    pcnet_pci_config
+};
+
 const device_t pcnet_am79c970a_device = {
-    "AMD Am79c970a (PCnet-PCI II)",
+    "AMD PCnet-PCI II",
     DEVICE_PCI,
     DEV_AM79C970A,
     pcnet_init, pcnet_close, NULL,
@@ -3205,7 +3263,7 @@ const device_t pcnet_am79c970a_device = {
 };
 
 const device_t pcnet_am79c973_device = {
-    "AMD Am79c973 (PCnet-FAST)",
+    "AMD PCnet-FAST III",
     DEVICE_PCI,
     DEV_AM79C973,
     pcnet_init, pcnet_close, NULL,
