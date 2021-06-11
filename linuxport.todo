@@ -1,0 +1,17 @@
+The Story So Far: Created a plat.cpp file for Linux. Working from top to bottom, last ported function was plat_delay_ms().
+Moved all vidapi functions into separate file vidapi.c/vidapi.h.
+Working from top to bottom, last ported function in vidapi.c is get_vidpause().
+Copy/pasted src/win/plat_ui.c to src/linux/plat_ui.cpp with some minor changes to get started.
+
+
+TODO: Make vidapi functions platform independent, continue at setfullscreen().
+TODO: Looking into using SDL2 for video.
+
+Changelog:
+Renamed src/win/win_ui.c -> src/win/plat_ui.c for consistency
+Added src/linux/plat_ui.cpp
+src/linux/plat_ui.cpp implements the UI for linux
+Added src/include/86box/rect.h
+src/include/86box/rect.h defines the Rect struct to emulate the Windows RECT struct on other platforms.
+Added src/include/window.h
+src/include/window.h typedefs a void* as WindowHandle to take the place of Windows' HWND on platform independent code.

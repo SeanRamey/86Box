@@ -348,7 +348,7 @@ pc_init(int argc, char *argv[])
 	/* Grab the executable's full path. */
 	plat_get_exe_name(exe_path, sizeof(exe_path)-1);
 	p = plat_get_filename(exe_path);
-	*p = L'\0';
+	*p = '\0';
 
 	/*
 	 * Get the current working directory.
@@ -449,7 +449,7 @@ usage:
 	 * make sure that if that was a relative path, we
 	 * make it absolute.
 	 */
-	if (path[0] != L'\0') {
+	if (path[0] != '\0') {
 	if (! plat_path_abs_a(path)) {
 		/*
 		 * This looks like a relative path.
@@ -488,7 +488,7 @@ usage:
 	 * path component. Separate the two, and
 	 * add the path component to the cfg path.
 	 */
-	*(p-1) = L'\0';
+	*(p-1) = '\0';
 
 	/*
 	 * If this is an absolute path, keep it, as
@@ -568,7 +568,7 @@ int
 pc_init_modules(void)
 {
 	int c, m;
-	wchar_t temp[512];
+	char temp[512];
 	char tempc[512];
 
 	pc_log("Scanning for ROM images:\n");
@@ -590,7 +590,7 @@ pc_init_modules(void)
 	machine = -1;
 	while (machine_get_internal_name_ex(c) != NULL) {
 		if (machine_available(c)) {
-			ui_msgbox_header(MBX_INFO, (wchar_t *) IDS_2128, temp);
+			ui_msgbox_header(MBX_INFO, (char *) IDS_2128, temp);
 			machine = c;
 			config_save();
 			break;
@@ -613,7 +613,7 @@ pc_init_modules(void)
 	while (video_get_internal_name(c) != NULL) {
 		gfxcard = -1;
 		if (video_card_available(c)) {
-			ui_msgbox_header(MBX_INFO, (wchar_t *) IDS_2128, temp);
+			ui_msgbox_header(MBX_INFO, (char *) IDS_2128, temp);
 			gfxcard = c;
 			config_save();
 			break;
@@ -862,23 +862,13 @@ pc_reset_hard(void)
 
 
 void
-pc_close(thread_t *ptr)
+pc_close()
 {
-	int i;
-
 	/* Wait a while so things can shut down. */
 	plat_delay_ms(200);
 
 	/* Claim the video blitter. */
 	startblit();
-
-	/* Terminate the main thread. */
-	if (ptr != NULL) {
-	thread_kill(ptr);
-
-	/* Wait some more. */
-	plat_delay_ms(200);
-	}
 
 #if (defined(USE_DYNAREC) && defined(USE_NEW_DYNAREC))
 	codegen_close();
@@ -900,7 +890,7 @@ pc_close(thread_t *ptr)
 
 	lpt_devices_close();
 
-	for (i=0; i<FDD_NUM; i++)
+	for (int i=0; i<FDD_NUM; i++)
 	   fdd_close(i);
 
 #ifdef ENABLE_808X_LOG
@@ -933,7 +923,7 @@ pc_close(thread_t *ptr)
 void
 pc_run(void)
 {
-	wchar_t temp[200];
+	char temp[200];
 
 	/* Run a block of code. */
 	cpu_exec(cpu_s->rspeed / 100);
@@ -948,7 +938,7 @@ pc_run(void)
 	}
 
 	if (title_update) {
-		swprintf(temp, sizeof_w(temp), mouse_msg[!!mouse_capture], fps);
+		sprintf(temp, sizeof_w(temp), mouse_msg[mouse_capture], fps);
 		ui_window_title(temp);
 		title_update = 0;
 	}

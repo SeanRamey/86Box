@@ -40,9 +40,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-SoundGainDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+SoundGainDialogProcedure(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HWND h;
+    WindowHandle h;
 
     switch (message) {
 	case WM_INITDIALOG:
@@ -86,7 +86,7 @@ SoundGainDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 void
-SoundGainDialogCreate(HWND hwnd)
+SoundGainDialogCreate(WindowHandle hwnd)
 {
     DialogBox(hinstance, (LPCTSTR)DLG_SND_GAIN, hwnd, SoundGainDialogProcedure);
 }

@@ -30,7 +30,7 @@ struct direct {
     unsigned short 	d_reclen;
     unsigned short	d_off;
 #ifdef UNICODE
-    wchar_t		d_name[MAXNAMLEN + 1];
+    char		d_name[MAXNAMLEN + 1];
 #else
     char		d_name[MAXNAMLEN + 1];
 #endif
@@ -45,7 +45,7 @@ typedef struct {
     short	sts;			/* last known status code	*/
     char	*dta;			/* internal work data		*/
 #ifdef UNICODE
-    wchar_t	dir[MAXDIRLEN+1];	/* open dir			*/
+    char	dir[MAXDIRLEN+1];	/* open dir			*/
 #else
     char	dir[MAXDIRLEN+1];	/* open dir			*/
 #endif
@@ -61,7 +61,7 @@ typedef struct {
 
 /* Function prototypes. */
 #ifdef UNICODE
-extern DIR		*opendirw(const wchar_t *);
+extern DIR		*opendirw(const char *);
 #else
 extern DIR		*opendir(const char *);
 #endif

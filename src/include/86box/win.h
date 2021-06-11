@@ -33,6 +33,8 @@
 # include "resource.h"
 # undef BITMAP
 
+#include <86box/window.h>
+
 /* DPI Awareness Context, copied from MinGW-w64 windef.h */
 #ifndef _DPI_AWARENESS_CONTEXTS_
 DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
@@ -84,20 +86,14 @@ DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
 /* The emulator has shut down. */
 #define WM_HAS_SHUTDOWN		0x8897
 
-#ifdef USE_VNC
-#define RENDERERS_NUM		4
-#else
-#define RENDERERS_NUM		3
-#endif
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern HINSTANCE	hinstance;
-extern HWND		hwndMain,
-			hwndRender;
+extern WindowHandle hwndMain,
+extern WindowHandle hwndRender;
 extern HANDLE		ghMutex;
 extern LCID		lang_id;
 extern HICON		hIcon[256];
@@ -113,7 +109,7 @@ extern WCHAR		wopenfilestring[512];
 extern uint8_t		filterindex;
 
 
-extern void	ResizeWindowByClientArea(HWND hwnd, int width, int height);
+extern void	ResizeWindowByClientArea(WindowHandle hwnd, int width, int height);
 extern void	InitCrashDump(void);
 
 extern HICON	LoadIconEx(PCTSTR pszIconName);
@@ -138,7 +134,7 @@ extern void     win_joystick_handle(PRAWINPUT raw);
 
 extern void     win_notify_dlg_open(void);
 extern void     win_notify_dlg_closed(void);
-extern int      win_get_dpi(HWND hwnd);
+extern int      win_get_dpi(WindowHandle hwnd);
 extern int      win_get_system_metrics(int i, int dpi);
 
 extern LPARAM	win_get_string(int id);
@@ -146,15 +142,15 @@ extern LPARAM	win_get_string(int id);
 extern intptr_t	fdd_type_to_icon(int type);
 
 #ifdef EMU_DEVICE_H
-extern uint8_t	deviceconfig_open(HWND hwnd, const device_t *device);
-extern uint8_t	deviceconfig_inst_open(HWND hwnd, const device_t *device, int inst);
+extern uint8_t	deviceconfig_open(WindowHandle hwnd, const device_t *device);
+extern uint8_t	deviceconfig_inst_open(WindowHandle hwnd, const device_t *device, int inst);
 #endif
-extern uint8_t	joystickconfig_open(HWND hwnd, int joy_nr, int type);
+extern uint8_t	joystickconfig_open(WindowHandle hwnd, int joy_nr, int type);
 
-extern int	getfile(HWND hwnd, char *f, char *fn);
-extern int	getsfile(HWND hwnd, char *f, char *fn);
+extern int	getfile(WindowHandle hwnd, char *f, char *fn);
+extern int	getsfile(WindowHandle hwnd, char *f, char *fn);
 
-extern void	hard_disk_add_open(HWND hwnd, int is_existing);
+extern void	hard_disk_add_open(WindowHandle hwnd, int is_existing);
 extern int	hard_disk_was_added(void);
 
 
@@ -163,15 +159,15 @@ extern int	ui_init(int nCmdShow);
 
 
 /* Functions in win_about.c: */
-extern void	AboutDialogCreate(HWND hwnd);
+extern void	AboutDialogCreate(WindowHandle hwnd);
 
 
 /* Functions in win_snd_gain.c: */
-extern void	SoundGainDialogCreate(HWND hwnd);
+extern void	SoundGainDialogCreate(WindowHandle hwnd);
 
 
 /* Functions in win_new_floppy.c: */
-extern void	NewFloppyDialogCreate(HWND hwnd, int id, int part);
+extern void	NewFloppyDialogCreate(WindowHandle hwnd, int id, int part);
 
 
 /* Functions in win_settings.c: */
@@ -187,31 +183,31 @@ extern void	NewFloppyDialogCreate(HWND hwnd, int id, int part);
 #define SETTINGS_PAGE_OTHER_REMOVABLE_DEVICES	9
 #define SETTINGS_PAGE_PERIPHERALS		10
 
-extern void	win_settings_open(HWND hwnd);
-extern void	win_settings_open_ex(HWND hwnd, int category);
+extern void	win_settings_open(WindowHandle hwnd);
+extern void	win_settings_open_ex(WindowHandle hwnd, int category);
 
 
 /* Functions in win_stbar.c: */
-extern HWND	hwndSBAR;
-extern void	StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst);
-extern int	MediaMenuHandler(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern WindowHandle	hwndSBAR;
+extern void	StatusBarCreate(WindowHandle hwndParent, uintptr_t idStatus, HINSTANCE hInst);
+extern int	MediaMenuHandler(WindowHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 /* Functions in win_dialog.c: */
 /* Pass NULL in the title param to use the default title. */
-extern int	file_dlg_w(HWND hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save);
-extern int	file_dlg(HWND hwnd, WCHAR *f, char *fn, char *title, int save);
-extern int	file_dlg_mb(HWND hwnd, char *f, char *fn, char *title, int save);
-extern int	file_dlg_w_st(HWND hwnd, int i, WCHAR *fn, char *title, int save);
-extern int	file_dlg_st(HWND hwnd, int i, char *fn, char *title, int save);
+extern int	file_dlg_w(WindowHandle hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save);
+extern int	file_dlg(WindowHandle hwnd, WCHAR *f, char *fn, char *title, int save);
+extern int	file_dlg_mb(WindowHandle hwnd, char *f, char *fn, char *title, int save);
+extern int	file_dlg_w_st(WindowHandle hwnd, int i, WCHAR *fn, char *title, int save);
+extern int	file_dlg_st(WindowHandle hwnd, int i, char *fn, char *title, int save);
 
-extern wchar_t	*BrowseFolder(wchar_t *saved_path, wchar_t *title);
+extern char	*BrowseFolder(char *saved_path, char *title);
 
 
 /* Functions in win_media_menu.c */
 extern void	media_menu_init();
 extern void	media_menu_reset();
-extern int	media_menu_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern int	media_menu_proc(WindowHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 extern HMENU	media_menu_get_floppy(int id);
 extern HMENU	media_menu_get_cdrom(int id);
 extern HMENU	media_menu_get_zip(int id);

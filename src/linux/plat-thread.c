@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include <thread.h>
+#include <threads.h>
 #include <86box/86box.h>
 #include <86box/plat.h>
 
@@ -32,20 +32,20 @@ thread_t* thread_create(int (*func)(void *param), void *param)
 		case thrd_success:
 			break;
 		case thrd_timedout:
-			pclog("Thread %d timed out.", thread);
+			pclog("Thread %d timed out.", thread_id);
 			thread_id = 0;
 			break;
 		case thrd_busy:
-			pclog("Thread %d is busy.", thread);
+			pclog("Thread %d is busy.", thread_id);
 			thread_id = 0;
 			break;
 		case thrd_nomem:
-			fatal("Thread %d couldn't be created; Out of memory.", thread);
+			fatal("Thread %d couldn't be created; Out of memory.", thread_id);
 			thread_id = 0;
 			break;
 		case thrd_error:
 		default:
-			fatal("Thread %d couldn't be created. General error.", thread);
+			fatal("Thread %d couldn't be created. General error.", thread_id);
 			thread_id = 0;
 			break;
 	}

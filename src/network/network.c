@@ -248,7 +248,7 @@ network_init(void)
 
 #ifdef ENABLE_NETWORK_LOG
     /* Start packet dump. */
-    network_dump = fopen("network.pcap", "wb");
+    network_dump = plat_fopen("network.pcap", "wb");
 
     struct {
 	uint32_t magic_number;
@@ -438,7 +438,7 @@ network_close(void)
 
     /* Force-close the SLIRP module. */
     net_slirp_close();
- 
+
     /* Close the network events. */
     if (poll_data.wake_poll_thread != NULL) {
 	thread_destroy_event(poll_data.wake_poll_thread);
@@ -512,7 +512,7 @@ network_reset(void)
 
     if (i < 0) {
 	/* Tell user we can't do this (at the moment.) */
-	ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2093, (wchar_t *) IDS_2129);
+	ui_msgbox_header(MBX_ERROR, (char *) IDS_2093, (char *) IDS_2129);
 
 	// FIXME: we should ask in the dialog if they want to
 	//	  reconfigure or quit, and throw them into the
@@ -657,13 +657,13 @@ int
 network_card_get_from_internal_name(char *s)
 {
     int c = 0;
-	
+
     while (strlen((char *)net_cards[c].internal_name)) {
 	if (! strcmp((char *)net_cards[c].internal_name, s))
 			return(c);
 	c++;
     }
-	
+
     return(-1);
 }
 

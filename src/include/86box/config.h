@@ -40,7 +40,7 @@ typedef struct {
 					   0 = Image;
 					   1 = Host drive */
 
-    wchar_t	path[1024];		/* Name of current image file or
+    char	path[1024];		/* Name of current image file or
 					   host drive */
 
     uint32_t	spt,			/* Physical geometry parameters */
@@ -149,14 +149,14 @@ extern int	config_get_hex16(char *head, char *name, int def);
 extern int	config_get_hex20(char *head, char *name, int def);
 extern int	config_get_mac(char *head, char *name, int def);
 extern char	*config_get_string(char *head, char *name, char *def);
-extern wchar_t	*config_get_wstring(char *head, char *name, wchar_t *def);
+extern char	*config_get_wstring(char *head, char *name, char *def);
 extern void	config_set_int(char *head, char *name, int val);
 extern void	config_set_double(char *head, char *name, double val);
 extern void	config_set_hex16(char *head, char *name, int val);
 extern void	config_set_hex20(char *head, char *name, int val);
 extern void	config_set_mac(char *head, char *name, int val);
 extern void	config_set_string(char *head, char *name, char *val);
-extern void	config_set_wstring(char *head, char *name, wchar_t *val);
+extern void	config_set_wstring(char *head, char *name, char *val);
 
 #ifdef __cplusplus
 }

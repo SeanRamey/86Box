@@ -46,7 +46,7 @@
 /* Open a directory. */
 DIR *
 #ifdef UNICODE
-opendirw(const wchar_t *name)
+opendirw(const char *name)
 #else
 opendir(const char *name)
 #endif

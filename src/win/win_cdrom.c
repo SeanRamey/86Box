@@ -42,7 +42,7 @@
 
 
 void
-floppy_mount(uint8_t id, wchar_t *fn, uint8_t wp)
+floppy_mount(uint8_t id, char *fn, uint8_t wp)
 {
     fdd_close(id);
     ui_writeprot[id] = wp;
@@ -80,7 +80,7 @@ plat_cdrom_ui_update(uint8_t id, uint8_t reload)
 }
 
 void
-cdrom_mount(uint8_t id, wchar_t *fn)
+cdrom_mount(uint8_t id, char *fn)
 {
     cdrom[id].prev_host_drive = cdrom[id].host_drive;
     wcscpy(cdrom[id].prev_image_path, cdrom[id].image_path);
@@ -122,7 +122,7 @@ mo_eject(uint8_t id)
 
 
 void
-mo_mount(uint8_t id, wchar_t *fn, uint8_t wp)
+mo_mount(uint8_t id, char *fn, uint8_t wp)
 {
     mo_t *dev = (mo_t *) mo_drives[id].priv;
 
@@ -176,7 +176,7 @@ zip_eject(uint8_t id)
 
 
 void
-zip_mount(uint8_t id, wchar_t *fn, uint8_t wp)
+zip_mount(uint8_t id, char *fn, uint8_t wp)
 {
     zip_t *dev = (zip_t *) zip_drives[id].priv;
 

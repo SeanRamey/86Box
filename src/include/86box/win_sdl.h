@@ -11,10 +11,10 @@
  *
  *
  * Authors:	Fred N. van Kempen, <decwiz@yahoo.com>
- *		Michael Drüing, <michael@drueing.de>
+ *		Michael Drï¿½ing, <michael@drueing.de>
  *
  *		Copyright 2018,2019 Fred N. van Kempen.
- *		Copyright 2018,2019 Michael Drüing.
+ *		Copyright 2018,2019 Michael Drï¿½ing.
  *
  *		Redistribution and  use  in source  and binary forms, with
  *		or  without modification, are permitted  provided that the
@@ -49,11 +49,12 @@
 #ifndef WIN_SDL_H
 # define WIN_SDL_H
 
+#include <86box/window.h>
 
 extern void	sdl_close(void);
-extern int	sdl_inits(HWND h);
-extern int	sdl_inith(HWND h);
-extern int	sdl_initho(HWND h);
+extern int	sdl_inits(WindowHandle h);
+extern int	sdl_inith(WindowHandle h);
+extern int	sdl_initho(WindowHandle h);
 extern int	sdl_pause(void);
 extern void	sdl_resize(int x, int y);
 extern void	sdl_enable(int enable);

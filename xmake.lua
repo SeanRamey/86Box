@@ -47,6 +47,7 @@ target("86box-lib")
 	-- if target is Windows then add the Windows source files, except the win.c file because it contains WinMain()
 	if is_os("windows") then
 		add_files("src/win/**.cpp", "src/win/**.c|src/win/win.c")
+		add_defines("WIN32", "_WIN32")
 	end
 
 	add_includedirs("src/include")
@@ -82,6 +83,7 @@ target("86box")
 	-- if target is Windows then use the win.c file for WinMain()
 	if is_os("windows") then
 		add_files("src/win/win.c")
+		add_defines("WIN32", "_WIN32")
 	end
 
 	add_includedirs("src/include")

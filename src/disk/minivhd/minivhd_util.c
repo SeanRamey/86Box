@@ -154,7 +154,7 @@ FILE* mvhd_fopen(const char* path, const char* mode, int* err) {
         }
     }
 #else
-    f = fopen(path, mode);
+    f = plat_fopen(path, mode);
     if (f == NULL) {
         mvhd_errno = errno;
         *err = MVHD_ERR_FILE;

@@ -56,7 +56,7 @@
 
 
 /* Platform Public data, specific. */
-HWND		hwndMain,		/* application main window */
+WindowHandle		hwndMain,		/* application main window */
 		hwndRender;		/* machine render window */
 HMENU		menuMain;		/* application main menu */
 HICON		hIcon[256];		/* icon data loaded from resources */
@@ -87,9 +87,9 @@ static int vis = -1;
 
 /* Per Monitor DPI Aware v2 APIs, Windows 10 v1703+ */
 void* user32_handle = NULL;
-static UINT  (WINAPI *pGetDpiForWindow)(HWND);
+static UINT  (WINAPI *pGetDpiForWindow)(WindowHandle);
 static UINT (WINAPI *pGetSystemMetricsForDpi)(int i, UINT dpi);
-static DPI_AWARENESS_CONTEXT (WINAPI *pGetWindowDpiAwarenessContext)(HWND);
+static DPI_AWARENESS_CONTEXT (WINAPI *pGetWindowDpiAwarenessContext)(WindowHandle);
 static BOOL (WINAPI *pAreDpiAwarenessContextsEqual)(DPI_AWARENESS_CONTEXT A, DPI_AWARENESS_CONTEXT B);
 static dllimp_t user32_imports[] = {
 { "GetDpiForWindow",	&pGetDpiForWindow },
@@ -100,7 +100,7 @@ static dllimp_t user32_imports[] = {
 };
 
 int
-win_get_dpi(HWND hwnd) {
+win_get_dpi(WindowHandle hwnd) {
     if (user32_handle != NULL) {
         return pGetDpiForWindow(hwnd);
     } else {
@@ -123,7 +123,7 @@ int win_get_system_metrics(int index, int dpi) {
 }
 
 void
-ResizeWindowByClientArea(HWND hwnd, int width, int height)
+ResizeWindowByClientArea(WindowHandle hwnd, int width, int height)
 {
 	if (vid_resize || padded_frame) {
 		int padding = win_get_system_metrics(SM_CXPADDEDBORDER, dpi);
@@ -404,7 +404,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-input_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+input_proc(WindowHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
 	case WM_INPUT:
@@ -1119,7 +1119,7 @@ ui_init(int nCmdShow)
     WNDCLASSEX wincl;			/* buffer for main window's class */
     RAWINPUTDEVICE ridev;		/* RawInput device */
     MSG messages;			/* received-messages buffer */
-    HWND hwnd = NULL;			/* handle for our window */
+    WindowHandle hwnd = NULL;			/* handle for our window */
     HACCEL haccel;			/* handle to accelerator table */
     RECT sbar_rect;			/* RECT of the status bar */
     int bRet;

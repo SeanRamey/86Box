@@ -104,7 +104,7 @@ const uint8_t mo_command_flags[0x100] =
     IMPLEMENTED | CHECK_READY,					/* 0xA8 */
     0,
     IMPLEMENTED | CHECK_READY,					/* 0xAA */
-    0, 
+    0,
     IMPLEMENTED | CHECK_READY | NONDATA,			/* 0xAC */
     0,
     IMPLEMENTED | CHECK_READY,					/* 0xAE */
@@ -330,10 +330,10 @@ mo_load_abort(mo_t *dev)
 
 
 int
-image_is_mdi(const wchar_t *s)
+image_is_mdi(const char *s)
 {
     int len;
-    wchar_t ext[5] = { 0, 0, 0, 0, 0 };
+    char ext[5] = { 0, 0, 0, 0, 0 };
     char *ws = (char *) s;
     len = wcslen(s);
     if ((len < 4) || (s[0] == L'.'))
@@ -347,7 +347,7 @@ image_is_mdi(const wchar_t *s)
 
 
 int
-mo_load(mo_t *dev, wchar_t *fn)
+mo_load(mo_t *dev, char *fn)
 {
     int is_mdi;
     uint32_t size = 0;
@@ -355,10 +355,10 @@ mo_load(mo_t *dev, wchar_t *fn)
 
     is_mdi = image_is_mdi(fn);
 
-    dev->drv->f = plat_wfopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
+    dev->drv->f = plat_fopen(fn, dev->drv->read_only ? L"rb" : L"rb+");
     if (!dev->drv->f) {
 	if (!dev->drv->read_only) {
-		dev->drv->f = plat_wfopen(fn, L"rb");
+		dev->drv->f = plat_fopen(fn, L"rb");
 		if (dev->drv->f)
 			dev->drv->read_only = 1;
 		else
@@ -384,7 +384,7 @@ mo_load(mo_t *dev, wchar_t *fn)
 	    break;
 	}
     }
-    
+
     if (!found)
 	return mo_load_abort(dev);
 
@@ -1147,7 +1147,7 @@ mo_erase(mo_t *dev)
 /*SCSI Sense Initialization*/
 void
 mo_sense_code_ok(mo_t *dev)
-{	
+{
     mo_sense_key = SENSE_NONE;
     mo_asc = 0;
     mo_ascq = 0;
@@ -1266,7 +1266,7 @@ mo_reset(scsi_common_t *sc)
 
 static void
 mo_request_sense(mo_t *dev, uint8_t *buffer, uint8_t alloc_length, int desc)
-{				
+{
     /*Will return 18 bytes of 0*/
     if (alloc_length != 0) {
 	memset(buffer, 0, alloc_length);
@@ -1531,7 +1531,7 @@ mo_command(scsi_common_t *sc, uint8_t *cdb)
 		/*TODO: Implement*/
 		mo_invalid_field(dev);
 		return;
-		
+
 	case GPCMD_WRITE_6:
 	case GPCMD_WRITE_10:
 	case GPCMD_WRITE_AND_VERIFY_10:

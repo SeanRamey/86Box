@@ -192,7 +192,7 @@ write_buffer(ps_t *dev, bool finish)
 	return;
 
     if (dev->filename[0] == 0)
-    emu_generate_tempfilename(dev->filename, sizeof(dev->filename), NULL, ".ps")
+    emu_generate_tempfilename(dev->filename, sizeof(dev->filename), NULL, ".ps");
 
     strcpy(path, dev->printer_path);
     plat_path_slash_a(path);
@@ -344,7 +344,7 @@ ps_init(void *lpt)
     /* Try loading the DLL. */
     ghostscript_handle = dynld_module(PATH_GHOSTSCRIPT_DLL, ghostscript_imports);
     if (ghostscript_handle == NULL)
-	ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2114, (wchar_t *) IDS_2132);
+	ui_msgbox_header(MBX_ERROR, (char *) IDS_2114, (char *) IDS_2132);
     else {
 	if (gsapi_revision(&rev, sizeof(rev)) == 0)
 		pclog("Loaded %s, rev %ld (%ld)\n", rev.product, rev.revision, rev.revisiondate);

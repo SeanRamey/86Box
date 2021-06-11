@@ -161,7 +161,7 @@ image_is_track_audio(cdrom_t *dev, uint32_t pos, int ismsf)
 }
 
 
-static int 
+static int
 image_sector_size(struct cdrom *dev, uint32_t lba)
 {
     cd_img_t *img = (cd_img_t *)dev->image;
@@ -249,7 +249,7 @@ image_open_abort(cdrom_t *dev)
 
 
 int
-cdrom_image_open(cdrom_t *dev, const wchar_t *fn)
+cdrom_image_open(cdrom_t *dev, const char *fn)
 {
     cd_img_t *img;
 
@@ -260,7 +260,7 @@ cdrom_image_open(cdrom_t *dev, const wchar_t *fn)
 
     /* This guarantees that if ops is not NULL, then
        neither is the image pointer. */
-    if (!img)	
+    if (!img)
 	return image_open_abort(dev);
 
     memset(img, 0, sizeof(cd_img_t));
@@ -271,7 +271,7 @@ cdrom_image_open(cdrom_t *dev, const wchar_t *fn)
 	return image_open_abort(dev);
 
     /* All good, reset state. */
-    if (! wcscasecmp(plat_get_extension((wchar_t *) fn), L"ISO"))
+    if (! wcscasecmp(plat_get_extension((char *) fn), L"ISO"))
 	dev->cd_status = CD_STATUS_DATA_ONLY;
     else
 	dev->cd_status = CD_STATUS_STOPPED;

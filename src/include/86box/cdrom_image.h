@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-extern int image_open(uint8_t id, wchar_t *fn);
+extern int image_open(uint8_t id, char *fn);
 extern void image_reset(uint8_t id);
 
 extern void image_close(uint8_t id);

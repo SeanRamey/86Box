@@ -320,7 +320,7 @@ midi_raw_out_byte(uint8_t val)
 	return;
 
     if (midi->midi_sysex_start) {
-	passed_ticks = plat_get_ticks() - midi->midi_sysex_start;
+	passed_ticks = plat_get_elapsed_msec() - midi->midi_sysex_start;
 	if (passed_ticks < midi->midi_sysex_delay)
 		plat_delay_ms(midi->midi_sysex_delay - passed_ticks);
     }
@@ -358,7 +358,7 @@ midi_raw_out_byte(uint8_t val)
 				else
 					midi->midi_sysex_delay = (unsigned int) (((float) (midi->midi_pos) * 1.25f) * 1000.0f / 3125.0f) + 2;
 
-				midi->midi_sysex_start = plat_get_ticks();
+				midi->midi_sysex_start = plat_get_elapsed_msec();
 			}
 		}
 	}
@@ -384,7 +384,7 @@ midi_raw_out_byte(uint8_t val)
 }
 
 
-void 
+void
 midi_clear_buffer(void)
 {
     if (!midi)

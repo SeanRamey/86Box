@@ -124,7 +124,7 @@ static cdrom_t temp_cdrom[CDROM_NUM];
 static zip_drive_t temp_zip_drives[ZIP_NUM];
 static mo_drive_t temp_mo_drives[MO_NUM];
 
-static HWND hwndParentDialog, hwndChildDialog;
+static WindowHandle hwndParentDialog, hwndChildDialog;
 
 static uint32_t displayed_category = 0;
 
@@ -146,63 +146,63 @@ static int spt, hpc, tracks, ignore_change = 0;
 
 static hard_disk_t new_hdd, *hdd_ptr;
 
-static wchar_t hd_file_name[512];
+static char hd_file_name[512];
 static WCHAR device_name[512];
 
 
 static int
-settings_get_check(HWND hdlg, int id)
+settings_get_check(WindowHandle hdlg, int id)
 {
     return SendMessage(GetDlgItem(hdlg, id), BM_GETCHECK, 0, 0);
 }
 
 
 static int
-settings_get_cur_sel(HWND hdlg, int id)
+settings_get_cur_sel(WindowHandle hdlg, int id)
 {
     return SendMessage(GetDlgItem(hdlg, id), CB_GETCURSEL, 0, 0);
 }
 
 
 static void
-settings_set_check(HWND hdlg, int id, int val)
+settings_set_check(WindowHandle hdlg, int id, int val)
 {
     SendMessage(GetDlgItem(hdlg, id), BM_SETCHECK, val, 0);
 }
 
 
 static void
-settings_set_cur_sel(HWND hdlg, int id, int val)
+settings_set_cur_sel(WindowHandle hdlg, int id, int val)
 {
     SendMessage(GetDlgItem(hdlg, id), CB_SETCURSEL, val, 0);
 }
 
 
 static void
-settings_reset_content(HWND hdlg, int id)
+settings_reset_content(WindowHandle hdlg, int id)
 {
     SendMessage(GetDlgItem(hdlg, id), CB_RESETCONTENT, 0, 0);
 }
 
 
 static void
-settings_add_string(HWND hdlg, int id, LPARAM string)
+settings_add_string(WindowHandle hdlg, int id, LPARAM string)
 {
     SendMessage(GetDlgItem(hdlg, id), CB_ADDSTRING, 0, string);
 }
 
 
 static void
-settings_enable_window(HWND hdlg, int id, int condition)
+settings_enable_window(WindowHandle hdlg, int id, int condition)
 {
     EnableWindow(GetDlgItem(hdlg, id), condition ? TRUE : FALSE);
 }
 
 
 static void
-settings_show_window(HWND hdlg, int id, int condition)
+settings_show_window(WindowHandle hdlg, int id, int condition)
 {
-    HWND h;
+    WindowHandle h;
 
     h = GetDlgItem(hdlg, id);
     EnableWindow(h, condition ? TRUE : FALSE);
@@ -211,9 +211,9 @@ settings_show_window(HWND hdlg, int id, int condition)
 
 
 static void
-settings_listview_enable_styles(HWND hdlg, int id)
+settings_listview_enable_styles(WindowHandle hdlg, int id)
 {
-    HWND h;
+    WindowHandle h;
 
     h = GetDlgItem(hdlg, id);
     SetWindowTheme(h, L"Explorer", NULL);
@@ -222,9 +222,9 @@ settings_listview_enable_styles(HWND hdlg, int id)
 
 
 static void
-settings_listview_select(HWND hdlg, int id, int selection)
+settings_listview_select(WindowHandle hdlg, int id, int selection)
 {
-    HWND h;
+    WindowHandle h;
 
     h = GetDlgItem(hdlg, id);
     ListView_SetItemState(h, selection, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
@@ -236,18 +236,18 @@ settings_process_messages()
 {
     MSG msg;
     while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-	TranslateMessage(&msg); 
+	TranslateMessage(&msg);
 	DispatchMessage(&msg);
     }
 }
 
 
 static BOOL
-image_list_init(HWND hdlg, int id, const uint8_t *icon_ids)
+image_list_init(WindowHandle hdlg, int id, const uint8_t *icon_ids)
 {
     HICON hiconItem;
     HIMAGELIST hSmall;
-    HWND hwndList = GetDlgItem(hdlg, id);
+    WindowHandle hwndList = GetDlgItem(hdlg, id);
 
     int i = 0;
 
@@ -283,7 +283,7 @@ image_list_init(HWND hdlg, int id, const uint8_t *icon_ids)
 static int
 settings_msgbox_header(int flags, void *header, void *message)
 {
-    HWND h;
+    WindowHandle h;
     int i;
 
     h = hwndMain;
@@ -300,7 +300,7 @@ settings_msgbox_header(int flags, void *header, void *message)
 static int
 settings_msgbox_ex(int flags, void *header, void *message, void *btn1, void *btn2, void *btn3)
 {
-    HWND h;
+    WindowHandle h;
     int i;
 
     h = hwndMain;
@@ -380,7 +380,7 @@ win_settings_init(void)
 
     /* ISA memory boards. */
     for (i = 0; i < ISAMEM_MAX; i++)
-	temp_isamem[i] = isamem_type[i];	
+	temp_isamem[i] = isamem_type[i];
 
     mfm_tracking = xta_tracking = esdi_tracking = ide_tracking = 0;
     for (i = 0; i < 2; i++)
@@ -628,7 +628,7 @@ win_settings_save(void)
 
 
 static void
-win_settings_machine_recalc_fpu(HWND hdlg)
+win_settings_machine_recalc_fpu(WindowHandle hdlg)
 {
     int c, type;
     LPTSTR lptsTemp;
@@ -659,7 +659,7 @@ win_settings_machine_recalc_fpu(HWND hdlg)
 
 
 static void
-win_settings_machine_recalc_cpu(HWND hdlg)
+win_settings_machine_recalc_cpu(WindowHandle hdlg)
 {
     int cpu_type;
 #ifdef USE_DYNAREC
@@ -691,7 +691,7 @@ win_settings_machine_recalc_cpu(HWND hdlg)
 
 
 static void
-win_settings_machine_recalc_cpu_m(HWND hdlg)
+win_settings_machine_recalc_cpu_m(WindowHandle hdlg)
 {
     int c, i, first_eligible = -1, current_eligible = 0, last_eligible = 0;
     LPTSTR lptsTemp;
@@ -734,9 +734,9 @@ win_settings_machine_recalc_cpu_m(HWND hdlg)
 
 
 static void
-win_settings_machine_recalc_machine(HWND hdlg)
+win_settings_machine_recalc_machine(WindowHandle hdlg)
 {
-    HWND h;
+    WindowHandle h;
     int c, i, current_eligible;
     LPTSTR lptsTemp;
     char *stransi;
@@ -845,9 +845,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_machine_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_machine_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HWND h, h2;
+    WindowHandle h, h2;
     int c, d;
     int old_machine_type;
     LPTSTR lptsTemp;
@@ -1053,7 +1053,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_video_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_video_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c = 0, d = 0;
 
@@ -1151,9 +1151,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_input_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_input_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    wchar_t str[128];
+    char str[128];
     char *joy_name;
     int c, d;
 
@@ -1262,7 +1262,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_sound_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_sound_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c, d;
     LPTSTR lptsTemp;
@@ -1454,7 +1454,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_ports_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_ports_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c, i;
     char *s;
@@ -1527,7 +1527,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_storage_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_storage_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c, d;
     int is_at;
@@ -1661,8 +1661,8 @@ win_settings_storage_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDC_COMBO_FDC:
 				temp_fdc_card = settings_list_to_fdc[settings_get_cur_sel(hdlg, IDC_COMBO_FDC)];
 				settings_enable_window(hdlg, IDC_CONFIGURE_FDC, fdc_card_has_config(temp_fdc_card));
-				break;		
-			
+				break;
+
 			case IDC_CONFIGURE_HDC:
 				temp_hdc = settings_list_to_hdc[settings_get_cur_sel(hdlg, IDC_COMBO_HDC)];
 				temp_deviceconfig |= deviceconfig_open(hdlg, (void *)hdc_get_device(temp_hdc));
@@ -1717,7 +1717,7 @@ win_settings_storage_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-static void network_recalc_combos(HWND hdlg)
+static void network_recalc_combos(WindowHandle hdlg)
 {
     ignore_change = 1;
 
@@ -1738,7 +1738,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_network_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_network_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c, d;
     LPTSTR lptsTemp;
@@ -1860,11 +1860,11 @@ normalize_hd_list()
 
 
 static int
-get_selected_hard_disk(HWND hdlg)
+get_selected_hard_disk(WindowHandle hdlg)
 {
     int hard_disk = -1;
     int i, j = 0;
-    HWND h;
+    WindowHandle h;
 
     if (hd_listview_items == 0)
 	return 0;
@@ -1881,7 +1881,7 @@ get_selected_hard_disk(HWND hdlg)
 
 
 static void
-add_locations(HWND hdlg)
+add_locations(WindowHandle hdlg)
 {
     LPTSTR lptsTemp;
     int i = 0;
@@ -1955,7 +1955,7 @@ next_free_scsi_id(uint8_t *id)
 
 
 static void
-recalc_location_controls(HWND hdlg, int is_add_dlg, int assign_id)
+recalc_location_controls(WindowHandle hdlg, int is_add_dlg, int assign_id)
 {
     int i = 0, bus = 0;
 
@@ -2046,7 +2046,7 @@ bus_full(uint64_t *tracking, int count)
 
 
 static void
-recalc_next_free_id(HWND hdlg)
+recalc_next_free_id(WindowHandle hdlg)
 {
     int i, enable_add = 0;
     int c_mfm = 0, c_esdi = 0;
@@ -2096,9 +2096,9 @@ recalc_next_free_id(HWND hdlg)
 
 
 static void
-win_settings_hard_disks_update_item(HWND hdlg, int i, int column)
+win_settings_hard_disks_update_item(WindowHandle hdlg, int i, int column)
 {
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
     LVITEM lvI;
     WCHAR szText[256], usr_path_w[1024];
 
@@ -2162,12 +2162,12 @@ win_settings_hard_disks_update_item(HWND hdlg, int i, int column)
 
 
 static BOOL
-win_settings_hard_disks_recalc_list(HWND hdlg)
+win_settings_hard_disks_recalc_list(WindowHandle hdlg)
 {
     LVITEM lvI;
     int i, j = 0;
     WCHAR szText[256], usr_path_w[1024];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
 
     mbstoc16s(usr_path_w, usr_path, sizeof_w(usr_path_w));
 
@@ -2259,12 +2259,12 @@ win_settings_hard_disks_recalc_list(HWND hdlg)
 
 
 static void
-win_settings_hard_disks_resize_columns(HWND hdlg)
+win_settings_hard_disks_resize_columns(WindowHandle hdlg)
 {
     /* Bus, File, Cylinders, Heads, Sectors, Size */
     int iCol, width[C_COLUMNS_HARD_DISKS] = {104, 177, 50, 26, 32, 50};
     int total = 0;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -2279,11 +2279,11 @@ win_settings_hard_disks_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_hard_disks_init_columns(HWND hdlg)
+win_settings_hard_disks_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
     int iCol;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_HARD_DISKS);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -2328,9 +2328,9 @@ win_settings_hard_disks_init_columns(HWND hdlg)
 
 
 static void
-get_edit_box_contents(HWND hdlg, int id, uint32_t *val)
+get_edit_box_contents(WindowHandle hdlg, int id, uint32_t *val)
 {
-    HWND h;
+    WindowHandle h;
     WCHAR szText[256];
     char stransi[256];
 
@@ -2342,9 +2342,9 @@ get_edit_box_contents(HWND hdlg, int id, uint32_t *val)
 
 
 static void
-set_edit_box_contents(HWND hdlg, int id, uint32_t val)
+set_edit_box_contents(WindowHandle hdlg, int id, uint32_t val)
 {
-    HWND h;
+    WindowHandle h;
     WCHAR szText[256];
 
     h = GetDlgItem(hdlg, id);
@@ -2352,19 +2352,19 @@ set_edit_box_contents(HWND hdlg, int id, uint32_t val)
     SendMessage(h, WM_SETTEXT, (WPARAM) wcslen(szText), (LPARAM) szText);
 }
 
-static void set_edit_box_text_contents(HWND hdlg, int id, WCHAR* text)
+static void set_edit_box_text_contents(WindowHandle hdlg, int id, WCHAR* text)
 {
-	HWND h = GetDlgItem(hdlg, id);
+	WindowHandle h = GetDlgItem(hdlg, id);
 	SendMessage(h, WM_SETTEXT, (WPARAM) wcslen(text), (LPARAM) text);
 }
 
-static void get_edit_box_text_contents(HWND hdlg, int id, WCHAR* text_buffer, int buffer_size)
+static void get_edit_box_text_contents(WindowHandle hdlg, int id, WCHAR* text_buffer, int buffer_size)
 {
-	HWND h = GetDlgItem(hdlg, id);
+	WindowHandle h = GetDlgItem(hdlg, id);
 	SendMessage(h, WM_GETTEXT, (WPARAM) buffer_size, (LPARAM) text_buffer);
 }
 
-static int hdconf_initialize_hdt_combo(HWND hdlg)
+static int hdconf_initialize_hdt_combo(WindowHandle hdlg)
 {
     int i = 0;
     uint64_t temp_size = 0;
@@ -2373,7 +2373,7 @@ static int hdconf_initialize_hdt_combo(HWND hdlg)
 
     selection = 127;
 
-    for (i = 0; i < 127; i++) {	
+    for (i = 0; i < 127; i++) {
 	temp_size = ((uint64_t) hdd_table[i][0]) * hdd_table[i][1] * hdd_table[i][2];
 	size_mb = (uint32_t) (temp_size >> 11LL);
 	wsprintf(szText, plat_get_string(IDS_2107), size_mb, hdd_table[i][0], hdd_table[i][1], hdd_table[i][2]);
@@ -2390,12 +2390,12 @@ static int hdconf_initialize_hdt_combo(HWND hdlg)
 
 
 static void
-recalc_selection(HWND hdlg)
+recalc_selection(WindowHandle hdlg)
 {
     int i = 0;
 
     selection = 127;
-    for (i = 0; i < 127; i++) {	
+    for (i = 0; i < 127; i++) {
 	if ((tracks == (int) hdd_table[i][0]) &&
 	    (hpc == (int) hdd_table[i][1]) &&
 	    (spt == (int) hdd_table[i][2]))
@@ -2406,15 +2406,15 @@ recalc_selection(HWND hdlg)
     settings_set_cur_sel(hdlg, IDC_COMBO_HD_TYPE, selection);
 }
 
-HWND vhd_progress_hdlg;
+WindowHandle vhd_progress_hdlg;
 
 static void vhd_progress_callback(uint32_t current_sector, uint32_t total_sectors)
 {
 	MSG msg;
-	HWND h = GetDlgItem(vhd_progress_hdlg, IDC_PBAR_IMG_CREATE);
+	WindowHandle h = GetDlgItem(vhd_progress_hdlg, IDC_PBAR_IMG_CREATE);
 	SendMessage(h, PBM_SETPOS, (WPARAM) current_sector, (LPARAM) 0);
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
+		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 }
@@ -2452,7 +2452,7 @@ static void adjust_86box_geometry_for_vhd(MVHDGeom *_86box_geometry, MVHDGeom *v
 
 static void adjust_vhd_geometry_for_86box(MVHDGeom *vhd_geometry)
 {
-	if (vhd_geometry->spt <= 63) 
+	if (vhd_geometry->spt <= 63)
 		return;
 
 	int desired_sectors = vhd_geometry->cyl * vhd_geometry->heads * vhd_geometry->spt;
@@ -2474,7 +2474,7 @@ static MVHDGeom create_drive_vhd_fixed(char* filename, int cyl, int heads, int s
 	MVHDGeom vhd_geometry;
 	adjust_86box_geometry_for_vhd(&_86box_geometry, &vhd_geometry);
 
-	HWND h = GetDlgItem(vhd_progress_hdlg, IDC_PBAR_IMG_CREATE);
+	WindowHandle h = GetDlgItem(vhd_progress_hdlg, IDC_PBAR_IMG_CREATE);
 	settings_show_window(vhd_progress_hdlg, IDT_1731, FALSE);
 	settings_show_window(vhd_progress_hdlg, IDC_EDIT_HD_FILE_NAME, FALSE);
 	settings_show_window(vhd_progress_hdlg, IDC_CFILE, FALSE);
@@ -2557,9 +2557,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_hard_disks_add_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	HWND h;
+	WindowHandle h;
 	FILE *f;
 	uint32_t temp, i = 0, sector_size = 512;
 	uint32_t zero = 0, base = 0x1000;
@@ -2571,7 +2571,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 	int vhd_error = 0;
 	uint8_t channel = 0;
 	uint8_t id = 0;
-	wchar_t *twcs;
+	char *twcs;
 	int img_format, block_size;
 	WCHAR text_buf[256];
 	RECT rect;
@@ -2582,7 +2582,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 	case WM_INITDIALOG:
 		memset(hd_file_name, 0, sizeof(hd_file_name));
 
-		hdd_ptr = &(temp_hdd[next_free_id]);		
+		hdd_ptr = &(temp_hdd[next_free_id]);
 
 		SetWindowText(hdlg, plat_get_string((existing & 1) ? IDS_4103 : IDS_4102));
 
@@ -2596,13 +2596,13 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 		size = (tracks * hpc * spt) << 9;
 		set_edit_box_contents(hdlg, IDC_EDIT_HD_SIZE, (uint32_t) (size >> 20LL));
 		hdconf_initialize_hdt_combo(hdlg);
-		
+
 		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4122));
 		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4123));
 		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4124));
 		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4125));
 		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4126));
-		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4127)); 	
+		settings_add_string(hdlg, IDC_COMBO_HD_IMG_FORMAT, win_get_string(IDS_4127));
 		settings_set_cur_sel(hdlg, IDC_COMBO_HD_IMG_FORMAT, 0);
 
 		settings_add_string(hdlg, IDC_COMBO_HD_BLOCK_SIZE, win_get_string(IDS_4128));
@@ -2620,7 +2620,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 			settings_enable_window(hdlg, IDC_COMBO_HD_TYPE, FALSE);
 			settings_show_window(hdlg, IDC_COMBO_HD_IMG_FORMAT, FALSE);
 			settings_show_window(hdlg, IDT_1774, FALSE);
-			
+
 			/* adjust window size */
 			GetWindowRect(hdlg, &rect);
 			OffsetRect(&rect, -rect.left, -rect.top);
@@ -2678,7 +2678,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 				/* Make sure no file name is allowed with removable SCSI hard disks. */
 				if (wcslen(hd_file_name) == 0) {
 					hdd_ptr->bus = HDD_BUS_DISABLED;
-					settings_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2130, (wchar_t *) IDS_4112);
+					settings_msgbox_header(MBX_ERROR, (char *) IDS_2130, (char *) IDS_4112);
 					return TRUE;
 				}
 
@@ -2716,7 +2716,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 
 				if (!(existing & 1) && (wcslen(hd_file_name) > 0)) {
 					if (size > 0x1FFFFFFE00ll) {
-						settings_msgbox_header(MBX_ERROR, (wchar_t *) IDS_4116, (wchar_t *) IDS_4105);
+						settings_msgbox_header(MBX_ERROR, (char *) IDS_4116, (char *) IDS_4105);
 						return TRUE;
 					}
 
@@ -2730,7 +2730,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 					if (img_format == 1) { /* HDI file */
 						if (size >= 0x100000000ll) {
 							fclose(f);
-							settings_msgbox_header(MBX_ERROR, (wchar_t *) IDS_4116, (wchar_t *) IDS_4104);
+							settings_msgbox_header(MBX_ERROR, (char *) IDS_4116, (char *) IDS_4104);
 							return TRUE;
 						}
 
@@ -2774,16 +2774,16 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 						}
 
 						if (img_format != 5)
-							settings_msgbox_header(MBX_INFO, (wchar_t *) IDS_4113, (wchar_t *) IDS_4117);
+							settings_msgbox_header(MBX_INFO, (char *) IDS_4113, (char *) IDS_4117);
 
 						hdd_ptr->tracks = _86box_geometry.cyl;
 						hdd_ptr->hpc = _86box_geometry.heads;
-						hdd_ptr->spt = _86box_geometry.spt;						
+						hdd_ptr->spt = _86box_geometry.spt;
 
 						hard_disk_added = 1;
 						EndDialog(hdlg, 0);
 						return TRUE;
-					} 
+					}
 
 					big_buf = (char *) malloc(1048576);
 					memset(big_buf, 0, 1048576);
@@ -2828,7 +2828,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 					if (f) {
 						fclose(f);
 					}
-					settings_msgbox_header(MBX_INFO, (wchar_t *) IDS_4113, (wchar_t *) IDS_4117);
+					settings_msgbox_header(MBX_INFO, (char *) IDS_4113, (char *) IDS_4117);
 				}
 
 				hard_disk_added = 1;
@@ -2857,7 +2857,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 						f = _wfopen(wopenfilestring, L"rb");
 						if (f != NULL) {
 							fclose(f);
-							if (settings_msgbox_ex(MBX_QUESTION_YN, (wchar_t *) IDS_4111, (wchar_t *) IDS_4118, (wchar_t *) IDS_4120, (wchar_t *) IDS_4121, NULL) != 0)	/* yes */
+							if (settings_msgbox_ex(MBX_QUESTION_YN, (char *) IDS_4111, (char *) IDS_4118, (char *) IDS_4120, (char *) IDS_4121, NULL) != 0)	/* yes */
 								return FALSE;
 						}
 					}
@@ -2866,7 +2866,7 @@ win_settings_hard_disks_add_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM 
 					if (f == NULL) {
 hdd_add_file_open_error:
 						fclose(f);
-						settings_msgbox_header(MBX_ERROR, (existing & 1) ? (wchar_t *) IDS_4114 : (wchar_t *) IDS_4115, (existing & 1) ? (wchar_t *) IDS_4107 : (wchar_t *) IDS_4108);
+						settings_msgbox_header(MBX_ERROR, (existing & 1) ? (char *) IDS_4114 : (char *) IDS_4115, (existing & 1) ? (char *) IDS_4107 : (char *) IDS_4108);
 						return TRUE;
 					}
 					if (existing & 1) {
@@ -2874,7 +2874,7 @@ hdd_add_file_open_error:
 							fseeko64(f, 0x10, SEEK_SET);
 							fread(&sector_size, 1, 4, f);
 							if (sector_size != 512) {
-								settings_msgbox_header(MBX_ERROR, (wchar_t *) IDS_4119, (wchar_t *) IDS_4109);
+								settings_msgbox_header(MBX_ERROR, (char *) IDS_4119, (char *) IDS_4109);
 								fclose(f);
 								return TRUE;
 							}
@@ -2887,9 +2887,9 @@ hdd_add_file_open_error:
 							wcstombs(hd_file_name_multibyte, wopenfilestring, sizeof hd_file_name_multibyte);
 							MVHDMeta* vhd = mvhd_open(hd_file_name_multibyte, 0, &vhd_error);
 							if (vhd == NULL) {
-								settings_msgbox_header(MBX_ERROR, (existing & 1) ? (wchar_t *) IDS_4114 : (wchar_t *) IDS_4115, (existing & 1) ? (wchar_t *) IDS_4107 : (wchar_t *) IDS_4108);
+								settings_msgbox_header(MBX_ERROR, (existing & 1) ? (char *) IDS_4114 : (char *) IDS_4115, (existing & 1) ? (char *) IDS_4107 : (char *) IDS_4108);
 								return TRUE;
-							} else if (vhd_error == MVHD_ERR_TIMESTAMP) {								
+							} else if (vhd_error == MVHD_ERR_TIMESTAMP) {
 								if (settings_msgbox_ex(MBX_QUESTION_YN | MBX_WARNING, plat_get_string(IDS_4133), plat_get_string(IDS_4132), NULL, NULL, NULL) != 0) {
 									int ts_res = mvhd_diff_update_par_timestamp(vhd, &vhd_error);
 									if (ts_res != 0) {
@@ -3247,10 +3247,10 @@ hdd_add_file_open_error:
 						settings_enable_window(hdlg, IDC_EDIT_HD_SIZE, TRUE);
 						set_edit_box_contents(hdlg, IDC_EDIT_HD_SIZE, (uint32_t) ((uint64_t)17 * 15 * 1023 * 512 >> 20));
 						size = (uint64_t)17 * 15 * 1023 * 512;
-						
+
 						settings_reset_content(hdlg, IDC_COMBO_HD_TYPE);
 						hdconf_initialize_hdt_combo(hdlg);
-						settings_enable_window(hdlg, IDC_COMBO_HD_TYPE, TRUE);						
+						settings_enable_window(hdlg, IDC_COMBO_HD_TYPE, TRUE);
 					}
 				}
 				no_update = 0;
@@ -3280,7 +3280,7 @@ hard_disk_was_added(void)
 
 
 void
-hard_disk_add_open(HWND hwnd, int is_existing)
+hard_disk_add_open(WindowHandle hwnd, int is_existing)
 {
     existing = is_existing;
     hard_disk_added = 0;
@@ -3351,7 +3351,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_hard_disks_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_hard_disks_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int old_sel = 0, b = 0, assign = 0;
     const uint8_t hd_icons[2] = { 80, 0 };
@@ -3501,13 +3501,13 @@ combo_id_to_format_string_id(int combo_id)
 
 
 static BOOL
-win_settings_floppy_drives_recalc_list(HWND hdlg)
+win_settings_floppy_drives_recalc_list(WindowHandle hdlg)
 {
     LVITEM lvI;
     int i = 0;
     char s[256], *t;
     WCHAR szText[256];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.state = 0;
@@ -3552,12 +3552,12 @@ win_settings_floppy_drives_recalc_list(HWND hdlg)
 
 
 static BOOL
-win_settings_cdrom_drives_recalc_list(HWND hdlg)
+win_settings_cdrom_drives_recalc_list(WindowHandle hdlg)
 {
     LVITEM lvI;
     int i = 0, fsid = 0;
     WCHAR szText[256];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -3608,20 +3608,20 @@ win_settings_cdrom_drives_recalc_list(HWND hdlg)
 
 
 static BOOL
-win_settings_mo_drives_recalc_list(HWND hdlg)
+win_settings_mo_drives_recalc_list(WindowHandle hdlg)
 {
     LVITEM lvI;
     int i = 0, fsid = 0;
     WCHAR szText[256];
     char szType[30];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
 	lvI.stateMask = lvI.iSubItem = lvI.state = 0;
 
     for (i = 0; i < MO_NUM; i++) {
 	fsid = combo_id_to_format_string_id(temp_mo_drives[i].bus_type);
-	
+
 	lvI.iSubItem = 0;
 	switch (temp_mo_drives[i].bus_type) {
 		case MO_BUS_DISABLED:
@@ -3672,12 +3672,12 @@ win_settings_mo_drives_recalc_list(HWND hdlg)
 
 
 static BOOL
-win_settings_zip_drives_recalc_list(HWND hdlg)
+win_settings_zip_drives_recalc_list(WindowHandle hdlg)
 {
     LVITEM lvI;
     int i = 0, fsid = 0;
     WCHAR szText[256];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -3723,11 +3723,11 @@ win_settings_zip_drives_recalc_list(HWND hdlg)
 
 
 static void
-win_settings_floppy_drives_resize_columns(HWND hdlg)
+win_settings_floppy_drives_resize_columns(WindowHandle hdlg)
 {
     int iCol, width[3] = {292, 58, 89};
     int total = 0;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -3742,10 +3742,10 @@ win_settings_floppy_drives_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_floppy_drives_init_columns(HWND hdlg)
+win_settings_floppy_drives_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -3782,10 +3782,10 @@ win_settings_floppy_drives_init_columns(HWND hdlg)
 
 
 static void
-win_settings_cdrom_drives_resize_columns(HWND hdlg)
+win_settings_cdrom_drives_resize_columns(WindowHandle hdlg)
 {
     int width[2] = {292, 147};
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -3797,10 +3797,10 @@ win_settings_cdrom_drives_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_cdrom_drives_init_columns(HWND hdlg)
+win_settings_cdrom_drives_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -3828,10 +3828,10 @@ win_settings_cdrom_drives_init_columns(HWND hdlg)
 
 
 static void
-win_settings_mo_drives_resize_columns(HWND hdlg)
+win_settings_mo_drives_resize_columns(WindowHandle hdlg)
 {
     int width[2] = {292, 147};
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -3843,10 +3843,10 @@ win_settings_mo_drives_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_mo_drives_init_columns(HWND hdlg)
+win_settings_mo_drives_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -3874,10 +3874,10 @@ win_settings_mo_drives_init_columns(HWND hdlg)
 
 
 static void
-win_settings_zip_drives_resize_columns(HWND hdlg)
+win_settings_zip_drives_resize_columns(WindowHandle hdlg)
 {
     int width[2] = {292, 147};
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -3889,10 +3889,10 @@ win_settings_zip_drives_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_zip_drives_init_columns(HWND hdlg)
+win_settings_zip_drives_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -3920,11 +3920,11 @@ win_settings_zip_drives_init_columns(HWND hdlg)
 
 
 static int
-get_selected_drive(HWND hdlg, int id)
+get_selected_drive(WindowHandle hdlg, int id)
 {
     int drive = -1;
     int i, j = 0;
-    HWND h;
+    WindowHandle h;
 
     for (i = 0; i < 4; i++) {
 	h = GetDlgItem(hdlg, id);
@@ -3938,12 +3938,12 @@ get_selected_drive(HWND hdlg, int id)
 
 
 static void
-win_settings_floppy_drives_update_item(HWND hdlg, int i)
+win_settings_floppy_drives_update_item(WindowHandle hdlg, int i)
 {
     LVITEM lvI;
     char s[256], *t;
     WCHAR szText[256];
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -3985,12 +3985,12 @@ win_settings_floppy_drives_update_item(HWND hdlg, int i)
 
 
 static void
-win_settings_cdrom_drives_update_item(HWND hdlg, int i)
+win_settings_cdrom_drives_update_item(WindowHandle hdlg, int i)
 {
     LVITEM lvI;
     WCHAR szText[256];
     int fsid;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -4037,13 +4037,13 @@ win_settings_cdrom_drives_update_item(HWND hdlg, int i)
 
 
 static void
-win_settings_mo_drives_update_item(HWND hdlg, int i)
+win_settings_mo_drives_update_item(WindowHandle hdlg, int i)
 {
     LVITEM lvI;
     WCHAR szText[256];
     char szType[30];
     int fsid;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -4096,12 +4096,12 @@ win_settings_mo_drives_update_item(HWND hdlg, int i)
 
 
 static void
-win_settings_zip_drives_update_item(HWND hdlg, int i)
+win_settings_zip_drives_update_item(WindowHandle hdlg, int i)
 {
     LVITEM lvI;
     WCHAR szText[256];
     int fsid;
-    HWND hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
@@ -4143,7 +4143,7 @@ win_settings_zip_drives_update_item(HWND hdlg, int i)
 
 
 static void
-cdrom_add_locations(HWND hdlg)
+cdrom_add_locations(WindowHandle hdlg)
 {
     LPTSTR lptsTemp;
     int i = 0;
@@ -4175,7 +4175,7 @@ cdrom_add_locations(HWND hdlg)
 
 
 static void
-cdrom_recalc_location_controls(HWND hdlg, int assign_id)
+cdrom_recalc_location_controls(WindowHandle hdlg, int assign_id)
 {
     int i = 0;
     int bus = temp_cdrom[lv2_current_sel].bus_type;
@@ -4214,7 +4214,7 @@ cdrom_recalc_location_controls(HWND hdlg, int assign_id)
 
 
 static void
-mo_add_locations(HWND hdlg)
+mo_add_locations(WindowHandle hdlg)
 {
     LPTSTR lptsTemp;
     char *temp;
@@ -4256,7 +4256,7 @@ mo_add_locations(HWND hdlg)
 
 
 static void
-mo_recalc_location_controls(HWND hdlg, int assign_id)
+mo_recalc_location_controls(WindowHandle hdlg, int assign_id)
 {
     int i = 0;
     int bus = temp_mo_drives[lv1_current_sel].bus_type;
@@ -4295,7 +4295,7 @@ mo_recalc_location_controls(HWND hdlg, int assign_id)
 
 
 static void
-zip_add_locations(HWND hdlg)
+zip_add_locations(WindowHandle hdlg)
 {
     LPTSTR lptsTemp;
     int i = 0;
@@ -4322,7 +4322,7 @@ zip_add_locations(HWND hdlg)
 
 
 static void
-zip_recalc_location_controls(HWND hdlg, int assign_id)
+zip_recalc_location_controls(WindowHandle hdlg, int assign_id)
 {
     int i = 0;
 
@@ -4425,7 +4425,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_floppy_and_cdrom_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_floppy_and_cdrom_drives_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i = 0, old_sel = 0, b = 0, assign = 0;
     uint32_t b2 = 0;
@@ -4610,7 +4610,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_other_removable_devices_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int old_sel = 0, b = 0, assign = 0;
     uint32_t b2 = 0;
@@ -4838,7 +4838,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_peripherals_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_peripherals_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int c, d;
     int e;
@@ -4939,7 +4939,7 @@ win_settings_peripherals_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPa
 }
 
 
-void win_settings_show_child(HWND hwndParent, DWORD child_id)
+void win_settings_show_child(WindowHandle hwndParent, DWORD child_id)
 {
     if (child_id == displayed_category)
 	return;
@@ -4994,7 +4994,7 @@ void win_settings_show_child(HWND hwndParent, DWORD child_id)
 
 
 static BOOL
-win_settings_main_insert_categories(HWND hwndList)
+win_settings_main_insert_categories(WindowHandle hwndList)
 {
     LVITEM lvI;
     int i = 0;
@@ -5021,7 +5021,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_confirm(HWND hdlg)
+win_settings_confirm(WindowHandle hdlg)
 {
     int i;
 
@@ -5029,7 +5029,7 @@ win_settings_confirm(HWND hdlg)
 
     if (win_settings_changed()) {
 	if (confirm_save && !settings_only)
-		i = settings_msgbox_ex(MBX_QUESTION_OK | MBX_WARNING | MBX_DONTASK, (wchar_t *) IDS_2121, (wchar_t *) IDS_2122, (wchar_t *) IDS_2123, NULL, NULL);
+		i = settings_msgbox_ex(MBX_QUESTION_OK | MBX_WARNING | MBX_DONTASK, (char *) IDS_2121, (char *) IDS_2122, (char *) IDS_2123, NULL, NULL);
 	else
 		i = 0;
 
@@ -5052,9 +5052,9 @@ win_settings_confirm(HWND hdlg)
 
 
 static void
-win_settings_categories_resize_columns(HWND hdlg)
+win_settings_categories_resize_columns(WindowHandle hdlg)
 {
-    HWND hwndList = GetDlgItem(hdlg, IDC_SETTINGSCATLIST);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_SETTINGSCATLIST);
     RECT r;
 
     GetWindowRect(hwndList, &r);
@@ -5063,11 +5063,11 @@ win_settings_categories_resize_columns(HWND hdlg)
 
 
 static BOOL
-win_settings_categories_init_columns(HWND hdlg)
+win_settings_categories_init_columns(WindowHandle hdlg)
 {
     LVCOLUMN lvc;
     int iCol;
-    HWND hwndList = GetDlgItem(hdlg, IDC_SETTINGSCATLIST);
+    WindowHandle hwndList = GetDlgItem(hdlg, IDC_SETTINGSCATLIST);
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
@@ -5090,9 +5090,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_main_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_main_proc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HWND h = NULL;
+    WindowHandle h = NULL;
     int category, i = 0, j = 0;
     const uint8_t cat_icons[12] = { 240, 241, 242, 243, 96, 244, 252, 80, 246, 247, 245, 0 };
 
@@ -5154,7 +5154,7 @@ win_settings_main_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 void
-win_settings_open_ex(HWND hwnd, int category)
+win_settings_open_ex(WindowHandle hwnd, int category)
 {
     win_notify_dlg_open();
 
@@ -5164,7 +5164,7 @@ win_settings_open_ex(HWND hwnd, int category)
 
 
 void
-win_settings_open(HWND hwnd)
+win_settings_open(WindowHandle hwnd)
 {
     win_settings_open_ex(hwnd, SETTINGS_PAGE_MACHINE);
 }

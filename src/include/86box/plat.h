@@ -53,8 +53,8 @@
 # define UNUSED(arg)	__attribute__((unused))arg
 #endif
 
-/* Return the size (in wchar's) of a wchar_t array. */
-#define sizeof_w(x)	(sizeof((x)) / sizeof(wchar_t))
+/* Return the size (in wchar's) of a char array. */
+#define sizeof_w(x)	(sizeof((x)) / sizeof(char))
 
 
 #ifdef __cplusplus
@@ -84,44 +84,36 @@ extern int unscaled_size_y;		/* current unscaled size Y */
 /* System-related functions. */
 extern char	*fix_exe_path(char *str);
 extern FILE	*plat_fopen(const char *path, const char *mode);
-extern FILE	*plat_fopen64(const char *path, const char *mode);
-extern FILE	*plat_wfopen(wchar_t *path, wchar_t *mode);
-extern FILE	*plat_wfopen64(const wchar_t *path, const wchar_t *mode);
 extern void	plat_remove(char *path);
-extern int	plat_getcwd(char *bufp, int max);
-extern int	plat_chdir(char *path);
+extern int	plat_getcwd(char *buf, size_t max);
+extern int	plat_chdir(const char *path);
 extern void	plat_get_exe_name(char *s, size_t size);
 extern char	*plat_get_basename(const char *path);
-extern void	plat_get_dirname(wchar_t *dest, const wchar_t *path);
+extern void	plat_get_dirname(char *dest, const char *path);
 extern void	plat_get_dirname_a(char *dest, const char *path);
 extern char	*plat_get_filename(char *s);
-extern wchar_t *plat_get_extension(wchar_t *s);
-extern void	plat_append_filename(wchar_t *dest, wchar_t *s1, wchar_t *s2);
+extern char *plat_get_extension(char *s);
+extern void	plat_append_filename(char *dest, char *s1, char *s2);
 extern void	plat_append_filename_a(char *dest, char *s1, char *s2);
 extern void	plat_put_backslash(char *s);
-extern void	plat_path_slash(wchar_t *path);
+extern void	plat_path_slash(char *path);
 extern void	plat_path_slash_a(char *path);
-extern int plat_path_abs(wchar_t *path);
+extern int plat_path_abs(char *path);
 extern int plat_path_abs_a(char *path);
-extern int plat_dir_check(char *path);
-extern int plat_dir_create(char *path);
+extern int plat_dir_check(const char *path);
+extern int plat_dir_create(const char *path);
 extern uint64_t	plat_timer_read(void);
-extern uint32_t	plat_get_ticks(void);
+extern uint32_t	plat_get_elapsed_msec(void);
 extern void	plat_delay_ms(uint32_t count);
 extern void	plat_pause(int p);
 extern void	plat_mouse_capture(int on);
-extern int plat_vidapi(char *name);
-extern char	*plat_vidapi_name(int api);
-extern int plat_setvid(int api);
-extern void	plat_vidsize(int x, int y);
-extern void	plat_setfullscreen(int on);
-extern void	plat_resize(int x, int y);
-extern void	plat_vidapi_enable(int enabled);
+extern void plat_show_window(int options);
+extern void plat_mouse_close();
 
 
 /* Resource management. */
-extern void	set_language(int id);
-extern wchar_t *plat_get_string(int id);
+extern void	set_language();
+extern char *plat_get_string(int id);
 
 
 /* Emulator start/stop support functions. */
@@ -134,15 +126,15 @@ extern void	plat_power_off(void);
 
 
 /* Platform-specific device support. */
-extern void	floppy_mount(uint8_t id, wchar_t *fn, uint8_t wp);
+extern void	floppy_mount(uint8_t id, char *fn, uint8_t wp);
 extern void	floppy_eject(uint8_t id);
-extern void	cdrom_mount(uint8_t id, wchar_t *fn);
+extern void	cdrom_mount(uint8_t id, char *fn);
 extern void	plat_cdrom_ui_update(uint8_t id, uint8_t reload);
 extern void	zip_eject(uint8_t id);
-extern void	zip_mount(uint8_t id, wchar_t *fn, uint8_t wp);
+extern void	zip_mount(uint8_t id, char *fn, uint8_t wp);
 extern void	zip_reload(uint8_t id);
 extern void	mo_eject(uint8_t id);
-extern void	mo_mount(uint8_t id, wchar_t *fn, uint8_t wp);
+extern void	mo_mount(uint8_t id, char *fn, uint8_t wp);
 extern void	mo_reload(uint8_t id);
 extern int ioctl_open(uint8_t id, char d);
 extern void ioctl_reset(uint8_t id);
@@ -186,8 +178,8 @@ extern void shutdown_trace(void);
 #endif
 
 #ifdef __cplusplus
-}
-}
+} // namespace Platform
+} // extern "C"
 #endif
 
 

@@ -156,7 +156,7 @@ ui_msgbox_ex(int flags, void *header, void *message, void *btn1, void *btn2, voi
 
 
 int
-file_dlg_w(HWND hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save)
+file_dlg_w(WindowHandle hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save)
 {
     OPENFILENAME ofn;
     BOOL r;
@@ -181,7 +181,7 @@ file_dlg_w(HWND hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save)
     ofn.lpstrInitialDir = NULL;
     ofn.Flags = OFN_PATHMUSTEXIST;
     if (! save)
-	ofn.Flags |= OFN_FILEMUSTEXIST;    
+	ofn.Flags |= OFN_FILEMUSTEXIST;
     if (title)
     ofn.lpstrTitle = title;
 
@@ -205,7 +205,7 @@ file_dlg_w(HWND hwnd, WCHAR *f, WCHAR *fn, WCHAR *title, int save)
 
 
 int
-file_dlg(HWND hwnd, WCHAR *f, char *fn, char *title, int save)
+file_dlg(WindowHandle hwnd, WCHAR *f, char *fn, char *title, int save)
 {
     WCHAR ufn[512], title_buf[512];
 
@@ -218,7 +218,7 @@ file_dlg(HWND hwnd, WCHAR *f, char *fn, char *title, int save)
 
 
 int
-file_dlg_mb(HWND hwnd, char *f, char *fn, char *title, int save)
+file_dlg_mb(WindowHandle hwnd, char *f, char *fn, char *title, int save)
 {
     WCHAR uf[512], ufn[512], title_buf[512];
 
@@ -232,7 +232,7 @@ file_dlg_mb(HWND hwnd, char *f, char *fn, char *title, int save)
 
 
 int
-file_dlg_w_st(HWND hwnd, int id, WCHAR *fn, char *title, int save)
+file_dlg_w_st(WindowHandle hwnd, int id, WCHAR *fn, char *title, int save)
 {
     WCHAR title_buf[512];
     if (title)
@@ -242,7 +242,7 @@ file_dlg_w_st(HWND hwnd, int id, WCHAR *fn, char *title, int save)
 
 
 int
-file_dlg_st(HWND hwnd, int id, char *fn, char *title, int save)
-{    
+file_dlg_st(WindowHandle hwnd, int id, char *fn, char *title, int save)
+{
     return(file_dlg(hwnd, plat_get_string(id), fn, title, save));
 }

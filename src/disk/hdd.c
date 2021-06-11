@@ -49,7 +49,7 @@ hdd_string_to_bus(char *str, int cdrom)
     if (! strcmp(str, "mfm") || ! strcmp(str, "rll")) {
 	if (cdrom) {
 no_cdrom:
-		ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2130, (wchar_t *) IDS_4099);
+		ui_msgbox_header(MBX_ERROR, (char *) IDS_2130, (char *) IDS_4099);
 		return(0);
 	}
 

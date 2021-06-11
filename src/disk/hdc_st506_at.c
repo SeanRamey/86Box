@@ -692,7 +692,7 @@ do_callback(void *priv)
 
 
 static void
-loadhd(mfm_t *mfm, int c, int d, const wchar_t *fn)
+loadhd(mfm_t *mfm, int c, int d, const char *fn)
 {
     drive_t *drive = &mfm->drives[c];
 

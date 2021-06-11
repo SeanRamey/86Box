@@ -31,10 +31,11 @@
 #include <86box/plat.h>
 #include <86box/win.h>
 #include <86box/version.h>
+#include <86box/window.h>
 
 
 void
-AboutDialogCreate(HWND hwnd)
+AboutDialogCreate(WindowHandle hwnd)
 {
     int i;
     TASKDIALOGCONFIG tdconfig = {0};

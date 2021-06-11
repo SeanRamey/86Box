@@ -58,7 +58,7 @@
 #endif
 
 typedef struct {
-    WCHAR str[512];
+	WCHAR str[512];
 } rc_str_t;
 
 
@@ -73,39 +73,19 @@ int		acp_utf8;		/* Windows supports UTF-8 codepage */
 /* Local data. */
 static HANDLE	thMain;
 static rc_str_t	*lpRCstr2048,
-        *lpRCstr4096,
-        *lpRCstr4352,
-        *lpRCstr4608,
-        *lpRCstr5120,
-        *lpRCstr5376,
-        *lpRCstr5632,
-        *lpRCstr5888,
-        *lpRCstr6144,
-        *lpRCstr7168;
-static int	vid_api_inited = 0;
+		*lpRCstr4096,
+		*lpRCstr4352,
+		*lpRCstr4608,
+		*lpRCstr5120,
+		*lpRCstr5376,
+		*lpRCstr5632,
+		*lpRCstr5888,
+		*lpRCstr6144,
+		*lpRCstr7168;
 static wchar_t	*argbuf;
 static int	first_use = 1;
 static LARGE_INTEGER	StartingTime;
 static LARGE_INTEGER	Frequency;
-
-
-static const struct {
-    const char	*name;
-    int		local;
-    int		(*init)(void *);
-    void	(*close)(void);
-    void	(*resize)(int x, int y);
-    int		(*pause)(void);
-    void	(*enable)(int enable);
-    void	(*set_fs)(int fs);
-} vid_apis[RENDERERS_NUM] = {
-  {	"SDL_Software", 1, (int(*)(void*))sdl_inits, sdl_close, NULL, sdl_pause, sdl_enable, sdl_set_fs	},
-  {	"SDL_Hardware", 1, (int(*)(void*))sdl_inith, sdl_close, NULL, sdl_pause, sdl_enable, sdl_set_fs	},
-  {	"SDL_OpenGL", 1, (int(*)(void*))sdl_initho, sdl_close, NULL, sdl_pause, sdl_enable, sdl_set_fs	}
-#ifdef USE_VNC
- ,{	"VNC", 0, vnc_init, vnc_close, vnc_resize, vnc_pause, NULL, NULL				}
-#endif
-};
 
 
 extern int title_update;
@@ -118,13 +98,13 @@ int win_do_log = ENABLE_WIN_LOG;
 static void
 win_log(const char *fmt, ...)
 {
-    va_list ap;
+	va_list ap;
 
-    if (win_do_log) {
-    va_start(ap, fmt);
-    pclog_ex(fmt, ap);
-    va_end(ap);
-    }
+	if (win_do_log) {
+	va_start(ap, fmt);
+	pclog_ex(fmt, ap);
+	va_end(ap);
+	}
 }
 #else
 #define win_log(fmt, ...)
@@ -134,145 +114,148 @@ win_log(const char *fmt, ...)
 static void
 LoadCommonStrings(void)
 {
-    int i;
+	int i;
 
-    lpRCstr2048 = (rc_str_t *)malloc(STR_NUM_2048*sizeof(rc_str_t));
-    lpRCstr4096 = (rc_str_t *)malloc(STR_NUM_4096*sizeof(rc_str_t));
-    lpRCstr4352 = (rc_str_t *)malloc(STR_NUM_4352*sizeof(rc_str_t));
-    lpRCstr4608 = (rc_str_t *)malloc(STR_NUM_4608*sizeof(rc_str_t));
-    lpRCstr5120 = (rc_str_t *)malloc(STR_NUM_5120*sizeof(rc_str_t));
-    lpRCstr5376 = (rc_str_t *)malloc(STR_NUM_5376*sizeof(rc_str_t));
-    lpRCstr5632 = (rc_str_t *)malloc(STR_NUM_5632*sizeof(rc_str_t));
-    lpRCstr5888 = (rc_str_t *)malloc(STR_NUM_5888*sizeof(rc_str_t));
-    lpRCstr6144 = (rc_str_t *)malloc(STR_NUM_6144*sizeof(rc_str_t));
-    lpRCstr7168 = (rc_str_t *)malloc(STR_NUM_7168*sizeof(rc_str_t));
+	lpRCstr2048 = (rc_str_t *)malloc(STR_NUM_2048*sizeof(rc_str_t));
+	lpRCstr4096 = (rc_str_t *)malloc(STR_NUM_4096*sizeof(rc_str_t));
+	lpRCstr4352 = (rc_str_t *)malloc(STR_NUM_4352*sizeof(rc_str_t));
+	lpRCstr4608 = (rc_str_t *)malloc(STR_NUM_4608*sizeof(rc_str_t));
+	lpRCstr5120 = (rc_str_t *)malloc(STR_NUM_5120*sizeof(rc_str_t));
+	lpRCstr5376 = (rc_str_t *)malloc(STR_NUM_5376*sizeof(rc_str_t));
+	lpRCstr5632 = (rc_str_t *)malloc(STR_NUM_5632*sizeof(rc_str_t));
+	lpRCstr5888 = (rc_str_t *)malloc(STR_NUM_5888*sizeof(rc_str_t));
+	lpRCstr6144 = (rc_str_t *)malloc(STR_NUM_6144*sizeof(rc_str_t));
+	lpRCstr7168 = (rc_str_t *)malloc(STR_NUM_7168*sizeof(rc_str_t));
 
-    for (i=0; i<STR_NUM_2048; i++)
-    LoadString(hinstance, 2048+i, lpRCstr2048[i].str, 512);
+	for (i=0; i<STR_NUM_2048; i++)
+	LoadString(hinstance, 2048+i, lpRCstr2048[i].str, 512);
 
-    for (i=0; i<STR_NUM_4096; i++)
-    LoadString(hinstance, 4096+i, lpRCstr4096[i].str, 512);
+	for (i=0; i<STR_NUM_4096; i++)
+	LoadString(hinstance, 4096+i, lpRCstr4096[i].str, 512);
 
-    for (i=0; i<STR_NUM_4352; i++)
-    LoadString(hinstance, 4352+i, lpRCstr4352[i].str, 512);
+	for (i=0; i<STR_NUM_4352; i++)
+	LoadString(hinstance, 4352+i, lpRCstr4352[i].str, 512);
 
-    for (i=0; i<STR_NUM_4608; i++)
-    LoadString(hinstance, 4608+i, lpRCstr4608[i].str, 512);
+	for (i=0; i<STR_NUM_4608; i++)
+	LoadString(hinstance, 4608+i, lpRCstr4608[i].str, 512);
 
-    for (i=0; i<STR_NUM_5120; i++)
-    LoadString(hinstance, 5120+i, lpRCstr5120[i].str, 512);
+	for (i=0; i<STR_NUM_5120; i++)
+	LoadString(hinstance, 5120+i, lpRCstr5120[i].str, 512);
 
-    for (i=0; i<STR_NUM_5376; i++) {
-    if ((i == 0) || (i > 3))
-        LoadString(hinstance, 5376+i, lpRCstr5376[i].str, 512);
-    }
+	for (i=0; i<STR_NUM_5376; i++) {
+	if ((i == 0) || (i > 3))
+		LoadString(hinstance, 5376+i, lpRCstr5376[i].str, 512);
+	}
 
-    for (i=0; i<STR_NUM_5632; i++) {
-    if ((i == 0) || (i > 3))
-        LoadString(hinstance, 5632+i, lpRCstr5632[i].str, 512);
-    }
+	for (i=0; i<STR_NUM_5632; i++) {
+	if ((i == 0) || (i > 3))
+		LoadString(hinstance, 5632+i, lpRCstr5632[i].str, 512);
+	}
 
-    for (i=0; i<STR_NUM_5888; i++)
-    LoadString(hinstance, 5888+i, lpRCstr5888[i].str, 512);
+	for (i=0; i<STR_NUM_5888; i++)
+	LoadString(hinstance, 5888+i, lpRCstr5888[i].str, 512);
 
-    for (i=0; i<STR_NUM_6144; i++)
-    LoadString(hinstance, 6144+i, lpRCstr6144[i].str, 512);
+	for (i=0; i<STR_NUM_6144; i++)
+	LoadString(hinstance, 6144+i, lpRCstr6144[i].str, 512);
 
-    for (i=0; i<STR_NUM_7168; i++)
-    LoadString(hinstance, 7168+i, lpRCstr7168[i].str, 512);
+	for (i=0; i<STR_NUM_7168; i++)
+	LoadString(hinstance, 7168+i, lpRCstr7168[i].str, 512);
 }
 
 
-size_t mbstoc16s(uint16_t dst[], const char src[], int len)
+size_t
+mbstoc16s(uint16_t dst[], const char src[], int len)
 {
-    if (src == NULL) return 0;
-    if (len < 0) return 0;
+	if (src == NULL) return 0;
+	if (len < 0) return 0;
 
-    size_t ret = MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len);
+	size_t ret = MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len);
 
-    if (!ret) {
+	if (!ret) {
 	return -1;
-    }
+	}
 
-    return ret;
+	return ret;
 }
 
 
-size_t c16stombs(char dst[], const uint16_t src[], int len)
+size_t
+c16stombs(char dst[], const uint16_t src[], int len)
 {
-    if (src == NULL) return 0;
-    if (len < 0) return 0;
+	if (src == NULL) return 0;
+	if (len < 0) return 0;
 
-    size_t ret = WideCharToMultiByte(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len, NULL, NULL);
+	size_t ret = WideCharToMultiByte(CP_UTF8, 0, src, -1, dst, dst == NULL ? 0 : len, NULL, NULL);
 
-    if (!ret) {
+	if (!ret) {
 	return -1;
-    }
+	}
 
-    return ret;
+	return ret;
 }
 
 
 /* Set (or re-set) the language for the application. */
 void
-set_language(int id)
+set_language()
 {
-    LCID lcidNew = MAKELCID(id, dwSubLangID);
+	// LCID lcidNew = MAKELCID(id, dwSubLangID);
 
-    if (lang_id != lcidNew) {
-    /* Set our new language ID. */
-    lang_id = lcidNew;
+	// if (lang_id != lcidNew) {
+	// /* Set our new language ID. */
+	// lang_id = lcidNew;
 
-    SetThreadLocale(lang_id);
+	//SetThreadLocale(lang_id);
+	SetThreadLocale(0x0409); // set to en-US, that's what was being done before
 
-    /* Load the strings table for this ID. */
-    LoadCommonStrings();
-    }
+	/* Load the strings table for this ID. */
+	LoadCommonStrings();
+	}
 }
 
 
-wchar_t *
+char *
 plat_get_string(int i)
 {
-    LPTSTR str;
+	LPTSTR str;
 
-    if ((i >= 2048) && (i <= 3071))
-    str = lpRCstr2048[i-2048].str;
-    else if ((i >= 4096) && (i <= 4351))
-    str = lpRCstr4096[i-4096].str;
-    else if ((i >= 4352) && (i <= 4607))
-    str = lpRCstr4352[i-4352].str;
-    else if ((i >= 4608) && (i <= 5119))
-    str = lpRCstr4608[i-4608].str;
-    else if ((i >= 5120) && (i <= 5375))
-    str = lpRCstr5120[i-5120].str;
-    else if ((i >= 5376) && (i <= 5631))
-    str = lpRCstr5376[i-5376].str;
-    else if ((i >= 5632) && (i <= 5887))
-    str = lpRCstr5632[i-5632].str;
-    else if ((i >= 5888) && (i <= 6143))
-    str = lpRCstr5888[i-5888].str;
-    else if ((i >= 6144) && (i <= 7167))
-    str = lpRCstr6144[i-6144].str;
-    else
-    str = lpRCstr7168[i-7168].str;
+	if ((i >= 2048) && (i <= 3071))
+	str = lpRCstr2048[i-2048].str;
+	else if ((i >= 4096) && (i <= 4351))
+	str = lpRCstr4096[i-4096].str;
+	else if ((i >= 4352) && (i <= 4607))
+	str = lpRCstr4352[i-4352].str;
+	else if ((i >= 4608) && (i <= 5119))
+	str = lpRCstr4608[i-4608].str;
+	else if ((i >= 5120) && (i <= 5375))
+	str = lpRCstr5120[i-5120].str;
+	else if ((i >= 5376) && (i <= 5631))
+	str = lpRCstr5376[i-5376].str;
+	else if ((i >= 5632) && (i <= 5887))
+	str = lpRCstr5632[i-5632].str;
+	else if ((i >= 5888) && (i <= 6143))
+	str = lpRCstr5888[i-5888].str;
+	else if ((i >= 6144) && (i <= 7167))
+	str = lpRCstr6144[i-6144].str;
+	else
+	str = lpRCstr7168[i-7168].str;
 
-    return((wchar_t *)str);
+	return((char *)str);
 }
 
 #ifdef MTR_ENABLED
 void
 init_trace(void)
 {
-    mtr_init("trace.json");
-    mtr_start();
+	mtr_init("trace.json");
+	mtr_start();
 }
 
 void
 shutdown_trace(void)
 {
-    mtr_stop();
-    mtr_shutdown();
+	mtr_stop();
+	mtr_shutdown();
 }
 #endif
 
@@ -280,55 +263,55 @@ shutdown_trace(void)
 static void
 CreateConsole(int init)
 {
-    HANDLE h;
-    FILE *fp;
-    fpos_t p;
-    int i;
+	HANDLE h;
+	FILE *fp;
+	fpos_t p;
+	int i;
 
-    if (! init) {
-    if (force_debug)
-        FreeConsole();
-    return;
-    }
+	if (! init) {
+	if (force_debug)
+		FreeConsole();
+	return;
+	}
 
-    /* Are we logging to a file? */
-    p = 0;
-    (void)fgetpos(stdout, &p);
-    if (p != -1) return;
+	/* Are we logging to a file? */
+	p = 0;
+	(void)fgetpos(stdout, &p);
+	if (p != -1) return;
 
-    /* Not logging to file, attach to console. */
-    if (! AttachConsole(ATTACH_PARENT_PROCESS)) {
-    /* Parent has no console, create one. */
-    if (! AllocConsole()) {
-        /* Cannot create console, just give up. */
-        return;
-    }
-    }
-    fp = NULL;
-    if ((h = GetStdHandle(STD_OUTPUT_HANDLE)) != NULL) {
-    /* We got the handle, now open a file descriptor. */
-    if ((i = _open_osfhandle((intptr_t)h, _O_TEXT)) != -1) {
-        /* We got a file descriptor, now allocate a new stream. */
-        if ((fp = _fdopen(i, "w")) != NULL) {
-            /* Got the stream, re-initialize stdout without it. */
-            (void)freopen("CONOUT$", "w", stdout);
-            setvbuf(stdout, NULL, _IONBF, 0);
-            fflush(stdout);
-        }
-    }
-    }
+	/* Not logging to file, attach to console. */
+	if (! AttachConsole(ATTACH_PARENT_PROCESS)) {
+	/* Parent has no console, create one. */
+	if (! AllocConsole()) {
+		/* Cannot create console, just give up. */
+		return;
+	}
+	}
+	fp = NULL;
+	if ((h = GetStdHandle(STD_OUTPUT_HANDLE)) != NULL) {
+	/* We got the handle, now open a file descriptor. */
+	if ((i = _open_osfhandle((intptr_t)h, _O_TEXT)) != -1) {
+		/* We got a file descriptor, now allocate a new stream. */
+		if ((fp = _fdopen(i, "w")) != NULL) {
+			/* Got the stream, re-initialize stdout without it. */
+			(void)freopen("CONOUT$", "w", stdout);
+			setvbuf(stdout, NULL, _IONBF, 0);
+			fflush(stdout);
+		}
+	}
+	}
 
-    if (fp != NULL) {
-    fclose(fp);
-    fp = NULL;
-    }
+	if (fp != NULL) {
+	fclose(fp);
+	fp = NULL;
+	}
 }
 
 
 static void
 CloseConsole(void)
 {
-    CreateConsole(0);
+	CreateConsole(0);
 }
 
 
@@ -336,31 +319,31 @@ CloseConsole(void)
 static int
 ProcessCommandLine(char ***argv)
 {
-    char **args;
-    int argc_max;
-    int i, q, argc;
+	char **args;
+	int argc_max;
+	int i, q, argc;
 
-    if (acp_utf8) {
+	if (acp_utf8) {
 	i = strlen(GetCommandLineA()) + 1;
 	argbuf = (char *)malloc(i);
 	strcpy(argbuf, GetCommandLineA());
-    } else {
+	} else {
 	i = c16stombs(NULL, GetCommandLineW(), 0) + 1;
 	argbuf = (char *)malloc(i);
 	c16stombs(argbuf, GetCommandLineW(), i);
-    }
+	}
 
-    argc = 0;
-    argc_max = 64;
-    args = (char **)malloc(sizeof(char *) * argc_max);
-    if (args == NULL) {
-    free(argbuf);
-    return(0);
-    }
+	argc = 0;
+	argc_max = 64;
+	args = (char **)malloc(sizeof(char *) * argc_max);
+	if (args == NULL) {
+	free(argbuf);
+	return(0);
+	}
 
-    /* parse commandline into argc/argv format */
-    i = 0;
-    while (argbuf[i]) {
+	/* parse commandline into argc/argv format */
+	i = 0;
+	while (argbuf[i]) {
 	while (argbuf[i] == ' ')
 		  i++;
 
@@ -391,12 +374,12 @@ ProcessCommandLine(char ***argv)
 			i++;
 		}
 	}
-    }
+	}
 
-    args[argc] = NULL;
-    *argv = args;
+	args[argc] = NULL;
+	*argv = args;
 
-    return(argc);
+	return(argc);
 }
 
 
@@ -404,85 +387,85 @@ ProcessCommandLine(char ***argv)
 int WINAPI
 WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
 {
-    char **argv = NULL;
-    int	argc, i;
-    wchar_t * AppID = L"86Box.86Box\0";
+	char **argv = NULL;
+	int	argc, i;
+	char * AppID = L"86Box.86Box\0";
 
-    SetCurrentProcessExplicitAppUserModelID(AppID);
+	SetCurrentProcessExplicitAppUserModelID(AppID);
 
-    /* Check if Windows supports UTF-8 */
-    if (GetACP() == CP_UTF8)
+	/* Check if Windows supports UTF-8 */
+	if (GetACP() == CP_UTF8)
 	acp_utf8 = 1;
-    else
+	else
 	acp_utf8 = 0;
 
-    /* Set this to the default value (windowed mode). */
-    video_fullscreen = 0;
+	/* Set this to the default value (windowed mode). */
+	video_fullscreen = 0;
 
-    /* We need this later. */
-    hinstance = hInst;
+	/* We need this later. */
+	hinstance = hInst;
 
-    /* Set the application version ID string. */
-    sprintf(emu_version, "%s v%s", EMU_NAME, EMU_VERSION);
+	/* Set the application version ID string. */
+	sprintf(emu_version, "%s v%s", EMU_NAME, EMU_VERSION);
 
-    /* First, set our (default) language. */
-    set_language(0x0409);
+	/* First, set our (default) language. */
+	set_language();
 
-    /* Process the command line for options. */
-    argc = ProcessCommandLine(&argv);
+	/* Process the command line for options. */
+	argc = ProcessCommandLine(&argv);
 
-    /* Pre-initialize the system, this loads the config file. */
-    if (! pc_init(argc, argv))
-    {
-        /* Detach from console. */
-        if (force_debug)
-        {
-            CreateConsole(0);
-        }
+	/* Pre-initialize the system, this loads the config file. */
+	if (! pc_init(argc, argv))
+	{
+		/* Detach from console. */
+		if (force_debug)
+		{
+			CreateConsole(0);
+		}
 
-        if (source_hwnd)
-        {
-            PostMessage((HWND) (uintptr_t) source_hwnd, WM_HAS_SHUTDOWN, (WPARAM) 0, (LPARAM) hwndMain);
-        }
+		if (source_hwnd)
+		{
+			PostMessage((HWND) (uintptr_t) source_hwnd, WM_HAS_SHUTDOWN, (WPARAM) 0, (LPARAM) hwndMain);
+		}
 
 
-        free(argbuf);
-        free(argw);
-        return(EXIT_FAILURE);
-    }
+		free(argbuf);
+		free(argw);
+		return(EXIT_FAILURE);
+	}
 
-    /* Enable crash dump services. */
-    if (enable_crashdump)
-    {
-        InitCrashDump();
-    }
+	/* Enable crash dump services. */
+	if (enable_crashdump)
+	{
+		InitCrashDump();
+	}
 
-    /* Create console window. */
-    if (force_debug)
-    {
-        CreateConsole(1);
-        atexit(CloseConsole);
-    }
+	/* Create console window. */
+	if (force_debug)
+	{
+		CreateConsole(1);
+		atexit(CloseConsole);
+	}
 
-    /* Handle our GUI. */
-    i = ui_init(nCmdShow);
+	/* Handle our GUI. */
+	i = ui_init(nCmdShow);
 
-    free(argbuf);
-    free(argv);
-    return(i);
+	free(argbuf);
+	free(argv);
+	return(i);
 }
 
 
 void
 main_thread(void *param)
 {
-    uint32_t old_time, new_time;
-    int drawits, frames;
+	uint32_t old_time, new_time;
+	int drawits, frames;
 
-    title_update = 1;
-    old_time = GetTickCount();
-    drawits = frames = 0;
-    while (!is_quit) {
+	title_update = 1;
+	old_time = GetTickCount();
+	drawits = frames = 0;
+	while (!is_quit) {
 	/* See if it is time to run a frame of code. */
 	new_time = GetTickCount();
 	drawits += (new_time - old_time);
@@ -507,10 +490,10 @@ main_thread(void *param)
 
 	/* If needed, handle a screen resize. */
 	if (doresize && !video_fullscreen) {
-		plat_resize(scrnsz_x, scrnsz_y);
+		vidsize(scrnsz_x, scrnsz_y);
 		doresize = 0;
 	}
-    }
+	}
 }
 
 
@@ -522,20 +505,20 @@ main_thread(void *param)
 void
 do_start(void)
 {
-    LARGE_INTEGER qpc;
+	LARGE_INTEGER qpc;
 
-    /* We have not stopped yet. */
-    is_quit = 0;
+	/* We have not stopped yet. */
+	is_quit = 0;
 
-    /* Initialize the high-precision timer. */
-    timeBeginPeriod(1);
-    QueryPerformanceFrequency(&qpc);
-    timer_freq = qpc.QuadPart;
-    win_log("Main timer precision: %llu\n", timer_freq);
+	/* Initialize the high-precision timer. */
+	timeBeginPeriod(1);
+	QueryPerformanceFrequency(&qpc);
+	timer_freq = qpc.QuadPart;
+	win_log("Main timer precision: %llu\n", timer_freq);
 
-    /* Start the emulator, really. */
-    thMain = thread_create(main_thread, &is_quit);
-    SetThreadPriority(thMain, THREAD_PRIORITY_HIGHEST);
+	/* Start the emulator, really. */
+	thMain = thread_create(main_thread, &is_quit);
+	SetThreadPriority(thMain, THREAD_PRIORITY_HIGHEST);
 }
 
 
@@ -543,80 +526,62 @@ do_start(void)
 void
 do_stop(void)
 {
-    is_quit = 1;
+	is_quit = 1;
 
-    plat_delay_ms(100);
+	plat_delay_ms(100);
 
-    if (source_hwnd)
-    PostMessage((HWND) (uintptr_t) source_hwnd, WM_HAS_SHUTDOWN, (WPARAM) 0, (LPARAM) hwndMain);
+	if (source_hwnd)
+	PostMessage((HWND) (uintptr_t) source_hwnd, WM_HAS_SHUTDOWN, (WPARAM) 0, (LPARAM) hwndMain);
 
-    pc_close(thMain);
+	pc_close();
 
-    thMain = NULL;
+	thMain = NULL;
+
+	/* Wait a while so things can shut down. */
+	plat_delay_ms(200);
 }
 
 
 void
-plat_get_exe_name(char *s, int size)
+plat_get_exe_name(char *s, size_t size)
 {
-    wchar_t temp[MAX_PATH];
+	char temp[MAX_PATH];
 
-    if (acp_utf8)
+	if (acp_utf8)
 	GetModuleFileNameA(hinstance, s, size);
-    else {
+	else {
 	GetModuleFileNameW(hinstance, temp, sizeof_w(temp));
 	c16stombs(s, temp, size);
-    }
-}
-
-
-void
-plat_tempfile(char *bufp, char *prefix, char *suffix)
-{
-    SYSTEMTIME SystemTime;
-    char temp[1024];
-
-    if (prefix != NULL)
-	sprintf(bufp, "%s-", prefix);
-      else
-	strcpy(bufp, "");
-
-    GetSystemTime(&SystemTime);
-    sprintf(&bufp[strlen(bufp)], "%d%02d%02d-%02d%02d%02d-%03d%s",
-        SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay,
-	SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
-	SystemTime.wMilliseconds,
-	suffix);
+	}
 }
 
 
 int
 plat_getcwd(char *bufp, int max)
 {
-    wchar_t *temp;
+	char *temp;
 
-    if (acp_utf8)
+	if (acp_utf8)
 	(void)_getcwd(bufp, max);
-    else {
-	temp = malloc(max * sizeof(wchar_t));
+	else {
+	temp = malloc(max * sizeof(char));
 	(void)_wgetcwd(temp, max);
 	c16stombs(bufp, temp, max);
 	free(temp);
-    }
+	}
 
-    return(0);
+	return(0);
 }
-
 
 int
 plat_chdir(char *path)
 {
-    wchar_t *temp;
-    int len, ret;
+	char *temp;
+	int len, ret;
 
-    if (acp_utf8)
+	if (acp_utf8)
 	return(_chdir(path));
-    else {
+	else {
 	len = mbstoc16s(NULL, path, 0) + 1;
 	temp = malloc(len * sizeof(wchar_t));
 	mbstoc16s(temp, path, len);
@@ -625,20 +590,20 @@ plat_chdir(char *path)
 
 	free(temp);
 	return ret;
-    }
+	}
 }
 
 
 FILE *
 plat_fopen(const char *path, const char *mode)
 {
-    wchar_t *pathw, *modew;
-    int len;
-    FILE *fp;
+	char *pathw, *modew;
+	int len;
+	FILE *fp;
 
-    if (acp_utf8)
+	if (acp_utf8)
 	return fopen(path, mode);
-    else {
+	else {
 	len = mbstoc16s(NULL, path, 0) + 1;
 	pathw = malloc(sizeof(wchar_t) * len);
 	mbstoc16s(pathw, path, len);
@@ -653,60 +618,38 @@ plat_fopen(const char *path, const char *mode)
 	free(modew);
 
 	return fp;
-    }
-}
-
-
-FILE *
-plat_fopen64(const char *path, const char *mode)
-{
-    return plat_fopen(path, mode);
-}
-
-
-FILE *
-plat_wfopen(wchar_t *path, wchar_t *mode)
-{
-    return(_wfopen(path, mode));
-}
-
-
-/* Open a file, using Unicode pathname, with 64bit pointers. */
-FILE *
-plat_wfopen64(const wchar_t *path, const wchar_t *mode)
-{
-    return(_wfopen(path, mode));
+	}
 }
 
 
 void
 plat_remove(char *path)
 {
-    wchar_t *temp;
-    int len;
+	char *temp;
+	int len;
 
-    if (acp_utf8)
+	if (acp_utf8)
 	remove(path);
-    else {
+	else {
 	len = mbstoc16s(NULL, path, 0) + 1;
-	temp = malloc(len * sizeof(wchar_t));
+	temp = malloc(len * sizeof(char));
 	mbstoc16s(temp, path, len);
 
 	_wremove(temp);
 
 	free(temp);
-    }
+	}
 }
 
 
 /* Make sure a path ends with a trailing (back)slash. */
 void
-plat_path_slash(wchar_t *path)
+plat_path_slash(char *path)
 {
-    if ((path[wcslen(path)-1] != L'\\') &&
-    (path[wcslen(path)-1] != L'/')) {
-    wcscat(path, L"\\");
-    }
+	if ((path[wcslen(path)-1] != L'\\') &&
+	(path[wcslen(path)-1] != L'/')) {
+	wcscat(path, L"\\");
+	}
 }
 
 
@@ -714,21 +657,21 @@ plat_path_slash(wchar_t *path)
 void
 plat_path_slash_a(char *path)
 {
-    if ((path[strlen(path)-1] != '\\') &&
+	if ((path[strlen(path)-1] != '\\') &&
 	(path[strlen(path)-1] != '/')) {
 	strcat(path, "\\");
-    }
+	}
 }
 
 
 /* Check if the given path is absolute or not. */
 int
-plat_path_abs(wchar_t *path)
+plat_path_abs(char *path)
 {
-    if ((path[1] == L':') || (path[0] == L'\\') || (path[0] == L'/'))
-    return(1);
+	if ((path[1] == L':') || (path[0] == L'\\') || (path[0] == L'/'))
+	return(1);
 
-    return(0);
+	return(0);
 }
 
 
@@ -736,10 +679,10 @@ plat_path_abs(wchar_t *path)
 int
 plat_path_abs_a(char *path)
 {
-    if ((path[1] == ':') || (path[0] == '\\') || (path[0] == '/'))
+	if ((path[1] == ':') || (path[0] == '\\') || (path[0] == '/'))
 	return(1);
 
-    return(0);
+	return(0);
 }
 
 
@@ -747,39 +690,39 @@ plat_path_abs_a(char *path)
 char *
 plat_get_basename(const char *path)
 {
-    int c = (int)strlen(path);
+	int c = (int)strlen(path);
 
-    while (c > 0) {
+	while (c > 0) {
 	if (path[c] == '/' || path[c] == '\\')
 	   return((char *)&path[c]);
-       c--;
-    }
+	   c--;
+	}
 
-    return((char *)path);
+	return((char *)path);
 }
 
 
 /* Return the 'directory' element of a pathname. */
 void
-plat_get_dirname(wchar_t *dest, const wchar_t *path)
+plat_get_dirname(char *dest, const char *path)
 {
-    int c = (int)wcslen(path);
-    wchar_t *ptr;
+	int c = (int)wcslen(path);
+	char *ptr;
 
-    ptr = (wchar_t *)path;
+	ptr = (char *)path;
 
-    while (c > 0) {
-    if (path[c] == L'/' || path[c] == L'\\') {
-        ptr = (wchar_t *)&path[c];
-        break;
-    }
-     c--;
-    }
+	while (c > 0) {
+	if (path[c] == L'/' || path[c] == L'\\') {
+		ptr = (char *)&path[c];
+		break;
+	}
+	 c--;
+	}
 
-    /* Copy to destination. */
-    while (path < ptr)
-    *dest++ = *path++;
-    *dest = L'\0';
+	/* Copy to destination. */
+	while (path < ptr)
+	*dest++ = *path++;
+	*dest = L'\0';
 }
 
 
@@ -787,83 +730,83 @@ plat_get_dirname(wchar_t *dest, const wchar_t *path)
 void
 plat_get_dirname_a(char *dest, const char *path)
 {
-    int c = (int)strlen(path);
-    char *ptr;
+	int c = (int)strlen(path);
+	char *ptr;
 
-    ptr = (char *)path;
+	ptr = (char *)path;
 
-    while (c > 0) {
+	while (c > 0) {
 	if (path[c] == '/' || path[c] == '\\') {
 		ptr = (char *)&path[c];
 		break;
 	}
  	c--;
-    }
+	}
 
-    /* Copy to destination. */
-    while (path < ptr)
+	/* Copy to destination. */
+	while (path < ptr)
 	*dest++ = *path++;
-    *dest = '\0';
+	*dest = '\0';
 }
 
 
 char *
 plat_get_filename(char *s)
 {
-    int c = strlen(s) - 1;
+	int c = strlen(s) - 1;
 
-    while (c > 0) {
+	while (c > 0) {
 	if (s[c] == '/' || s[c] == '\\')
 	   return(&s[c+1]);
-       c--;
-    }
+	   c--;
+	}
 
-    return(s);
+	return(s);
 }
 
 
-wchar_t *
-plat_get_extension(wchar_t *s)
+char *
+plat_get_extension(char *s)
 {
-    int c = wcslen(s) - 1;
+	int c = wcslen(s) - 1;
 
-    if (c <= 0)
-    return(s);
+	if (c <= 0)
+	return(s);
 
-    while (c && s[c] != L'.')
-        c--;
+	while (c && s[c] != L'.')
+		c--;
 
-    if (!c)
-    return(&s[wcslen(s)]);
+	if (!c)
+	return(&s[wcslen(s)]);
 
-    return(&s[c+1]);
+	return(&s[c+1]);
 }
 
 
 void
-plat_append_filename(wchar_t *dest, wchar_t *s1, wchar_t *s2)
+plat_append_filename(char *dest, char *s1, char *s2)
 {
-    wcscat(dest, s1);
-    plat_path_slash(dest);
-    wcscat(dest, s2);
+	wcscat(dest, s1);
+	plat_path_slash(dest);
+	wcscat(dest, s2);
 }
 
 
 void
 plat_append_filename_a(char *dest, char *s1, char *s2)
 {
-    strcat(dest, s1);
-    plat_path_slash_a(dest);
-    strcat(dest, s2);
+	strcat(dest, s1);
+	plat_path_slash_a(dest);
+	strcat(dest, s2);
 }
 
 
 void
 plat_put_backslash(char *s)
 {
-    int c = strlen(s) - 1;
+	int c = strlen(s) - 1;
 
-    if (s[c] != '/' && s[c] != '\\')
+	if (s[c] != '/' && s[c] != '\\')
 	   s[c] = '/';
 }
 
@@ -871,328 +814,217 @@ plat_put_backslash(char *s)
 int
 plat_dir_check(char *path)
 {
-    DWORD dwAttrib;
-    int len;
-    wchar_t *temp;
+	DWORD dwAttrib;
+	int len;
+	char *temp;
 
-    if (acp_utf8)
+	if (acp_utf8)
 	dwAttrib = GetFileAttributesA(path);
-    else {
+	else {
 	len = mbstoc16s(NULL, path, 0);
-	temp = malloc(len * sizeof(wchar_t));
+	temp = malloc(len * sizeof(char));
 	mbstoc16s(temp, path, len);
 
 	dwAttrib = GetFileAttributesW(temp);
 
 	free(temp);
-    }
+	}
 
-    return(((dwAttrib != INVALID_FILE_ATTRIBUTES &&
-       (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) ? 1 : 0);
+	return(((dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	   (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) ? 1 : 0);
 }
 
 
 int
-plat_dir_create(char *path)
+plat_dir_create(const char *path)
 {
-    int ret, len;
-    wchar_t *temp;
+	int ret, len;
+	char *temp;
+	int error 0;
 
-    if (acp_utf8)
-	return (int)SHCreateDirectoryExA(NULL, path, NULL);
-    else {
-	len = mbstoc16s(NULL, path, 0) + 1;
-	temp = malloc(len * sizeof(wchar_t));
-	mbstoc16s(temp, path, len);
+	if (acp_utf8)
+	{
+		if(SHCreateDirectoryExA(NULL, path, NULL) != ERROR_SUCCESS)
+		{
+			ui_msgbox(MBX_ERROR, "Couldn't create directory \"%s\"", path);
+			error = 1;
+		}
+	}
+	else
+	{
+		len = mbstoc16s(NULL, path, 0) + 1;
+		temp = malloc(len * sizeof(char));
+		mbstoc16s(temp, path, len);
 
-	ret = (int)SHCreateDirectoryExW(NULL, temp, NULL);
+		if(SHCreateDirectoryExW(NULL, temp, NULL) != ERROR_SUCCESS)
+		{
+			ui_msgbox(MBX_ERROR, "Couldn't create directory \"%s\"", temp);
+			error = 1;
+		}
 
-	free(temp);
+		free(temp);
 
-	return ret;
-    }
+		return error;
+	}
 }
 
 
 uint64_t
 plat_timer_read(void)
 {
-    LARGE_INTEGER li;
+	LARGE_INTEGER li;
 
-    QueryPerformanceCounter(&li);
+	QueryPerformanceCounter(&li);
 
-    return(li.QuadPart);
+	return(li.QuadPart);
 }
 
 
 uint32_t
-plat_get_ticks(void)
+plat_get_elapsed_msec(void)
 {
-    LARGE_INTEGER EndingTime, ElapsedMicroseconds;
+	LARGE_INTEGER EndingTime, ElapsedMicroseconds;
 
-    if (first_use) {
+	if (first_use) {
 	QueryPerformanceFrequency(&Frequency);
 	QueryPerformanceCounter(&StartingTime);
 	first_use = 0;
-    }
+	}
 
-    QueryPerformanceCounter(&EndingTime);
-    ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
 
-    /* We now have the elapsed number of ticks, along with the
-       number of ticks-per-second. We use these values
-       to convert to the number of elapsed microseconds.
-       To guard against loss-of-precision, we convert
-       to microseconds *before* dividing by ticks-per-second. */
-    ElapsedMicroseconds.QuadPart *= 1000000;
-    ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
+	QueryPerformanceCounter(&EndingTime);
+	ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
 
-    return (uint32_t) (ElapsedMicroseconds.QuadPart / 1000);
+	/* We now have the elapsed number of ticks, along with the
+	   number of ticks-per-second. We use these values
+	   to convert to the number of elapsed microseconds.
+	   To guard against loss-of-precision, we convert
+	   to microseconds *before* dividing by ticks-per-second. */
+	ElapsedMicroseconds.QuadPart *= 1000000;
+	ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
+
+	return (uint32_t) (ElapsedMicroseconds.QuadPart / 1000);
 }
 
 
 void
 plat_delay_ms(uint32_t count)
 {
-    Sleep(count);
+	Sleep(count);
 }
 
 
 /* Return the VIDAPI number for the given name. */
 int
-plat_vidapi(char *name)
+vidapi(char *name)
 {
-    int i;
+	int i;
 
-    /* Default/System is SDL Hardware. */
-    if (!strcasecmp(name, "default") || !strcasecmp(name, "system")) return(1);
+	/* Default/System is SDL Hardware. */
+	if (!strcasecmp(name, "default") || !strcasecmp(name, "system")) return(1);
 
-    /* If DirectDraw or plain SDL was specified, return SDL Software. */
-    if (!strcasecmp(name, "ddraw") || !strcasecmp(name, "sdl")) return(1);
+	/* If DirectDraw or plain SDL was specified, return SDL Software. */
+	if (!strcasecmp(name, "ddraw") || !strcasecmp(name, "sdl")) return(1);
 
-    for (i = 0; i < RENDERERS_NUM; i++) {
-    if (vid_apis[i].name &&
-        !strcasecmp(vid_apis[i].name, name)) return(i);
-    }
+	for (i = 0; i < RENDERERS_NUM; i++) {
+	if (vid_apis[i].name &&
+		!strcasecmp(vid_apis[i].name, name)) return(i);
+	}
 
-    /* Default value. */
-    return(1);
+	/* Default value. */
+	return(1);
 }
 
 
 /* Return the VIDAPI name for the given number. */
 char *
-plat_vidapi_name(int api)
+vidapi_name(int api)
 {
-    char *name = "default";
+	char *name = "default";
 
-    switch(api) {
-    case 0:
-        name = "sdl_software";
-        break;
-    case 1:
-        break;
-    case 2:
-        name = "sdl_opengl";
-        break;
+	switch(api) {
+	case 0:
+		name = "sdl_software";
+		break;
+	case 1:
+		break;
+	case 2:
+		name = "sdl_opengl";
+		break;
 
 #ifdef USE_VNC
-    case 3:
-        name = "vnc";
-        break;
+	case 3:
+		name = "vnc";
+		break;
 #endif
-    default:
-        fatal("Unknown renderer: %i\n", api);
-        break;
-    }
-
-    return(name);
-}
-
-
-int
-plat_setvid(int api)
-{
-    int i;
-
-    win_log("Initializing VIDAPI: api=%d\n", api);
-    startblit();
-
-    /* Close the (old) API. */
-    vid_apis[vid_api].close();
-    vid_api = api;
-
-    if (vid_apis[vid_api].local)
-    ShowWindow(hwndRender, SW_SHOW);
-      else
-    ShowWindow(hwndRender, SW_HIDE);
-
-    /* Initialize the (new) API. */
-    i = vid_apis[vid_api].init((void *)hwndRender);
-    endblit();
-    if (! i) return(0);
-
-    device_force_redraw();
-
-    vid_api_inited = 1;
-
-    return(1);
-}
-
-
-/* Tell the renderers about a new screen resolution. */
-void
-plat_vidsize(int x, int y)
-{
-    if (!vid_api_inited || !vid_apis[vid_api].resize) return;
-
-    startblit();
-    vid_apis[vid_api].resize(x, y);
-    endblit();
-}
-
-
-void
-plat_vidapi_enable(int enable)
-{
-    int i = 1;
-
-    if (!vid_api_inited || !vid_apis[vid_api].enable)
-    return;
-
-    vid_apis[vid_api].enable(enable != 0);
-
-    if (! i)
-    return;
-
-    if (enable)
-    device_force_redraw();
-}
-
-
-int
-get_vidpause(void)
-{
-    return(vid_apis[vid_api].pause());
-}
-
-
-void
-plat_setfullscreen(int on)
-{
-    RECT rect;
-    int temp_x, temp_y;
-    int dpi = win_get_dpi(hwndMain);
-
-    /* Are we changing from the same state to the same state? */
-    if ((!!on) == (!!video_fullscreen))
-    return;
-
-    if (on && video_fullscreen_first) {
-    video_fullscreen |= 2;
-    if (ui_msgbox_header(MBX_INFO | MBX_DONTASK, (wchar_t *) IDS_2134, (wchar_t *) IDS_2052) == 10) {
-        video_fullscreen_first = 0;
-        config_save();
-    }
-    video_fullscreen &= 1;
-    }
-
-    /* OK, claim the video. */
-    win_mouse_close();
-
-    /* Close the current mode, and open the new one. */
-    video_fullscreen = on | 2;
-    if (vid_apis[vid_api].set_fs)
-    vid_apis[vid_api].set_fs(on);
-    if (!on) {
-	plat_resize(scrnsz_x, scrnsz_y);
-	if (vid_resize) {
-		/* scale the screen base on DPI */
-		if (window_remember) {
-			MoveWindow(hwndMain, window_x, window_y, window_w, window_h, TRUE);
-			GetClientRect(hwndMain, &rect);
-
-			temp_x = rect.right - rect.left + 1;
-			temp_y = rect.bottom - rect.top + 1 - sbar_height;
-		} else {
-			if (dpi_scale) {
-				temp_x = MulDiv(unscaled_size_x, dpi, 96);
-				temp_y = MulDiv(unscaled_size_y, dpi, 96);
-			} else {
-				temp_x = unscaled_size_x;
-				temp_y = unscaled_size_y;
-			}
-
-			/* Main Window. */
-			ResizeWindowByClientArea(hwndMain, temp_x, temp_y + sbar_height);
-		}
-
-		/* Render window. */
-		MoveWindow(hwndRender, 0, 0, temp_x, temp_y, TRUE);
-		GetWindowRect(hwndRender, &rect);
-
-		/* Status bar. */
-		MoveWindow(hwndSBAR, 0, rect.bottom, temp_x, 17, TRUE);
-
-		if (mouse_capture)
-			ClipCursor(&rect);
-
-		scrnsz_x = unscaled_size_x;
-		scrnsz_y = unscaled_size_y;
+	default:
+		fatal("Unknown renderer: %i\n", api);
+		break;
 	}
-    }
-    video_fullscreen &= 1;
-    video_force_resize_set(1);
-    if (!on)
-    doresize = 1;
 
-    win_mouse_init();
+	return(name);
+}
 
-    /* Release video and make it redraw the screen. */
-    device_force_redraw();
 
-    /* Send a CTRL break code so CTRL does not get stuck. */
-    keyboard_input(0, 0x01D);
+// options:
+// 0 = hide window
+// 1 = show window
+// everything else = show window
+void
+plat_show_window(int options)
+{
+	switch (options)
+	{
+		case 0:
+			options = SW_HIDE;
+			break;
+		case 1:
+			options = SW_SHOW;
+			break;
+		default:
+			options = SW_SHOW;
+			break;
+	}
 
-    /* Finally, handle the host's mouse cursor. */
-    /* win_log("%s full screen, %s cursor\n", on ? "enter" : "leave", on ? "hide" : "show"); */
-    show_cursor(video_fullscreen ? 0 : -1);
-
-    /* This is needed for OpenGL. */
-    plat_vidapi_enable(0);
-    plat_vidapi_enable(1);
+	ShowWindow(hwndRender, options);
 }
 
 
 void
 take_screenshot(void)
 {
-    startblit();
-    screenshots++;
-    endblit();
-    device_force_redraw();
+	startblit();
+	screenshots++;
+	endblit();
+	device_force_redraw();
 }
 
 
 /* LPARAM interface to plat_get_string(). */
 LPARAM win_get_string(int id)
 {
-    wchar_t *ret;
+	char *ret;
 
-    ret = plat_get_string(id);
-    return ((LPARAM) ret);
+	ret = plat_get_string(id);
+	return ((LPARAM) ret);
 }
 
 
 void	/* plat_ */
 startblit(void)
 {
-    WaitForSingleObject(ghMutex, INFINITE);
+	WaitForSingleObject(ghMutex, INFINITE);
 }
 
 
 void	/* plat_ */
 endblit(void)
 {
-    ReleaseMutex(ghMutex);
+	ReleaseMutex(ghMutex);
+}
+
+void
+plat_mouse_close()
+{
+	win_mouse_close();
 }

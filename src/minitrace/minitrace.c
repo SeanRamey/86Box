@@ -224,7 +224,7 @@ void mtr_init(const char *json_file) {
 #ifndef MTR_ENABLED
 	return;
 #endif
-	mtr_init_from_stream(fopen(json_file, "wb"));
+	mtr_init_from_stream(plat_fopen(json_file, "wb"));
 }
 
 void mtr_shutdown() {
@@ -290,7 +290,7 @@ void mtr_stop() {
 // TODO: fwrite more than one line at a time.
 // Flushing is thread safe and process async
 // using double-buffering mechanism.
-// Aware: only one flushing process may be 
+// Aware: only one flushing process may be
 // running at any point of time
 void mtr_flush_with_state(int is_last) {
 #ifndef MTR_ENABLED
@@ -538,4 +538,3 @@ void internal_mtr_raw_event_arg(const char *category, const char *name, char ph,
 	--events_in_progress;
 	pthread_mutex_unlock(&event_mutex);
 }
-

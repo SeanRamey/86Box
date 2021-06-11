@@ -81,7 +81,7 @@
 static SDL_Window	*sdl_win = NULL;
 static SDL_Renderer	*sdl_render = NULL;
 static SDL_Texture	*sdl_tex = NULL;
-static HWND		sdl_parent_hwnd = NULL;
+static WindowHandle		sdl_parent_hwnd = NULL;
 static int		sdl_w, sdl_h;
 static int		sdl_fs, sdl_flags = -1;
 static int		cur_w, cur_h;
@@ -416,7 +416,7 @@ sdl_set_fs(int fs)
 static int
 sdl_init_common(int flags)
 {
-    wchar_t temp[128];
+    char temp[128];
     SDL_version ver;
 
     sdl_log("SDL: init (fs=%d)\n", fs);
@@ -471,21 +471,21 @@ sdl_init_common(int flags)
 
 
 int
-sdl_inits(HWND h)
+sdl_inits()
 {
     return sdl_init_common(0);
 }
 
 
 int
-sdl_inith(HWND h)
+sdl_inith()
 {
     return sdl_init_common(RENDERER_HARDWARE);
 }
 
 
 int
-sdl_initho(HWND h)
+sdl_initho()
 {
     return sdl_init_common(RENDERER_HARDWARE | RENDERER_OPENGL);
 }

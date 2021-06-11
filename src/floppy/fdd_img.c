@@ -70,7 +70,7 @@ static img_t	*img[FDD_NUM];
 static fdc_t	*img_fdc;
 
 static double	bit_rate_300;
-static wchar_t	*ext;
+static char	*ext;
 static uint8_t	first_byte,
 		second_byte,
 		third_byte,
@@ -398,7 +398,7 @@ write_back(int drive)
     if (dev->f == NULL) return;
 
     if (dev->disk_at_once) return;
-		
+
     if (fseek(dev->f, dev->base + (dev->track * dev->sectors * ssize * dev->sides), SEEK_SET) == -1)
 	pclog("IMG write_back(): Error seeking to the beginning of the file\n");
     for (side = 0; side < dev->sides; side++) {
@@ -621,7 +621,7 @@ is_divisible(uint16_t total, uint8_t what)
 
 
 void
-img_load(int drive, wchar_t *fn)
+img_load(int drive, char *fn)
 {
     uint16_t bpb_bps;
     uint16_t bpb_total;
@@ -654,9 +654,9 @@ img_load(int drive, wchar_t *fn)
     dev = (img_t *)malloc(sizeof(img_t));
     memset(dev, 0x00, sizeof(img_t));
 
-    dev->f = plat_wfopen(fn, L"rb+");
+    dev->f = plat_fopen(fn, L"rb+");
     if (dev->f == NULL) {
-	dev->f = plat_wfopen(fn, L"rb");
+	dev->f = plat_fopen(fn, L"rb");
 	if (dev->f == NULL) {
 		free(dev);
 		memset(floppyfns[drive], 0, sizeof(floppyfns[drive]));
@@ -721,7 +721,7 @@ img_load(int drive, wchar_t *fn)
 		img_log("img_load(): File is a FDF image...\n");
 		fwriteprot[drive] = writeprot[drive] = 1;
 		fclose(dev->f);
-		dev->f = plat_wfopen(fn, L"rb");
+		dev->f = plat_fopen(fn, L"rb");
 
 		fdf = 1;
 		cqm = 0;
@@ -861,7 +861,7 @@ img_load(int drive, wchar_t *fn)
 		img_log("img_load(): File is a CopyQM image...\n");
 		fwriteprot[drive] = writeprot[drive] = 1;
 		fclose(dev->f);
-		dev->f = plat_wfopen(fn, L"rb");
+		dev->f = plat_fopen(fn, L"rb");
 
 		fseek(dev->f, 0x03, SEEK_SET);
 		fread(&bpb_bps, 1, 2, dev->f);

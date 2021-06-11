@@ -21,17 +21,32 @@
 #include <minitrace/minitrace.h>
 #endif
 
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
+
 int main(int argc, char** argv)
 {
+	SDL_SetMainReady();
 	/* Set this to the default value (windowed mode). */
 	video_fullscreen = 0;
 
 	/* Set the application version ID string. */
 	sprintf(emu_version, "%s v%s", EMU_NAME, EMU_VERSION);
 
+	SDL_Window* window;
+
+	SDL_Init(SDL_INIT_VIDEO);
+
+	window = SDL_CreateWindow("", 0, 0, 0, 0, SDL_WINDOW_HIDDEN);
+
 	/* Pre-initialize the system, this loads the config file. */
-	if (! pc_init(argc, argv))
+	if (!pc_init(argc, argv))
 	{
 		return(EXIT_FAILURE);
 	}
+
+	do_start();
+
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }

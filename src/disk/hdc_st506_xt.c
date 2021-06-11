@@ -1349,7 +1349,7 @@ loadrom(hdc_t *dev, const char *fn)
 
 
 static void
-loadhd(hdc_t *dev, int c, int d, const wchar_t *fn)
+loadhd(hdc_t *dev, int c, int d, const char *fn)
 {
     drive_t *drive = &dev->drives[c];
 

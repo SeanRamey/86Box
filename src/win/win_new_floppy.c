@@ -139,7 +139,7 @@ create_86f(WCHAR *file_name, disk_size_t disk_size, uint8_t rpm_mode)
     memset(tarray, 0, 2048);
     memset(empty, 0, array_size);
 
-    f = plat_wfopen(file_name, L"wb");
+    f = plat_fopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -190,8 +190,8 @@ create_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_fdi)
     uint32_t fat2_offs = 0;
     uint32_t zero_bytes = 0;
     uint16_t base = 0x1000;
-    
-    f = plat_wfopen(file_name, L"wb");
+
+    f = plat_fopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -284,9 +284,9 @@ create_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_fdi)
 
 
 static int
-create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi, HWND hwnd)
+create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi, WindowHandle hwnd)
 {
-    HWND h;
+    WindowHandle h;
     FILE *f;
     uint32_t total_size = 0;
     uint32_t total_sectors = 0;
@@ -300,8 +300,8 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
     uint32_t pbar_max = 0;
     uint32_t i;
     MSG msg;
-    
-    f = plat_wfopen(file_name, L"wb");
+
+    f = plat_fopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -355,8 +355,8 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
 	SendMessage(h, PBM_SETPOS, (WPARAM) 1, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	fwrite(&empty[0x0800], 1, 2048, f);
@@ -365,8 +365,8 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
 	SendMessage(h, PBM_SETPOS, (WPARAM) 2, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	pbar_max -= 2;
@@ -507,8 +507,8 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
 	SendMessage(h, PBM_SETPOS, (WPARAM) i + 2, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
     }
 
@@ -521,9 +521,9 @@ create_zip_sector_image(WCHAR *file_name, disk_size_t disk_size, uint8_t is_zdi,
 
 
 static int
-create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND hwnd)
+create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, WindowHandle hwnd)
 {
-    HWND h;
+    WindowHandle h;
     FILE *f;
     const mo_type_t *dp = &mo_types[disk_size];
     uint8_t *empty, *empty2 = NULL;
@@ -534,8 +534,8 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
     uint32_t pbar_max = 0, blocks_num;
     uint32_t i, j;
     MSG msg;
-    
-    f = plat_wfopen(file_name, L"wb");
+
+    f = plat_fopen(file_name, L"wb");
     if (!f)
 	return 0;
 
@@ -588,8 +588,8 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
 	SendMessage(h, PBM_SETPOS, (WPARAM) 1, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	fwrite(&empty[0x0800], 1, 2048, f);
@@ -598,8 +598,8 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
 	SendMessage(h, PBM_SETPOS, (WPARAM) 1, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
     }
 
@@ -617,8 +617,8 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
 	SendMessage(h, PBM_SETPOS, (WPARAM) i + j, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
     }
 
@@ -628,8 +628,8 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
 	SendMessage(h, PBM_SETPOS, (WPARAM) pbar_max - 1, (LPARAM) 0);
 
 	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE | PM_NOYIELD)) {
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); 
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
     }
 
@@ -646,14 +646,14 @@ create_mo_sector_image(WCHAR *file_name, int8_t disk_size, uint8_t is_mdi, HWND 
 static int	fdd_id, sb_part;
 
 static int	file_type = 0;		/* 0 = IMG, 1 = Japanese FDI, 2 = 86F */
-static wchar_t	fd_file_name[1024];
+static char	fd_file_name[1024];
 
 
 /* Show a MessageBox dialog.  This is nasty, I know.  --FvK */
 static int
-new_floppy_msgbox_header(HWND hwnd, int flags, void *header, void *message)
+new_floppy_msgbox_header(WindowHandle hwnd, int flags, void *header, void *message)
 {
-    HWND h;
+    WindowHandle h;
     int i;
 
     h = hwndMain;
@@ -668,9 +668,9 @@ new_floppy_msgbox_header(HWND hwnd, int flags, void *header, void *message)
 
 
 static int
-new_floppy_msgbox_ex(HWND hwnd, int flags, void *header, void *message, void *btn1, void *btn2, void *btn3)
+new_floppy_msgbox_ex(WindowHandle hwnd, int flags, void *header, void *message, void *btn1, void *btn2, void *btn3)
 {
-    HWND h;
+    WindowHandle h;
     int i;
 
     h = hwndMain;
@@ -689,22 +689,22 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-NewFloppyDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+NewFloppyDialogProcedure(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HWND h;
+    WindowHandle h;
     int i = 0;
     int wcs_len, ext_offs;
-    wchar_t *ext;
+    char *ext;
     uint8_t disk_size, rpm_mode;
     int ret;
     FILE *f;
     int zip_types, mo_types;
-    wchar_t *twcs;
+    char *twcs;
 
     switch (message) {
 	case WM_INITDIALOG:
 		plat_pause(1);
-		memset(fd_file_name, 0, 1024 * sizeof(wchar_t));
+		memset(fd_file_name, 0, 1024 * sizeof(char));
 		h = GetDlgItem(hdlg, IDC_COMBO_DISK_SIZE);
 		if (is_zip) {
 			zip_types = zip_drives[fdd_id].is_250 ? 2 : 1;
@@ -767,7 +767,7 @@ NewFloppyDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 					else
 						floppy_mount(fdd_id, fd_file_name, 0);
 				} else {
-					new_floppy_msgbox_header(hdlg, MBX_ERROR, (wchar_t *) IDS_4108, (wchar_t *) IDS_4115);
+					new_floppy_msgbox_header(hdlg, MBX_ERROR, (char *) IDS_4108, (char *) IDS_4115);
 					return TRUE;
 				}
 				/*FALLTHROUGH*/
@@ -797,7 +797,7 @@ NewFloppyDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 					f = _wfopen(wopenfilestring, L"rb");
 					if (f != NULL) {
 						fclose(f);
-						if (new_floppy_msgbox_ex(hdlg, MBX_QUESTION, (wchar_t *) IDS_4111, (wchar_t *) IDS_4118, (wchar_t *) IDS_4120, (wchar_t *) IDS_4121, NULL) != 0)	/* yes */
+						if (new_floppy_msgbox_ex(hdlg, MBX_QUESTION, (char *) IDS_4111, (char *) IDS_4118, (char *) IDS_4120, (char *) IDS_4121, NULL) != 0)	/* yes */
 							return FALSE;
 					}
 					SendMessage(h, WM_SETTEXT, 0, (LPARAM) wopenfilestring);
@@ -860,7 +860,7 @@ NewFloppyDialogProcedure(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 void
-NewFloppyDialogCreate(HWND hwnd, int id, int part)
+NewFloppyDialogCreate(WindowHandle hwnd, int id, int part)
 {
     fdd_id = id & 0x7f;
     sb_part = part;

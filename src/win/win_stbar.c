@@ -58,7 +58,7 @@
 #endif
 
 
-HWND		hwndSBAR;
+WindowHandle		hwndSBAR;
 int		update_icons = 1;
 
 
@@ -591,7 +591,7 @@ ui_sb_update_panes(void)
 		sb_map[SB_MO | i] = sb_parts;
 		sb_parts++;
 	}
-    }    
+    }
     if (c_mfm && (hdint || !memcmp(hdc_name, "st506", 5))) {
 	edge += icon_width;
 	iStatusWidths[sb_parts] = edge;
@@ -672,8 +672,8 @@ ui_sb_update_panes(void)
 			sb_part_icons[i] |= 48;
 			StatusBarCreateZIPTip(i);
 			break;
-			
-		case SB_MO:		/* Magneto-Optical disk */	
+
+		case SB_MO:		/* Magneto-Optical disk */
 			sb_part_icons[i] = (wcslen(mo_drives[sb_part_meanings[i] & 0xf].image_path) == 0) ? 128 : 0;
 			sb_part_icons[i] |= 56;
 			StatusBarCreateMOTip(i);
@@ -713,7 +713,7 @@ ui_sb_update_panes(void)
 
 
 static VOID APIENTRY
-StatusBarPopupMenu(HWND hwnd, POINT pt, int id)
+StatusBarPopupMenu(WindowHandle hwnd, POINT pt, int id)
 {
     HMENU menu;
 
@@ -755,7 +755,7 @@ StatusBarLoadIcon(HINSTANCE hInst) {
 		if (hIcon[i] != 0)
 			DestroyIcon(hIcon[i]);
 	}
-	
+
     for (i = 16; i < 18; i++)
 	hIcon[i] = LoadImage(hInst, MAKEINTRESOURCE(i), IMAGE_ICON, x, x, LR_DEFAULTCOLOR);
     for (i = 24; i < 26; i++)
@@ -794,7 +794,7 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-StatusBarProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+StatusBarProcedure(WindowHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     RECT rc;
     POINT pt;
@@ -856,7 +856,7 @@ StatusBarProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 /* API: Create and set up the Status Bar window. */
 void
-StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst)
+StatusBarCreate(WindowHandle hwndParent, uintptr_t idStatus, HINSTANCE hInst)
 {
     RECT rectDialog;
     int dw, dh;
@@ -877,7 +877,7 @@ StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst)
 
     /* Create the window, and make sure it's using the STATUS class. */
     hwndSBAR = CreateWindowEx(0,
-			      STATUSCLASSNAME, 
+			      STATUSCLASSNAME,
 			      (LPCTSTR)NULL,
 			      SBARS_SIZEGRIP|WS_CHILD|WS_VISIBLE|SBT_TOOLTIPS,
 			      0, dh-17, dw, 17,
@@ -924,7 +924,7 @@ StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst)
 
 /* API */
 void
-ui_sb_set_text_w(wchar_t *wstr)
+ui_sb_set_text_w(char *wstr)
 {
     uint8_t part = 0xff;
 
@@ -942,7 +942,7 @@ ui_sb_set_text_w(wchar_t *wstr)
 void
 ui_sb_set_text(char *str)
 {
-    static wchar_t wstr[512];
+    static char wstr[512];
 
     memset(wstr, 0x00, sizeof(wstr));
     mbstowcs(wstr, str, strlen(str) + 1);
@@ -954,7 +954,7 @@ ui_sb_set_text(char *str)
 void
 ui_sb_bugui(char *str)
 {
-    static wchar_t wstr[512];
+    static char wstr[512];
 
     memset(wstr, 0x00, sizeof(wstr));
     mbstowcs(wstr, str, strlen(str) + 1);

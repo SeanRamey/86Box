@@ -77,7 +77,7 @@ typedef struct {
 
 fdd_t		fdd[FDD_NUM];
 
-wchar_t		floppyfns[FDD_NUM][512];
+char		floppyfns[FDD_NUM][512];
 
 pc_timer_t	fdd_poll_time[FDD_NUM];
 
@@ -99,8 +99,8 @@ d86f_handler_t   d86f_handler[FDD_NUM];
 
 static const struct
 {
-    wchar_t *ext;
-    void (*load)(int drive, wchar_t *fn);
+    char *ext;
+    void (*load)(int drive, char *fn);
     void (*close)(int drive);
     int size;
 } loaders[]=
@@ -475,10 +475,10 @@ fdd_get_densel(int drive)
 
 
 void
-fdd_load(int drive, wchar_t *fn)
+fdd_load(int drive, char *fn)
 {
     int c = 0, size;
-    wchar_t *p;
+    char *p;
     FILE *f;
 
     fdd_log("FDD: loading drive %d with '%ls'\n", drive, fn);
@@ -488,15 +488,15 @@ fdd_load(int drive, wchar_t *fn)
     p = plat_get_extension(fn);
     if (!p)
 	return;
-    f = plat_wfopen(fn, L"rb");
+    f = plat_fopen(fn, L"rb");
     if (!f)
 	return;
     if (fseek(f, -1, SEEK_END) == -1)
 	fatal("fdd_load(): Error seeking to the end of the file\n");
     size = ftell(f) + 1;
-    fclose(f);        
+    fclose(f);
     while (loaders[c].ext) {
-	if (!wcscasecmp(p, (wchar_t *) loaders[c].ext) && (size == loaders[c].size || loaders[c].size == -1)) {
+	if (!wcscasecmp(p, (char *) loaders[c].ext) && (size == loaders[c].size || loaders[c].size == -1)) {
 		driveloaders[drive] = c;
 		memcpy(floppyfns[drive], fn, (wcslen(fn) << 1) + 2);
 		d86f_setup(drive);

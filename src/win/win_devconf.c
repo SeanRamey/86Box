@@ -29,6 +29,7 @@
 #include <86box/ui.h>
 #include <86box/win.h>
 #include <windowsx.h>
+#include <86box/window.h>
 
 
 static device_context_t config_device;
@@ -41,9 +42,9 @@ static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-deviceconfig_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+deviceconfig_dlgproc(WindowHandle hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HWND h;
+    WindowHandle h;
 
     int val_int, id, c, d, num;
     int changed, cid;
@@ -51,7 +52,7 @@ deviceconfig_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
     const device_config_selection_t *selection;
     char s[512], file_filter[512];
     char *str;
-    wchar_t ws[512], *wstr;
+    char ws[512], *wstr;
     LPTSTR lptsTemp;
 
     config = config_device.dev->config;
@@ -122,7 +123,7 @@ deviceconfig_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 
 					id += 2;
-					break;					
+					break;
 				case CONFIG_SPINNER:
 					val_int = config_get_int((char *) config_device.name,
 								 (char *) config->name, config->default_int);
@@ -427,7 +428,7 @@ deviceconfig_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 uint8_t
-deviceconfig_inst_open(HWND hwnd, const device_t *device, int inst)
+deviceconfig_inst_open(WindowHandle hwnd, const device_t *device, int inst)
 {
     const device_config_t *config = device->config;
     uint16_t *data_block;
@@ -705,7 +706,7 @@ deviceconfig_inst_open(HWND hwnd, const device_t *device, int inst)
 
 
 uint8_t
-deviceconfig_open(HWND hwnd, const device_t *device)
+deviceconfig_open(WindowHandle hwnd, const device_t *device)
 {
     return deviceconfig_inst_open(hwnd, device, 0);
 }

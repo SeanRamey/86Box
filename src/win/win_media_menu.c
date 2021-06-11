@@ -52,7 +52,7 @@ media_menu_set_ids(HMENU hMenu, int id)
 
 /* Loads the submenu from resource by name */
 static HMENU
-media_menu_load_resource(wchar_t *lpName)
+media_menu_load_resource(char *lpName)
 {
     HMENU loaded = LoadMenu(NULL, lpName);
 
@@ -69,7 +69,7 @@ media_menu_load_resource(wchar_t *lpName)
 static void
 media_menu_set_name_floppy(int drive)
 {
-    wchar_t name[512], temp[512];
+    char name[512], temp[512];
     MENUITEMINFO mii = { 0 };
 
     mbstowcs(temp, fdd_getname(fdd_get_type(drive)),
@@ -92,7 +92,7 @@ media_menu_set_name_floppy(int drive)
 static void
 media_menu_set_name_cdrom(int drive)
 {
-    wchar_t name[512], *temp;
+    char name[512], *temp;
     MENUITEMINFO mii = { 0 };
 
     int bus = cdrom[drive].bus_type;
@@ -118,7 +118,7 @@ media_menu_set_name_cdrom(int drive)
 static void
 media_menu_set_name_zip(int drive)
 {
-    wchar_t name[512], *temp;
+    char name[512], *temp;
     MENUITEMINFO mii = { 0 };
 
     int bus = zip_drives[drive].bus_type;
@@ -146,7 +146,7 @@ media_menu_set_name_zip(int drive)
 static void
 media_menu_set_name_mo(int drive)
 {
-    wchar_t name[512], *temp;
+    char name[512], *temp;
     MENUITEMINFO mii = { 0 };
 
     int bus = mo_drives[drive].bus_type;
@@ -398,7 +398,7 @@ media_menu_init()
 }
 
 int
-media_menu_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+media_menu_proc(WindowHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int id = 0, ret = 0, wp = 0;
 
@@ -429,7 +429,7 @@ media_menu_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			plat_pause(1);
 			ret = d86f_export(id, wopenfilestring);
 			if (!ret)
-				ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_4108, (wchar_t *) IDS_4115);
+				ui_msgbox_header(MBX_ERROR, (char *) IDS_4108, (char *) IDS_4115);
 			plat_pause(0);
 		}
 		break;

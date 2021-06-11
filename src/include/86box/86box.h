@@ -61,6 +61,7 @@ extern "C" {
 #endif
 
 /* Global variables. */
+extern int is_quit;                 /* system exit requested */
 extern int	dump_on_exit;			/* (O) dump regs on exit*/
 extern int	do_dump_config;			/* (O) dump cfg after load */
 extern int	start_in_fullscreen;		/* (O) start in fullscreen */
@@ -162,11 +163,11 @@ extern void	set_screen_size(int x, int y);
 extern void	reset_screen_size(void);
 extern void	set_screen_size_natural(void);
 #if 0
-extern void	pc_reload(wchar_t *fn);
+extern void	pc_reload(char *fn);
 #endif
 extern int	pc_init_modules(void);
 extern int	pc_init(int argc, char *argv[]);
-extern void	pc_close(void *threadid);
+extern void	pc_close();
 extern void	pc_reset_hard_close(void);
 extern void	pc_reset_hard_init(void);
 extern void	pc_reset_hard(void);
