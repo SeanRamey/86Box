@@ -290,13 +290,13 @@ static bool OpenFileChooser(char* res, size_t n, std::vector<std::pair<std::stri
 	{
 		filterwinwide.push_back(curChar);
 	}
-	
+
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
 	SDL_GetWindowWMInfo(sdl_win, &wmInfo);
 	HWND hwnd = wmInfo.info.win.window;
 	return (bool)file_dlg(hwnd, (wchar_t*)filterwinwide.c_str(), res, "", save);
-	
+
 #else
     bool boolres = false;
     FILE* output;
@@ -386,7 +386,7 @@ void file_open_request(FileOpenSaveRequest param)
 
 struct BaseMenu
 {
-    virtual std::string FormatStr() { return ""; } 
+    virtual std::string FormatStr() { return ""; }
     virtual void RenderImGuiMenuItemsOnly() {}
     void RenderImGuiMenu()
     {
@@ -396,6 +396,26 @@ struct BaseMenu
 	    ImGui::EndMenu();
 	}
     }
+};
+
+struct SettingsMenu : BaseMenu {
+	std::string FormatStr() override {
+		return "Settings Menu";
+	}
+
+	void RenderImGuiMenuItemsOnly() override {
+		ImGui::MenuItem("Machine");
+		ImGui::MenuItem("Display");
+		ImGui::MenuItem("Input Devices");
+		ImGui::MenuItem("Sound");
+		ImGui::MenuItem("Network");
+		ImGui::MenuItem("Ports (COM & LPT)");
+		ImGui::MenuItem("Storage Controllers");
+		ImGui::MenuItem("Hard Disks");
+		ImGui::MenuItem("Floppy & CD-ROM Drives");
+		ImGui::MenuItem("Other Removable Devices");
+		ImGui::MenuItem("Other Peripherals");
+	}
 };
 
 struct CartMenu : BaseMenu
@@ -761,6 +781,7 @@ std::vector<FloppyMenu> fddmenu;
 std::vector<CDMenu> cdmenu;
 std::vector<ZIPMenu> zipmenu;
 std::vector<MOMenu> momenu;
+SettingsMenu settingsMenu;
 
 extern "C" void InitImGui()
 {
@@ -1220,6 +1241,7 @@ extern "C" void sdl_determine_renderer(int);
 
 extern "C" void RenderImGui()
 {
+	static bool showSettingsWindow = false;
     if (!imrendererinit) HandleSizeChange();
     if (!mouse_capture) ImGui_ImplSDL2_NewFrame(sdl_win);
     else
@@ -1230,6 +1252,88 @@ extern "C" void RenderImGui()
 	ImGui::GetIO().DisplaySize.y = h;
     }
     ImGui::NewFrame();
+
+	if (showSettingsWindow) {
+		ImGui::Begin("Settings", &showSettingsWindow);
+		//settingsMenu.RenderImGuiMenu();
+
+		// Left
+        static int currentSettingsCategory = 0;
+        {
+            ImGui::BeginChild("left pane", ImVec2(150, 0), true);
+
+			if(ImGui::Selectable("Machine")) {
+				currentSettingsCategory = 0;
+			} else
+			if(ImGui::Selectable("Display")) {
+				currentSettingsCategory = 1;
+			} else
+			if(ImGui::Selectable("Sound")) {
+				currentSettingsCategory = 2;
+			} else
+			if(ImGui::Selectable("Network")) {
+				currentSettingsCategory = 3;
+			} else
+			if(ImGui::Selectable("Ports (COM & LPT)")) {
+				currentSettingsCategory = 4;
+			} else
+			if(ImGui::Selectable("Storage Controllers")) {
+				currentSettingsCategory = 5;
+			} else
+			if(ImGui::Selectable("Hard Disks")) {
+				currentSettingsCategory = 6;
+			} else
+			if(ImGui::Selectable("Floppy & CD-ROM Drives")) {
+				currentSettingsCategory = 7;
+			} else
+			if(ImGui::Selectable("Other Removable Devices")) {
+				currentSettingsCategory = 8;
+			} else
+			if(ImGui::Selectable("Other Peripherals")) {
+				currentSettingsCategory = 9;
+			}
+
+            ImGui::EndChild();
+        }
+        ImGui::SameLine();
+
+        // Right
+        {
+            ImGui::BeginGroup();
+            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+
+            ImGui::Separator();
+
+			const char* items[] = { "8086", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
+			static int item_current_idx = 0; // Here we store our selection data as an index.
+			if (currentSettingsCategory == 0)
+			{
+				ImGui::BeginListBox("Machine Type");
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					const bool is_selected = (item_current_idx == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						item_current_idx = n;
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndListBox();
+			}
+
+            ImGui::EndChild();
+            if (ImGui::Button("Cancel")) {}
+            ImGui::SameLine();
+            if (ImGui::Button("Save")) {}
+            ImGui::EndGroup();
+        }
+
+		ImGui::End();
+	}
+
+	ImGui::ShowDemoWindow(nullptr);
+
     if (ImGui::BeginMainMenuBar())
     {
 	menubarheight = ImGui::GetFrameHeight();
@@ -1609,6 +1713,10 @@ extern "C" void RenderImGui()
 		{
 			win_settings_open(GetHWNDFromSDLWindow());
 		}
+#else
+		if (ImGui::MenuItem("Settings")) {
+			showSettingsWindow = true;
+		}
 #endif
 		if (ImGui::MenuItem("Update status bar icons", NULL, update_icons))
 		{
@@ -1721,7 +1829,7 @@ extern "C" void RenderImGui()
 	}
 	ImGui::EndMainMenuBar();
     }
-    
+
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - (menubarheight * 2)));
     ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, menubarheight * 2));
     if (!hide_status_bar && ImGui::Begin("86Box status bar", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar))
