@@ -1332,7 +1332,7 @@ extern "C" void RenderImGui()
 		ImGui::End();
 	}
 
-	ImGui::ShowDemoWindow(nullptr);
+	//ImGui::ShowDemoWindow(nullptr); uncomment in case you want examples of ImGui
 
     if (ImGui::BeginMainMenuBar())
     {
