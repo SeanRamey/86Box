@@ -94,6 +94,8 @@ extern "C" float menubarheight;
 
 static bool imrendererinit = false;
 static bool firstrender = true;
+static bool dpi_scale_changed = false;
+static bool showSettingsWindow = false;
 
 #define MACHINE_HAS_IDE		(machines[machine].flags & MACHINE_IDE_QUAD)
 #define MACHINE_HAS_SCSI	(machines[machine].flags & MACHINE_SCSI_DUAL)
@@ -396,26 +398,6 @@ struct BaseMenu
 	    ImGui::EndMenu();
 	}
     }
-};
-
-struct SettingsMenu : BaseMenu {
-	std::string FormatStr() override {
-		return "Settings Menu";
-	}
-
-	void RenderImGuiMenuItemsOnly() override {
-		ImGui::MenuItem("Machine");
-		ImGui::MenuItem("Display");
-		ImGui::MenuItem("Input Devices");
-		ImGui::MenuItem("Sound");
-		ImGui::MenuItem("Network");
-		ImGui::MenuItem("Ports (COM & LPT)");
-		ImGui::MenuItem("Storage Controllers");
-		ImGui::MenuItem("Hard Disks");
-		ImGui::MenuItem("Floppy & CD-ROM Drives");
-		ImGui::MenuItem("Other Removable Devices");
-		ImGui::MenuItem("Other Peripherals");
-	}
 };
 
 struct CartMenu : BaseMenu
@@ -781,7 +763,6 @@ std::vector<FloppyMenu> fddmenu;
 std::vector<CDMenu> cdmenu;
 std::vector<ZIPMenu> zipmenu;
 std::vector<MOMenu> momenu;
-SettingsMenu settingsMenu;
 
 extern "C" void InitImGui()
 {
@@ -1247,24 +1228,9 @@ void show_about_dlg()
 
 extern "C" void sdl_determine_renderer(int);
 
-extern "C" void RenderImGui()
-{
-	static bool showSettingsWindow = false;
-	bool dpi_scale_changed = false;
-    if (!imrendererinit) HandleSizeChange();
-    if (!mouse_capture) ImGui_ImplSDL2_NewFrame(sdl_win);
-    else
-    {
-	int w, h;
-	SDL_GetRendererOutputSize(sdl_render, &w, &h);
-	ImGui::GetIO().DisplaySize.x = w;
-	ImGui::GetIO().DisplaySize.y = h;
-    }
-    ImGui::NewFrame();
 
-	if (showSettingsWindow) {
-		ImGui::Begin("Settings", &showSettingsWindow);
-		//settingsMenu.RenderImGuiMenu();
+void RenderSettingsWindow() {
+	ImGui::Begin("Settings", &showSettingsWindow);
 
 		// Left
         static int currentSettingsCategory = 0;
@@ -1313,15 +1279,15 @@ extern "C" void RenderImGui()
 
             ImGui::Separator();
 
-			const char* items[] = { "8086", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
+			std::array items {"8086", "286", "386", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO"};
 			static int item_current_idx = 0; // Here we store our selection data as an index.
 			if (currentSettingsCategory == 0)
 			{
 				ImGui::BeginListBox("Machine Type");
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				for (int n = 0; n < items.size(); n++)
 				{
 					const bool is_selected = (item_current_idx == n);
-					if (ImGui::Selectable(items[n], is_selected))
+					if (ImGui::Selectable(items.at(n), is_selected))
 						item_current_idx = n;
 
 					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -1339,64 +1305,51 @@ extern "C" void RenderImGui()
         }
 
 		ImGui::End();
-	}
+}
 
-	//ImGui::ShowDemoWindow(nullptr); uncomment in case you want examples of ImGui
-
-    if (ImGui::BeginMainMenuBar())
-    {
-	menubarheight = ImGui::GetFrameHeight();
-	if (firstrender)
-	{
-	    firstrender = false;
-		//extern int resize_w, resize_h;
-	    //SDL_SetWindowSize(sdl_win, resize_w, resize_h + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
-	    media_menu_reset();
-		if (vid_resize & 2)
+void RenderActionMenu() {
+	if (ImGui::BeginMenu("Action")) {
+		if (ImGui::MenuItem("Keyboard requires capture", NULL, (bool)kbd_req_capture))
 		{
-			SDL_SetWindowSize(sdl_win, fixed_size_x, fixed_size_y + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
-		}
-	}
-	if (ImGui::BeginMenu("Action"))
-	{
-	    if (ImGui::MenuItem("Keyboard requires capture", NULL, (bool)kbd_req_capture))
-	    {
 		kbd_req_capture ^= 1;
 		config_save();
-	    }
-	    if (ImGui::MenuItem("Right CTRL is left ALT", NULL, (bool)rctrl_is_lalt))
-	    {
+		}
+		if (ImGui::MenuItem("Right CTRL is left ALT", NULL, (bool)rctrl_is_lalt))
+		{
 		rctrl_is_lalt ^= 1;
 		config_save();
-	    }
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("Hard Reset", NULL))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Hard Reset", NULL))
+		{
 		pc_reset_hard();
-	    }
-	    if (ImGui::MenuItem("Ctrl+Alt+Del", "Ctrl+F12"))
-	    {
+		}
+		if (ImGui::MenuItem("Ctrl+Alt+Del", "Ctrl+F12"))
+		{
 		pc_send_cad();
-	    }
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("Ctrl+Alt+Esc", NULL))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Ctrl+Alt+Esc", NULL))
+		{
 		pc_send_cae();
-	    }
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("Pause", NULL, (bool)dopause))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Pause", NULL, (bool)dopause))
+		{
 		plat_pause(dopause ^ 1);
-	    }
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("Exit", "Alt+F4"))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Exit", "Alt+F4"))
+		{
 		SDL_Event event;
 		event.type = SDL_QUIT;
 		SDL_PushEvent(&event);
-	    }
-	    ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
 	}
+}
+
+void RenderViewMenu() {
 	if (ImGui::BeginMenu("View"))
 	{
 		if (ImGui::MenuItem("Hide status bar", NULL, hide_status_bar))
@@ -1411,8 +1364,8 @@ extern "C" void RenderImGui()
 			SDL_SetWindowSize(sdl_win, windowwidth, windowheight);
 		}
 		ImGui::Separator();
-	    if (ImGui::MenuItem("Resizable window", NULL, vid_resize == 1, vid_resize < 2))
-	    {
+		if (ImGui::MenuItem("Resizable window", NULL, vid_resize == 1, vid_resize < 2))
+		{
 			vid_resize ^= 1;
 			float ddpi = 96.;
 			if (dpi_scale) SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdl_win), &ddpi, nullptr, nullptr);
@@ -1422,31 +1375,31 @@ extern "C" void RenderImGui()
 			SDL_SetWindowSize(sdl_win, unscaled_size_x * (ddpi / 96.), (unscaled_size_y * (ddpi / 96.)) + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
 			scale = 1;
 			reset_screen_size();
-		    device_force_redraw();
-		    video_force_resize_set(1);
-		    if (!video_fullscreen)
-		    {
+			device_force_redraw();
+			video_force_resize_set(1);
+			if (!video_fullscreen)
+			{
 			if (vid_resize & 2)
-			    plat_resize(fixed_size_x, fixed_size_y);
+				plat_resize(fixed_size_x, fixed_size_y);
 			else
-			    plat_resize(scrnsz_x, scrnsz_y);
-		    }
+				plat_resize(scrnsz_x, scrnsz_y);
+			}
 			config_save();
-	    }
-	    if (ImGui::MenuItem("Remember size & position", NULL, window_remember))
-	    {
+		}
+		if (ImGui::MenuItem("Remember size & position", NULL, window_remember))
+		{
 		window_remember = !window_remember;
 		if (window_remember)
 		{
-		    SDL_GetWindowSize(sdl_win, &window_w, &window_h);
-		    if (strncasecmp(SDL_GetCurrentVideoDriver(), "wayland", 7) != 0)
-		    {
+			SDL_GetWindowSize(sdl_win, &window_w, &window_h);
+			if (strncasecmp(SDL_GetCurrentVideoDriver(), "wayland", 7) != 0)
+			{
 			SDL_GetWindowPosition(sdl_win, &window_x, &window_y);
-		    }
-		    config_save();
+			}
+			config_save();
 		}
-	    }
-	    ImGui::Separator();
+		}
+		ImGui::Separator();
 		if (ImGui::BeginMenu("Renderer"))
 		{
 			extern int sdl_flags;
@@ -1488,68 +1441,68 @@ extern "C" void RenderImGui()
 			thr.detach();
 		}
 #endif
-	    if (ImGui::MenuItem("Force 4:3 display ratio", NULL, force_43))
-	    {
+		if (ImGui::MenuItem("Force 4:3 display ratio", NULL, force_43))
+		{
 		force_43 ^= 1;
 		video_force_resize_set(1);
 		config_save();
-	    }
-	    if (ImGui::BeginMenu("Window scale factor"))
-	    {
+		}
+		if (ImGui::BeginMenu("Window scale factor"))
+		{
 		int cur_scale = scale;
 		if (ImGui::MenuItem("0.5x", NULL, scale == 0, !vid_resize))
 		{
-		    scale = 0;
+			scale = 0;
 		}
 		if (ImGui::MenuItem("1x", NULL, scale == 1 || vid_resize, !vid_resize))
 		{
-		    scale = 1;
+			scale = 1;
 		}
 		if (ImGui::MenuItem("1.5x", NULL, scale == 2, !vid_resize))
 		{
-		    scale = 2;
+			scale = 2;
 		}
 		if (ImGui::MenuItem("2x", NULL, scale == 3, !vid_resize))
 		{
-		    scale = 3;
+			scale = 3;
 		}
 		if (scale != cur_scale)
 		{
-		    reset_screen_size();
-		    device_force_redraw();
-		    video_force_resize_set(1);
-		    if (!video_fullscreen)
-		    {
+			reset_screen_size();
+			device_force_redraw();
+			video_force_resize_set(1);
+			if (!video_fullscreen)
+			{
 			if (vid_resize & 2)
-			    plat_resize(fixed_size_x, fixed_size_y);
+				plat_resize(fixed_size_x, fixed_size_y);
 			else
-			    plat_resize(scrnsz_x, scrnsz_y);
-		    }
-		    config_save();
+				plat_resize(scrnsz_x, scrnsz_y);
+			}
+			config_save();
 		}
 		ImGui::EndMenu();
-	    }
-	    ImGui::Separator();
-	    if (ImGui::BeginMenu("Filter method"))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::BeginMenu("Filter method"))
+		{
 		SDL_Event event{};
 		event.type = SDL_RENDER_DEVICE_RESET;
 		int cur_video_filter_method = video_filter_method;
 		if (ImGui::MenuItem("Nearest", NULL, video_filter_method == 0))
 		{
-		    video_filter_method = 0;
+			video_filter_method = 0;
 		}
 		if (ImGui::MenuItem("Linear", NULL, video_filter_method == 1))
 		{
-		    video_filter_method = 1;
+			video_filter_method = 1;
 		}
 		if (cur_video_filter_method != video_filter_method)
 		{
-		    SDL_PushEvent(&event);
-		    config_save();
+			SDL_PushEvent(&event);
+			config_save();
 		}
 		ImGui::EndMenu();
-	    }
+		}
 		if (ImGui::MenuItem("HiDPI scaling", nullptr, dpi_scale))
 		{
 			extern int resize_pending;
@@ -1586,16 +1539,16 @@ extern "C" void RenderImGui()
 				SDL_PushEvent(&event);
 			}
 		}
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("Fullscreen", "Ctrl-Alt-Pageup", video_fullscreen))
-	    {
+		ImGui::Separator();
+		if (ImGui::MenuItem("Fullscreen", "Ctrl-Alt-Pageup", video_fullscreen))
+		{
 			video_fullscreen ^= 1;
 			extern int fullscreen_pending;
 			fullscreen_pending = 1;
 			config_save();
-	    }
-	    if (ImGui::BeginMenu("Fullscreen stretch mode"))
-	    {
+		}
+		if (ImGui::BeginMenu("Fullscreen stretch mode"))
+		{
 			int cur_video_fullscreen_scale = video_fullscreen_scale;
 			if (ImGui::MenuItem("Full screen stretch", NULL, video_fullscreen_scale == FULLSCR_SCALE_FULL))
 			{
@@ -1616,114 +1569,119 @@ extern "C" void RenderImGui()
 			if (cur_video_fullscreen_scale != video_fullscreen_scale)
 				config_save();
 			ImGui::EndMenu();
-	    }
-	    if (ImGui::BeginMenu("EGA/(S)VGA settings"))
-	    {
+		}
+		if (ImGui::BeginMenu("EGA/(S)VGA settings"))
+		{
 		if (ImGui::BeginMenu("VGA screen type"))
 		{
-		    if (ImGui::MenuItem("RGB Color", NULL, video_grayscale == 0, true))
-		    {
+			if (ImGui::MenuItem("RGB Color", NULL, video_grayscale == 0, true))
+			{
 			video_grayscale = 0;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("RGB Grayscale", NULL, video_grayscale == 1, true))
-		    {
+			}
+			if (ImGui::MenuItem("RGB Grayscale", NULL, video_grayscale == 1, true))
+			{
 			video_grayscale = 1;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("Amber monitor", NULL, video_grayscale == 2, true))
-		    {
+			}
+			if (ImGui::MenuItem("Amber monitor", NULL, video_grayscale == 2, true))
+			{
 			video_grayscale = 2;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("Green monitor", NULL, video_grayscale == 3, true))
-		    {
+			}
+			if (ImGui::MenuItem("Green monitor", NULL, video_grayscale == 3, true))
+			{
 			video_grayscale = 3;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("White monitor", NULL, video_grayscale == 4, true))
-		    {
+			}
+			if (ImGui::MenuItem("White monitor", NULL, video_grayscale == 4, true))
+			{
 			video_grayscale = 4;
 			device_force_redraw();
 			config_save();
-		    }
-		    ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Grayscale conversion type"))
 		{
-		    if (ImGui::MenuItem("BT601 (NTSC/PAL)", NULL, video_graytype == 0, true))
-		    {
+			if (ImGui::MenuItem("BT601 (NTSC/PAL)", NULL, video_graytype == 0, true))
+			{
 			video_graytype = 0;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("BT709 (HDTV)", NULL, video_graytype == 1, true))
-		    {
+			}
+			if (ImGui::MenuItem("BT709 (HDTV)", NULL, video_graytype == 1, true))
+			{
 			video_graytype = 1;
 			device_force_redraw();
 			config_save();
-		    }
-		    if (ImGui::MenuItem("Average", NULL, video_graytype == 2, true))
-		    {
+			}
+			if (ImGui::MenuItem("Average", NULL, video_graytype == 2, true))
+			{
 			video_graytype = 2;
 			device_force_redraw();
 			config_save();
-		    }
-		    ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
 		}
 		if (ImGui::MenuItem("Inverted VGA monitor", NULL, invert_display))
 		{
-		    invert_display ^= 1;
-		    device_force_redraw();
-		    config_save();
+			invert_display ^= 1;
+			device_force_redraw();
+			config_save();
 		}
 		ImGui::EndMenu();
-	    }
-	    ImGui::Separator();
-	    if (ImGui::MenuItem("CGA/PCjr/Tandy/EGA/(S)VGA overscan", NULL, enable_overscan))
-	    {
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("CGA/PCjr/Tandy/EGA/(S)VGA overscan", NULL, enable_overscan))
+		{
 		update_overscan = 1;
 		enable_overscan ^= 1;
 		video_force_resize_set(1);
-	    }
-	    if (ImGui::MenuItem("Change contrast for monochrome display", NULL, vid_cga_contrast))
-	    {
+		}
+		if (ImGui::MenuItem("Change contrast for monochrome display", NULL, vid_cga_contrast))
+		{
 				vid_cga_contrast ^= 1;
 				cgapal_rebuild();
 				config_save();
-	    }
-	    ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
 	}
+}
+
+void RenderMediaMenu() {
 	if (ImGui::BeginMenu("Media"))
 	{
-	    for (auto &cartMenu : cmenu)
-	    {
+		for (auto &cartMenu : cmenu)
+		{
 		cartMenu.RenderImGuiMenu();
-	    }
-	    for (auto &floppyMenu : fddmenu)
-	    {
+		}
+		for (auto &floppyMenu : fddmenu)
+		{
 		floppyMenu.RenderImGuiMenu();
-	    }
-	    for (auto &curcdmenu : cdmenu)
-	    {
+		}
+		for (auto &curcdmenu : cdmenu)
+		{
 		curcdmenu.RenderImGuiMenu();
-	    }
-	    for (auto &curzipmenu : zipmenu)
-	    {
+		}
+		for (auto &curzipmenu : zipmenu)
+		{
 		curzipmenu.RenderImGuiMenu();
-	    }
-	    for (auto &curmomenu : momenu)
-	    {
+		}
+		for (auto &curmomenu : momenu)
+		{
 		curmomenu.RenderImGuiMenu();
-	    }
-	    RenderCassetteImguiMenu();
-	    ImGui::EndMenu();
+		}
+		RenderCassetteImguiMenu();
+		ImGui::EndMenu();
 	}
+}
 
+void RenderToolsMenu() {
 	if (ImGui::BeginMenu("Tools"))
 	{
 #ifdef _WIN32
@@ -1782,7 +1740,10 @@ extern "C" void RenderImGui()
 #endif
 		ImGui::EndMenu();
 	}
-#if defined(ENABLE_LOG_TOGGLES) || defined(ENABLE_LOG_COMMANDS)
+}
+
+void RenderLogMenu() {
+	#if defined(ENABLE_LOG_TOGGLES) || defined(ENABLE_LOG_COMMANDS)
 	if (ImGui::BeginMenu("Logging"))
 	{
 		#define ENABLE_LOG(s, y, x) \
@@ -1791,188 +1752,245 @@ extern "C" void RenderImGui()
 			x ^= 1;\
 			config_save();\
 		}
-#ifdef ENABLE_BUSLOGIC_LOG
+		#ifdef ENABLE_BUSLOGIC_LOG
 		ENABLE_LOG("Enable BusLogic logs", "Ctrl+F4", buslogic_do_log);
-#endif
-#ifdef ENABLE_CDROM_LOG
+		#endif
+		#ifdef ENABLE_CDROM_LOG
 		ENABLE_LOG("Enable CD-ROM logs", "Ctrl+F5", cdrom_do_log);
-#endif
-#ifdef ENABLE_D86F_LOG
+		#endif
+		#ifdef ENABLE_D86F_LOG
 		ENABLE_LOG("Enable floppy (86F) logs", "Ctrl+F6", d86f_do_log);
-#endif
-# ifdef ENABLE_FDC_LOG
+		#endif
+		# ifdef ENABLE_FDC_LOG
 		ENABLE_LOG("Enable floppy controller logs", "Ctrl+F7", fdc_do_log);
-# endif
-#ifdef ENABLE_IDE_LOG
+		# endif
+		#ifdef ENABLE_IDE_LOG
 		ENABLE_LOG("Enable IDE logs", "Ctrl+F8", ide_do_log);
-#endif
-#ifdef ENABLE_SERIAL_LOG
+		#endif
+		#ifdef ENABLE_SERIAL_LOG
 		ENABLE_LOG("Enable Serial Port logs", "Ctrl+F3", serial_do_log);
-#endif
-#ifdef ENABLE_NIC_LOG
+		#endif
+		#ifdef ENABLE_NIC_LOG
 		ENABLE_LOG("Enable Network logs", "Ctrl+F9", serial_do_log);
-#endif
-#if defined(ENABLE_LOG_COMMANDS)
-#ifdef ENABLE_LOG_TOGGLES
+		#endif
+		#if defined(ENABLE_LOG_COMMANDS)
+		#ifdef ENABLE_LOG_TOGGLES
 		ImGui::Separator();
-#endif
-#ifdef ENABLE_LOG_BREAKPOINT
+		#endif
+		#ifdef ENABLE_LOG_BREAKPOINT
 		if (ImGui::MenuItem("Log breakpoint", "Ctrl+F10"))
 		{
 			pclog("---- LOG BREAKPOINT ----\n");
 		}
-#endif
-#ifdef ENABLE_VRAM_DUMP
+		#endif
+		#ifdef ENABLE_VRAM_DUMP
 		if (ImGui::MenuItem("Dump video RAM", "Ctrl+F1"))
 		{
 			svga_dump_vram();
 		}
-#endif
-#endif
+		#endif
+		#endif
 		ImGui::EndMenu();
-	}
-#endif
+		}
+	#endif
+}
+
+void RenderHelpMenu() {
 	if (ImGui::BeginMenu("Help"))
 	{
 		if (ImGui::MenuItem("Documentation"))
 		{
 			open_url("https://86box.readthedocs.io");
-	    }
-	    if (ImGui::MenuItem("About 86Box"))
-	    {
+		}
+		if (ImGui::MenuItem("About 86Box"))
+		{
 			std::thread thr(show_about_dlg);
 			thr.detach();
-	    }
-	    ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
 	}
-	ImGui::EndMainMenuBar();
-    }
+}
 
-    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - (menubarheight * 2)));
+void RenderMainMenuBar() {
+	if (ImGui::BeginMainMenuBar()) {
+		menubarheight = ImGui::GetFrameHeight();
+		if (firstrender)
+		{
+			firstrender = false;
+			//extern int resize_w, resize_h;
+			//SDL_SetWindowSize(sdl_win, resize_w, resize_h + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
+			media_menu_reset();
+			if (vid_resize & 2)
+			{
+				SDL_SetWindowSize(sdl_win, fixed_size_x, fixed_size_y + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
+			}
+		}
+		RenderActionMenu();
+		RenderViewMenu();
+		RenderMediaMenu();
+		RenderToolsMenu();
+		RenderLogMenu();
+		RenderHelpMenu();
+		ImGui::EndMainMenuBar();
+	}
+}
+
+void RenderStatusBar() {
+	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - (menubarheight * 2)));
     ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, menubarheight * 2));
     if (!hide_status_bar && ImGui::Begin("86Box status bar", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar))
     {
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
-	if (cassette_enable)
-	{
-	    ImGui::ImageButton((ImTextureID)cas_status_icon[cas_active], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cas_empty ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", CassetteFormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem("cassette") || ImGui::BeginPopupContextItem("cassette", ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		RenderCassetteImguiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+		if (cassette_enable)
+		{
+			ImGui::ImageButton((ImTextureID)cas_status_icon[cas_active], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cas_empty ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", CassetteFormatStr().c_str());
+			if (ImGui::BeginPopupContextItem("cassette") || ImGui::BeginPopupContextItem("cassette", ImGuiPopupFlags_MouseButtonLeft))
+			{
+			RenderCassetteImguiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		for (size_t i = 0; i < cmenu.size(); i++)
+		{
+			ImGui::ImageButton((ImTextureID)cart_icon, ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cartempty[i] ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", cmenu[i].FormatStr().c_str());
+			if (ImGui::BeginPopupContextItem(("cart" + std::to_string(cmenu[i].cartid)).c_str()) || ImGui::BeginPopupContextItem(("cart" + std::to_string(cmenu[i].cartid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
+			{
+			cmenu[i].RenderImGuiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		for (size_t i = 0; i < fddmenu.size(); i++)
+		{
+			ImGui::ImageButton((ImTextureID)fdd_status_icon[fdd_type_to_icon(fdd_get_type(i)) == 16][fddactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, fddempty[i] ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", fddmenu[i].FormatStr().c_str());
+			if (ImGui::BeginPopupContextItem(("flp" + std::to_string(fddmenu[i].flpid)).c_str()) || ImGui::BeginPopupContextItem(("flp" + std::to_string(fddmenu[i].flpid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
+			{
+			fddmenu[i].RenderImGuiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		for (size_t i = 0; i < cdmenu.size(); i++)
+		{
+			ImGui::ImageButton((ImTextureID)cdrom_status_icon[cdactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cdrom[i].image_path[0] == 0 ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", cdmenu[i].FormatStr().c_str());
+			if (ImGui::BeginPopupContextItem(("cdr" + std::to_string(cdmenu[i].cdid)).c_str()) || ImGui::BeginPopupContextItem(("cdr" + std::to_string(cdmenu[i].cdid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
+			{
+			cdmenu[i].RenderImGuiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		for (size_t i = 0; i < zipmenu.size(); i++)
+		{
+			ImGui::ImageButton((ImTextureID)zip_status_icon[zipactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, zip_drives[i].image_path[0] == '\0' ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", zipmenu[i].FormatStr().c_str());
+			if (ImGui::BeginPopupContextItem(("zip" + std::to_string(zipmenu[i].zipid)).c_str()) || ImGui::BeginPopupContextItem(("zip" + std::to_string(zipmenu[i].zipid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
+			{
+			zipmenu[i].RenderImGuiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		for (size_t i = 0; i < momenu.size(); i++)
+		{
+			ImGui::ImageButton((ImTextureID)mo_status_icon[moactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, mo_drives[i].image_path[0] == '\0' ? 0.75 : 1));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", momenu[i].FormatStr().c_str());
+			if (ImGui::BeginPopupContextItem(("mo" + std::to_string(momenu[i].moid)).c_str()) || ImGui::BeginPopupContextItem(("mo" + std::to_string(momenu[i].moid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
+			{
+			momenu[i].RenderImGuiMenuItemsOnly();
+			ImGui::EndPopup();
+			}
+			ImGui::SameLine(0, 0);
+		}
+		if (hddenabled[HDD_BUS_MFM])
+		{
+			ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_MFM]], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (MFM/RLL)");
+			ImGui::SameLine(0, 0);
+		}
+		if (hddenabled[HDD_BUS_ESDI])
+		{
+			ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_ESDI]], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (ESDI)");
+			ImGui::SameLine(0, 0);
+		}
+		if (hddenabled[HDD_BUS_XTA])
+		{
+			ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_XTA]], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (XTA)");
+			ImGui::SameLine(0, 0);
+		}
+		if (hddenabled[HDD_BUS_IDE])
+		{
+			ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_IDE]], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (IDE)");
+			ImGui::SameLine(0, 0);
+		}
+		if (hddenabled[HDD_BUS_SCSI])
+		{
+			ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_SCSI]], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (SCSI)");
+			ImGui::SameLine(0, 0);
+		}
+		if (network_available())
+		{
+			ImGui::ImageButton((ImTextureID)net_status_icon[netactive], ImVec2(16, 16));
+			if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Network");
+			ImGui::SameLine(0, 0);
+		}
+	#ifdef _WIN32
+		ImGui::ImageButton((ImTextureID)sound_icon, ImVec2(16, 16));
+		if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5)
+		{
+			ImGui::SetTooltip("Sound");
+		}
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			std::thread thr(SoundGainDialogCreate, GetHWNDFromSDLWindow());
+			thr.detach();
+		}
+		ImGui::SameLine(0, 0);
+	#endif
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text(" %s", status_bar_text[0] != 0 ? status_bar_text : status_bar_bugui_text);
 	}
-	for (size_t i = 0; i < cmenu.size(); i++)
-	{
-	    ImGui::ImageButton((ImTextureID)cart_icon, ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cartempty[i] ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", cmenu[i].FormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem(("cart" + std::to_string(cmenu[i].cartid)).c_str()) || ImGui::BeginPopupContextItem(("cart" + std::to_string(cmenu[i].cartid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		cmenu[i].RenderImGuiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
-	}
-	for (size_t i = 0; i < fddmenu.size(); i++)
-	{
-	    ImGui::ImageButton((ImTextureID)fdd_status_icon[fdd_type_to_icon(fdd_get_type(i)) == 16][fddactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, fddempty[i] ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", fddmenu[i].FormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem(("flp" + std::to_string(fddmenu[i].flpid)).c_str()) || ImGui::BeginPopupContextItem(("flp" + std::to_string(fddmenu[i].flpid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		fddmenu[i].RenderImGuiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
-	}
-	for (size_t i = 0; i < cdmenu.size(); i++)
-	{
-	    ImGui::ImageButton((ImTextureID)cdrom_status_icon[cdactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, cdrom[i].image_path[0] == 0 ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", cdmenu[i].FormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem(("cdr" + std::to_string(cdmenu[i].cdid)).c_str()) || ImGui::BeginPopupContextItem(("cdr" + std::to_string(cdmenu[i].cdid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		cdmenu[i].RenderImGuiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
-	}
-	for (size_t i = 0; i < zipmenu.size(); i++)
-	{
-	    ImGui::ImageButton((ImTextureID)zip_status_icon[zipactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, zip_drives[i].image_path[0] == '\0' ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", zipmenu[i].FormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem(("zip" + std::to_string(zipmenu[i].zipid)).c_str()) || ImGui::BeginPopupContextItem(("zip" + std::to_string(zipmenu[i].zipid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		zipmenu[i].RenderImGuiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
-	}
-	for (size_t i = 0; i < momenu.size(); i++)
-	{
-	    ImGui::ImageButton((ImTextureID)mo_status_icon[moactive[i]], ImVec2(16, 16), ImVec2(0,0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, mo_drives[i].image_path[0] == '\0' ? 0.75 : 1));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("%s", momenu[i].FormatStr().c_str());
-	    if (ImGui::BeginPopupContextItem(("mo" + std::to_string(momenu[i].moid)).c_str()) || ImGui::BeginPopupContextItem(("mo" + std::to_string(momenu[i].moid)).c_str(), ImGuiPopupFlags_MouseButtonLeft))
-	    {
-		momenu[i].RenderImGuiMenuItemsOnly();
-		ImGui::EndPopup();
-	    }
-	    ImGui::SameLine(0, 0);
-	}
-	if (hddenabled[HDD_BUS_MFM])
-	{
-	    ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_MFM]], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (MFM/RLL)");
-	    ImGui::SameLine(0, 0);
-	}
-	if (hddenabled[HDD_BUS_ESDI])
-	{
-	    ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_ESDI]], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (ESDI)");
-	    ImGui::SameLine(0, 0);
-	}
-	if (hddenabled[HDD_BUS_XTA])
-	{
-	    ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_XTA]], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (XTA)");
-	    ImGui::SameLine(0, 0);
-	}
-	if (hddenabled[HDD_BUS_IDE])
-	{
-	    ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_IDE]], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (IDE)");
-	    ImGui::SameLine(0, 0);
-	}
-	if (hddenabled[HDD_BUS_SCSI])
-	{
-	    ImGui::ImageButton((ImTextureID)hdd_status_icon[hddactive[HDD_BUS_SCSI]], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Hard Disk (SCSI)");
-	    ImGui::SameLine(0, 0);
-	}
-	if (network_available())
-	{
-	    ImGui::ImageButton((ImTextureID)net_status_icon[netactive], ImVec2(16, 16));
-	    if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Network");
-	    ImGui::SameLine(0, 0);
-	}
-#ifdef _WIN32
-	ImGui::ImageButton((ImTextureID)sound_icon, ImVec2(16, 16));
-	if (ImGui::IsItemHovered() && ImGui::GetCurrentContext()->HoveredIdTimer >= 0.5) ImGui::SetTooltip("Sound");
-	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-	{
-		std::thread thr(SoundGainDialogCreate, GetHWNDFromSDLWindow());
-		thr.detach();
-	}
-	ImGui::SameLine(0, 0);
-#endif
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text(" %s", status_bar_text[0] != 0 ? status_bar_text : status_bar_bugui_text);
-
 	ImGui::PopStyleColor(3);
 	ImGui::End();
+}
+
+extern "C" void RenderImGui()
+{
+    if (!imrendererinit)
+	{
+		HandleSizeChange();
+	}
+    if (!mouse_capture)
+	{
+		ImGui_ImplSDL2_NewFrame(sdl_win);
+	}
+    else
+    {
+		int w, h;
+		SDL_GetRendererOutputSize(sdl_render, &w, &h);
+		ImGui::GetIO().DisplaySize.x = w;
+		ImGui::GetIO().DisplaySize.y = h;
     }
+    ImGui::NewFrame();
+
+	if (showSettingsWindow) {
+		RenderSettingsWindow();
+	}
+	RenderMainMenuBar();
+    RenderStatusBar();
+	//ImGui::ShowDemoWindow(nullptr); // uncomment in case you want examples of ImGui
+
     ImGui::EndFrame();
     ImGui::Render();
     ImGuiSDL::Render(ImGui::GetDrawData());
