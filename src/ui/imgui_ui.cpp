@@ -849,27 +849,35 @@ static SDL_Texture* load_icon(const stbi_uc* buffer, int len)
 }
 #endif
 
+ImGuiStyle prevstyle;
+float prevfontscale = 1.0f;
 extern "C" void HandleSizeChange()
 {
     int w, h;
-    if (!ImGui::GetCurrentContext()) ImGui::CreateContext(NULL);
-	else
+	static int cur_dpi_scale = dpi_scale;
+    if (!ImGui::GetCurrentContext())
 	{
-		ImGui_ImplSDL2_Shutdown();
-		ImGui::DestroyContext();
 		ImGui::CreateContext(NULL);
-		ImGui_ImplSDL2_InitForOpenGL(sdl_win, nullptr);
-	}
-	if (dpi_scale)
-	{
-		float ddpi = 96.;
-		if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdl_win), &ddpi, nullptr, nullptr) != -1)
+		float ddpi = 96.f;
+		SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdl_win), &ddpi, nullptr, nullptr);
+		switch (dpi_scale)
 		{
-			ImGui::GetStyle().ScaleAllSizes(ddpi / 96.);
-			ImGui::GetIO().FontGlobalScale = ddpi / 96.;
+			case 0:
+			{
+				prevstyle.ScaleAllSizes(ddpi / 96.f);
+				prevfontscale = ddpi / 96.f;
+				break;
+			}
+			case 1:
+			{
+				ImGui::GetStyle().ScaleAllSizes(ddpi / 96.f);
+				ImGui::GetIO().FontGlobalScale = ddpi / 96.f;
+				break;
+			}
 		}
 	}
     SDL_GetRendererOutputSize(sdl_render, &w, &h);
+	ImGuiSDL::Deinitialize();
     ImGuiSDL::Initialize(sdl_render, w, h);
     w = 0, h = 0;
 
@@ -1242,6 +1250,7 @@ extern "C" void sdl_determine_renderer(int);
 extern "C" void RenderImGui()
 {
 	static bool showSettingsWindow = false;
+	bool dpi_scale_changed = false;
     if (!imrendererinit) HandleSizeChange();
     if (!mouse_capture) ImGui_ImplSDL2_NewFrame(sdl_win);
     else
@@ -1343,6 +1352,10 @@ extern "C" void RenderImGui()
 		//extern int resize_w, resize_h;
 	    //SDL_SetWindowSize(sdl_win, resize_w, resize_h + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
 	    media_menu_reset();
+		if (vid_resize & 2)
+		{
+			SDL_SetWindowSize(sdl_win, fixed_size_x, fixed_size_y + menubarheight + (hide_status_bar ? 0 : menubarheight * 2));
+		}
 	}
 	if (ImGui::BeginMenu("Action"))
 	{
@@ -1388,10 +1401,14 @@ extern "C" void RenderImGui()
 	{
 		if (ImGui::MenuItem("Hide status bar", NULL, hide_status_bar))
 		{
+			int windowwidth = 0, windowheight = 0;
+			int cur_hide_status_bar = hide_status_bar;
 			hide_status_bar ^= 1;
 			config_save();
-			extern int resize_pending;
-			resize_pending = 1;
+			SDL_GetWindowSize(sdl_win, &windowwidth, &windowheight);
+			if (!hide_status_bar) windowheight += menubarheight * 2;
+			else windowheight -= menubarheight * 2;
+			SDL_SetWindowSize(sdl_win, windowwidth, windowheight);
 		}
 		ImGui::Separator();
 	    if (ImGui::MenuItem("Resizable window", NULL, vid_resize == 1, vid_resize < 2))
@@ -1561,6 +1578,7 @@ extern "C" void RenderImGui()
 			}
 			else resize_pending = 1;
 			imrendererinit = false;
+			dpi_scale_changed = true;
 			if (video_fullscreen)
 			{
 				SDL_Event event{};
@@ -1571,33 +1589,33 @@ extern "C" void RenderImGui()
 	    ImGui::Separator();
 	    if (ImGui::MenuItem("Fullscreen", "Ctrl-Alt-Pageup", video_fullscreen))
 	    {
-		video_fullscreen ^= 1;
-		extern int fullscreen_pending;
-		fullscreen_pending = 1;
-		config_save();
+			video_fullscreen ^= 1;
+			extern int fullscreen_pending;
+			fullscreen_pending = 1;
+			config_save();
 	    }
 	    if (ImGui::BeginMenu("Fullscreen stretch mode"))
 	    {
-		int cur_video_fullscreen_scale = video_fullscreen_scale;
-		if (ImGui::MenuItem("Full screen stretch", NULL, video_fullscreen_scale == FULLSCR_SCALE_FULL))
-		{
-		    video_fullscreen_scale = FULLSCR_SCALE_FULL;
-		}
-		if (ImGui::MenuItem("4:3", NULL, video_fullscreen_scale == FULLSCR_SCALE_43))
-		{
-		    video_fullscreen_scale = FULLSCR_SCALE_43;
-		}
-		if (ImGui::MenuItem("Square pixels (Keep ratio)", NULL, video_fullscreen_scale == FULLSCR_SCALE_KEEPRATIO))
-		{
-		    video_fullscreen_scale = FULLSCR_SCALE_KEEPRATIO;
-		}
-		if (ImGui::MenuItem("Integer scale", NULL, video_fullscreen_scale == FULLSCR_SCALE_INT))
-		{
-		    video_fullscreen_scale = FULLSCR_SCALE_INT;
-		}
-		if (cur_video_fullscreen_scale != video_fullscreen_scale)
-		    config_save();
-		ImGui::EndMenu();
+			int cur_video_fullscreen_scale = video_fullscreen_scale;
+			if (ImGui::MenuItem("Full screen stretch", NULL, video_fullscreen_scale == FULLSCR_SCALE_FULL))
+			{
+				video_fullscreen_scale = FULLSCR_SCALE_FULL;
+			}
+			if (ImGui::MenuItem("4:3", NULL, video_fullscreen_scale == FULLSCR_SCALE_43))
+			{
+				video_fullscreen_scale = FULLSCR_SCALE_43;
+			}
+			if (ImGui::MenuItem("Square pixels (Keep ratio)", NULL, video_fullscreen_scale == FULLSCR_SCALE_KEEPRATIO))
+			{
+				video_fullscreen_scale = FULLSCR_SCALE_KEEPRATIO;
+			}
+			if (ImGui::MenuItem("Integer scale", NULL, video_fullscreen_scale == FULLSCR_SCALE_INT))
+			{
+				video_fullscreen_scale = FULLSCR_SCALE_INT;
+			}
+			if (cur_video_fullscreen_scale != video_fullscreen_scale)
+				config_save();
+			ImGui::EndMenu();
 	    }
 	    if (ImGui::BeginMenu("EGA/(S)VGA settings"))
 	    {
@@ -1958,4 +1976,9 @@ extern "C" void RenderImGui()
     ImGui::EndFrame();
     ImGui::Render();
     ImGuiSDL::Render(ImGui::GetDrawData());
+	if (dpi_scale_changed)
+	{
+		std::swap(ImGui::GetStyle(), prevstyle);
+		std::swap(ImGui::GetIO().FontGlobalScale, prevfontscale);
+	}
 }
