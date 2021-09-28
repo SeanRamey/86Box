@@ -19,8 +19,8 @@
 #include <atomic>
 #include <array>
 #include <thread>
-extern "C"
-{
+
+extern "C" {
 #include <86box/86box.h>
 #include <86box/machine.h>
 #include <86box/device.h>
@@ -55,7 +55,9 @@ extern "C"
 #include <86box/timer.h>
 #include <86box/ui.h>
 #include <86box/network.h>
-}
+} // extern "C"
+
+#include <86box/imgui_settings_window.h>
 
 #ifdef MTR_ENABLED
 #include <minitrace/minitrace.h>
@@ -68,6 +70,7 @@ extern "C"
 #ifndef _WIN32
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 #include <incbin.h>
+
 INCBIN(cdromicon, _INCBIN_DIR"/../unix/icons/cdrom.png");
 INCBIN(cdromactiveicon, _INCBIN_DIR"/../unix/icons/cdrom_active.png");
 INCBIN(floppy_35_icon, _INCBIN_DIR"/../unix/icons/floppy_35.png");
@@ -95,7 +98,6 @@ extern "C" float menubarheight;
 static bool imrendererinit = false;
 static bool firstrender = true;
 static bool dpi_scale_changed = false;
-static bool showSettingsWindow = false;
 
 #define MACHINE_HAS_IDE		(machines[machine].flags & MACHINE_IDE_QUAD)
 #define MACHINE_HAS_SCSI	(machines[machine].flags & MACHINE_SCSI_DUAL)
@@ -1229,84 +1231,6 @@ void show_about_dlg()
 extern "C" void sdl_determine_renderer(int);
 
 
-void RenderSettingsWindow() {
-	ImGui::Begin("Settings", &showSettingsWindow);
-
-		// Left
-        static int currentSettingsCategory = 0;
-        {
-            ImGui::BeginChild("left pane", ImVec2(150, 0), true);
-
-			if(ImGui::Selectable("Machine")) {
-				currentSettingsCategory = 0;
-			} else
-			if(ImGui::Selectable("Display")) {
-				currentSettingsCategory = 1;
-			} else
-			if(ImGui::Selectable("Sound")) {
-				currentSettingsCategory = 2;
-			} else
-			if(ImGui::Selectable("Network")) {
-				currentSettingsCategory = 3;
-			} else
-			if(ImGui::Selectable("Ports (COM & LPT)")) {
-				currentSettingsCategory = 4;
-			} else
-			if(ImGui::Selectable("Storage Controllers")) {
-				currentSettingsCategory = 5;
-			} else
-			if(ImGui::Selectable("Hard Disks")) {
-				currentSettingsCategory = 6;
-			} else
-			if(ImGui::Selectable("Floppy & CD-ROM Drives")) {
-				currentSettingsCategory = 7;
-			} else
-			if(ImGui::Selectable("Other Removable Devices")) {
-				currentSettingsCategory = 8;
-			} else
-			if(ImGui::Selectable("Other Peripherals")) {
-				currentSettingsCategory = 9;
-			}
-
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-
-        // Right
-        {
-            ImGui::BeginGroup();
-            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-
-            ImGui::Separator();
-
-			std::array items {"8086", "286", "386", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO"};
-			static int item_current_idx = 0; // Here we store our selection data as an index.
-			if (currentSettingsCategory == 0)
-			{
-				ImGui::BeginListBox("Machine Type");
-				for (int n = 0; n < items.size(); n++)
-				{
-					const bool is_selected = (item_current_idx == n);
-					if (ImGui::Selectable(items.at(n), is_selected))
-						item_current_idx = n;
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndListBox();
-			}
-
-            ImGui::EndChild();
-            if (ImGui::Button("Cancel")) {}
-            ImGui::SameLine();
-            if (ImGui::Button("Save")) {}
-            ImGui::EndGroup();
-        }
-
-		ImGui::End();
-}
-
 void RenderActionMenu() {
 	if (ImGui::BeginMenu("Action")) {
 		if (ImGui::MenuItem("Keyboard requires capture", NULL, (bool)kbd_req_capture))
@@ -1691,7 +1615,7 @@ void RenderToolsMenu() {
 		}
 #else
 		if (ImGui::MenuItem("Settings")) {
-			showSettingsWindow = true;
+			ImGuiSettingsWindow::showSettingsWindow = true;
 		}
 #endif
 		if (ImGui::MenuItem("Update status bar icons", NULL, update_icons))
@@ -1965,6 +1889,7 @@ void RenderStatusBar() {
 	ImGui::End();
 }
 
+
 extern "C" void RenderImGui()
 {
     if (!imrendererinit)
@@ -1984,8 +1909,8 @@ extern "C" void RenderImGui()
     }
     ImGui::NewFrame();
 
-	if (showSettingsWindow) {
-		RenderSettingsWindow();
+	if (ImGuiSettingsWindow::showSettingsWindow) {
+		ImGuiSettingsWindow::Render();
 	}
 	RenderMainMenuBar();
     RenderStatusBar();
