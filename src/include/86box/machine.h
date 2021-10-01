@@ -18,6 +18,9 @@
  *		Copyright 2016-2020 Miran Grca.
  *		Copyright 2017-2020 Fred N. van Kempen.
  */
+#pragma once
+#include <stdint.h>
+
 #ifndef EMU_MACHINE_H
 # define EMU_MACHINE_H
 
@@ -183,11 +186,19 @@ extern int			AT, PCI;
 
 
 /* Core functions. */
+extern int machine_type_count(void);
+extern char* machine_type_getname(int id);
 extern int	machine_count(void);
 extern int	machine_available(int m);
+extern machine_t machine_get_from_id(int i);
+extern machine_t machine_get_from_internal_name(const char* name);
+extern machine_t machine_get_from_name(const char* name);
+extern int machine_get_id_from_name(const char* name);
+extern int machine_get_type_from_id(int machine_id);
+extern char* machine_getname_from_id(int id); // "from_id" added to differentiate from machine_getname(void). TODO: fix functionality of machine_getname(void) to be the same as machine_getname_from_id(int id)
 extern char	*machine_getname(void);
 extern char	*machine_get_internal_name(void);
-extern int	machine_get_machine_from_internal_name(char *s);
+extern int	machine_get_machine_from_internal_name(const char *s);
 extern void	machine_init(void);
 #ifdef EMU_DEVICE_H
 extern const device_t	*machine_getdevice(int m);
